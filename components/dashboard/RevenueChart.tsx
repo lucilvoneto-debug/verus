@@ -4,16 +4,9 @@ import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 
-const data = [
-  { mes: "Nov", valor: 142000 },
-  { mes: "Dez", valor: 168500 },
-  { mes: "Jan", valor: 121000 },
-  { mes: "Fev", valor: 195400 },
-  { mes: "Mar", valor: 215300 },
-  { mes: "Abr", valor: 248900 },
-];
+type RevenuePoint = { mes: string; valor: number };
 
-export function RevenueChart() {
+export function RevenueChart({ data }: { data: RevenuePoint[] }) {
   return (
     <div className="h-72">
       <ResponsiveContainer width="100%" height="100%">

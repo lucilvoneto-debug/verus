@@ -10,6 +10,7 @@ import {
   Flag,
   Hammer,
   Printer,
+  Download,
 } from "lucide-react";
 import {
   useContrato,
@@ -71,6 +72,14 @@ export default function ContratoDetalhePage() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          <a
+            href={`/api/contratos/${contrato.id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline"
+          >
+            <Download className="w-4 h-4" /> PDF
+          </a>
           <button onClick={() => window.print()} className="btn-outline">
             <Printer className="w-4 h-4" /> Imprimir
           </button>

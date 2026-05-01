@@ -9,6 +9,7 @@ import {
   XCircle,
   Clock,
   ScrollText,
+  Download,
 } from "lucide-react";
 import {
   useOrcamento,
@@ -72,6 +73,14 @@ export default function OrcamentoDetalhePage() {
           <Link href={`/dashboard/orcamento/${orc.id}/editar`} className="btn-outline">
             <Pencil className="w-4 h-4" /> Editar
           </Link>
+          <a
+            href={`/api/orcamento/${orc.id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline"
+          >
+            <Download className="w-4 h-4" /> PDF
+          </a>
           {orc.status !== "APROVADO" && (
             <button
               onClick={() => setStatus("APROVADO")}

@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("admin@verus.com.br");
   const [password, setPassword] = useState("admin123");
   const [loading, setLoading] = useState(false);
@@ -13,18 +16,14 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/callback/credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          email,
-          password,
-          callbackUrl: "/dashboard",
-          json: "true",
-        }),
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
-      if (res.ok) {
-        window.location.href = "/dashboard";
+      if (res?.ok) {
+        router.push("/dashboard");
+        router.refresh();
       } else {
         setError("Credenciais inválidas");
       }

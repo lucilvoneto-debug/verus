@@ -1,7 +1,8 @@
 "use client";
 
-import { Bell, Search, User } from "lucide-react";
+import { Bell, LogOut, Search, User } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 
 const titleMap: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -32,10 +33,12 @@ const titleMap: Record<string, string> = {
 
 export function Topbar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const baseKey = Object.keys(titleMap)
     .filter((k) => pathname === k || pathname.startsWith(k + "/"))
     .sort((a, b) => b.length - a.length)[0];
   const title = titleMap[baseKey] ?? "Verus";
+  const userName = session?.user?.name ?? "Usuário";
 
   return (
     <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 h-16 flex items-center gap-4">
@@ -52,11 +55,21 @@ export function Topbar() {
           <Bell className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full" />
         </button>
-        <button className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-1.5 transition">
+        <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5">
           <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center">
             <User className="w-4 h-4" />
           </div>
-          <span className="text-sm font-medium hidden sm:inline">Admin</span>
+          <span className="text-sm font-medium hidden sm:inline">{userName}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="btn-ghost flex items-center gap-1.5 text-sm text-gray-600 hover:text-brand-dark"
+          aria-label="Sair"
+          title="Sair"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="hidden sm:inline">Sair</span>
         </button>
       </div>
     </header>
