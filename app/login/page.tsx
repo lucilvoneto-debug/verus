@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Droplet } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("admin@verus.com.br");
@@ -39,11 +38,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-light via-white to-white p-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-brand text-white flex items-center justify-center shadow-lg">
-            <Droplet className="w-6 h-6" />
-          </div>
-          <div>
+        <div className="flex flex-col items-center justify-center gap-3 mb-8">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Verus" className="w-20 h-20 object-contain" />
+          <div className="text-center">
             <h1 className="font-display text-3xl font-bold text-brand-dark">Verus</h1>
             <p className="text-xs text-gray-500 -mt-1">ERP de Impermeabilização</p>
           </div>

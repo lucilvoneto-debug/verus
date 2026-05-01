@@ -19,6 +19,10 @@ const barlow = Barlow({
 export const metadata: Metadata = {
   title: "Verus ERP",
   description: "Sistema de gestão para empresa de impermeabilização",
+  icons: {
+    icon: "/logo-square.png",
+    apple: "/logo-square.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

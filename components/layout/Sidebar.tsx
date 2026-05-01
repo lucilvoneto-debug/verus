@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  Droplet, LayoutDashboard, Users, Headset, MapPin, FileText, Wrench,
+  LayoutDashboard, Users, Headset, MapPin, FileText, Wrench,
   ScrollText, Hammer, ListChecks, HardHat, Calendar, Boxes, ShoppingCart,
   Truck, Wallet, Ruler, ShieldCheck, Smile, FolderOpen, BarChart3, Bell,
   UserCog, Settings, ChevronLeft, ChevronRight,
@@ -84,8 +84,9 @@ export function Sidebar() {
       )}
     >
       <div className="flex items-center gap-2 px-4 py-5 border-b border-white/10">
-        <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center shrink-0">
-          <Droplet className="w-5 h-5" />
+        <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Verus" className="w-7 h-7 object-contain" />
         </div>
         {!collapsed && (
           <div className="leading-tight">
