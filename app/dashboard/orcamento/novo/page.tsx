@@ -1,12 +1,14 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { OrcamentoEditor } from "@/components/orcamento/OrcamentoEditor";
 import { useCreateOrcamento } from "@/hooks/useOrcamentos";
 
-export default function NovoOrcamentoPage() {
+function NovoOrcamentoPageInner() {
   const router = useRouter();
   const sp = useSearchParams();
   const create = useCreateOrcamento();
@@ -48,3 +50,5 @@ export default function NovoOrcamentoPage() {
     </div>
   );
 }
+
+export default function Page() { return <Suspense fallback={<div className="p-6 text-sm text-gray-500">Carregando...</div>}><NovoOrcamentoPageInner /></Suspense>; }

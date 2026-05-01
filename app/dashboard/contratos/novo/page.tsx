@@ -1,12 +1,14 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ContratoForm } from "@/components/contratos/ContratoForm";
 import { useCreateContrato } from "@/hooks/useContratos";
 
-export default function NovoContratoPage() {
+function NovoContratoPageInner() {
   const router = useRouter();
   const sp = useSearchParams();
   const create = useCreateContrato();
@@ -44,3 +46,5 @@ export default function NovoContratoPage() {
     </div>
   );
 }
+
+export default function Page() { return <Suspense fallback={<div className="p-6 text-sm text-gray-500">Carregando...</div>}><NovoContratoPageInner /></Suspense>; }

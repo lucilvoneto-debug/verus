@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import type { Prisma, ColaboradorFuncao } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const funcoes = funcoesParam
       .split(",")
       .map((f) => f.trim())
-      .filter(Boolean) as ColaboradorFuncao[];
+      .filter(Boolean);
     where.funcao = { in: funcoes };
   }
   const data = await prisma.colaborador.findMany({

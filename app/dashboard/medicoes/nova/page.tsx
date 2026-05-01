@@ -1,12 +1,14 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { MedicaoForm } from "@/components/medicoes/MedicaoForm";
 import { useCreateMedicao } from "@/hooks/useMedicoes";
 
-export default function NovaMedicaoPage() {
+function NovaMedicaoPageInner() {
   const router = useRouter();
   const sp = useSearchParams();
   const obraId = sp.get("obraId") ?? "";
@@ -40,3 +42,5 @@ export default function NovaMedicaoPage() {
     </div>
   );
 }
+
+export default function Page() { return <Suspense fallback={<div className="p-6 text-sm text-gray-500">Carregando...</div>}><NovaMedicaoPageInner /></Suspense>; }

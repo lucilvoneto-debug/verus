@@ -3,11 +3,12 @@ import { cn } from "@/lib/utils";
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
+  error?: string;
   options: { value: string; label: string }[];
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { className, label, options, id, ...props },
+  { className, label, error, options, id, ...props },
   ref
 ) {
   const selectId = id ?? props.name;
@@ -25,6 +26,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(function 
           </option>
         ))}
       </select>
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 });
