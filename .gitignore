@@ -11,3 +11,4 @@ dev.db-journal
 prisma/migrations
 .next/
 next-env.d.ts
+tsconfig.tsbuildinfo
