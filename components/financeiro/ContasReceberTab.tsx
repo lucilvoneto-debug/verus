@@ -48,6 +48,7 @@ export function ContasReceberTab() {
   const del = useDeleteContaReceber();
   const receber = useReceberConta();
 
+
   async function handleDelete(id: string, descricao: string) {
     if (!confirm(`Excluir conta "${descricao}"?`)) return;
     try {

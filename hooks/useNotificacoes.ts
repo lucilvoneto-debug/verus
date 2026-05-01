@@ -2,11 +2,25 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function useNotificacoes(params: { lida?: string } = {}) {
+type NotificacoesParams = {
+  lida?: string;
+  naoLidas?: string;
+  limit?: string;
+  /** Quando definido, desabilita o polling/fetch. */
+  _disabled?: string;
+};
+
+export function useNotificacoes(params: NotificacoesParams = {}) {
   const sp = new URLSearchParams();
   if (params.lida) sp.set("lida", params.lida);
+  if (params.naoLidas) sp.set("naoLidas", params.naoLidas);
+  if (params.limit) sp.set("limit", params.limit);
+  const enabled = !params._disabled;
   return useQuery({
     queryKey: ["notificacoes", params],
+    enabled,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const res = await fetch(`/api/notificacoes?${sp.toString()}`);
       if (!res.ok) throw new Error("Erro ao carregar notificações");

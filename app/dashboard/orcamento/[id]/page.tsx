@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -10,6 +11,7 @@ import {
   Clock,
   ScrollText,
   Download,
+  MessageCircle,
 } from "lucide-react";
 import {
   useOrcamento,
@@ -18,6 +20,7 @@ import {
 } from "@/hooks/useOrcamentos";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Modal } from "@/components/ui/Modal";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const statusTone: Record<string, "blue" | "yellow" | "green" | "red" | "neutral"> = {
@@ -34,6 +37,10 @@ export default function OrcamentoDetalhePage() {
   const { data: orc, isLoading } = useOrcamento(params.id);
   const changeStatus = useChangeOrcamentoStatus(params.id);
   const gerarContrato = useGerarContrato(params.id);
+  const [waOpen, setWaOpen] = useState(false);
+  const [waTelefone, setWaTelefone] = useState("");
+  const [waMensagem, setWaMensagem] = useState("");
+  const [waEnviando, setWaEnviando] = useState(false);
 
   if (isLoading) return <div className="text-gray-500">Carregando...</div>;
   if (!orc) return <div className="text-gray-500">Orçamento não encontrado.</div>;
@@ -43,6 +50,37 @@ export default function OrcamentoDetalhePage() {
       await changeStatus.mutateAsync(s);
     } catch (e) {
       alert(e instanceof Error ? e.message : "Erro");
+    }
+  }
+
+  function abrirWhatsApp() {
+    if (!orc) return;
+    const tel = orc.cliente?.whatsapp ?? orc.cliente?.telefone ?? "";
+    const msg = `Olá ${orc.cliente?.nome ?? ""}, segue seu orçamento ${orc.numero}: ${formatCurrency(orc.total)}.`;
+    setWaTelefone(tel);
+    setWaMensagem(msg);
+    setWaOpen(true);
+  }
+
+  async function enviarWhatsApp() {
+    setWaEnviando(true);
+    try {
+      const res = await fetch("/api/integracoes/whatsapp/enviar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ telefone: waTelefone, mensagem: waMensagem }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        alert(json.error ?? "Erro ao enviar.");
+      } else {
+        alert(json.id === "mock" ? "Mensagem registrada (modo mock)." : "Mensagem enviada.");
+        setWaOpen(false);
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro");
+    } finally {
+      setWaEnviando(false);
     }
   }
 
@@ -81,6 +119,9 @@ export default function OrcamentoDetalhePage() {
           >
             <Download className="w-4 h-4" /> PDF
           </a>
+          <button onClick={abrirWhatsApp} className="btn-outline">
+            <MessageCircle className="w-4 h-4" /> WhatsApp
+          </button>
           {orc.status !== "APROVADO" && (
             <button
               onClick={() => setStatus("APROVADO")}
@@ -207,6 +248,41 @@ export default function OrcamentoDetalhePage() {
           </div>
         )}
       </Card>
+
+      <Modal open={waOpen} onClose={() => setWaOpen(false)} title="Enviar por WhatsApp">
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1">
+              Telefone
+            </label>
+            <input
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+              value={waTelefone}
+              onChange={(e) => setWaTelefone(e.target.value)}
+              placeholder="DDI + DDD + número"
+            />
+          </div>
+          <div>
+            <label className="block text-xs uppercase tracking-wide text-gray-500 mb-1">
+              Mensagem
+            </label>
+            <textarea
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+              rows={5}
+              value={waMensagem}
+              onChange={(e) => setWaMensagem(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <button className="btn-outline" onClick={() => setWaOpen(false)}>
+              Cancelar
+            </button>
+            <button className="btn-primary" disabled={waEnviando} onClick={enviarWhatsApp}>
+              <MessageCircle className="w-4 h-4" /> Enviar
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -19,16 +19,25 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const lida = searchParams.get("lida");
+  const naoLidasOnly = searchParams.get("naoLidas");
+  const limitParam = searchParams.get("limit");
   const where: { userId: string; lida?: boolean } = { userId };
   if (lida === "true") where.lida = true;
   if (lida === "false") where.lida = false;
+  if (naoLidasOnly === "true") where.lida = false;
+
+  const parsedLimit = limitParam ? Number.parseInt(limitParam, 10) : NaN;
+  const take =
+    Number.isFinite(parsedLimit) && parsedLimit > 0 && parsedLimit <= 200
+      ? parsedLimit
+      : 100;
 
   const [total, data, naoLidas] = await Promise.all([
     prisma.notificacao.count({ where }),
     prisma.notificacao.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      take: 100,
+      take,
     }),
     prisma.notificacao.count({ where: { userId, lida: false } }),
   ]);

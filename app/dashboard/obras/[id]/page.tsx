@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import { useObra } from "@/hooks/useObras";
 import { Tabs } from "@/components/ui/Tabs";
 import { ObraTabDados } from "@/components/obras/ObraTabDados";
@@ -16,6 +16,27 @@ import { ObraTabFotos } from "@/components/obras/ObraTabFotos";
 export default function ObraDetalhePage() {
   const params = useParams<{ id: string }>();
   const { data: obra, isLoading } = useObra(params.id);
+
+  async function emitirNF() {
+    if (!obra) return;
+    if (!confirm("Emitir nota fiscal para esta obra?")) return;
+    try {
+      const res = await fetch("/api/integracoes/nfe/emitir", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ obraId: obra.id }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        alert(json.error ?? "Erro ao emitir NF.");
+        return;
+      }
+      const prefixo = json.mock ? "[mock] " : "";
+      alert(`${prefixo}NF ${json.numero ?? ""} emitida.`);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro");
+    }
+  }
 
   if (isLoading) return <div className="text-gray-500">Carregando...</div>;
   if (!obra) return <div className="text-gray-500">Obra não encontrada.</div>;
@@ -32,6 +53,9 @@ export default function ObraDetalhePage() {
           </h2>
           <p className="text-sm text-gray-500">{obra.cliente.nome}</p>
         </div>
+        <button onClick={emitirNF} className="btn-outline">
+          <FileText className="w-4 h-4" /> Emitir NF
+        </button>
       </div>
 
       <Tabs
