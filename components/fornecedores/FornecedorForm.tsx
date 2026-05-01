@@ -49,7 +49,7 @@ export function FornecedorForm({
         <textarea
           {...register("observacoes")}
           rows={4}
-          className="input-impermeia"
+          className="input-verus"
           placeholder="Notas internas..."
         />
       </Card>

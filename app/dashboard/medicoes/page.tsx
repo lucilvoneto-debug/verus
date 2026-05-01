@@ -43,7 +43,7 @@ export default function MedicoesPage() {
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={obraId}
             onChange={(e) => {
               setObraId(e.target.value);
@@ -58,7 +58,7 @@ export default function MedicoesPage() {
             ))}
           </select>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -73,13 +73,13 @@ export default function MedicoesPage() {
           </select>
           <input
             type="date"
-            className="input-impermeia"
+            className="input-verus"
             value={inicio}
             onChange={(e) => setInicio(e.target.value)}
           />
           <input
             type="date"
-            className="input-impermeia"
+            className="input-verus"
             value={fim}
             onChange={(e) => setFim(e.target.value)}
           />
@@ -88,7 +88,7 @@ export default function MedicoesPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Obra</th>

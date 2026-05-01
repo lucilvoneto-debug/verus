@@ -48,7 +48,7 @@ export function ObraTabCustos({
       <Card className="p-0">
         <h3 className="font-display text-lg font-semibold p-4">Movimentações de materiais (saídas)</h3>
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Data</th>

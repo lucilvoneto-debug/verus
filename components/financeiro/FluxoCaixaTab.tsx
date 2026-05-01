@@ -38,11 +38,11 @@ export function FluxoCaixaTab() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Início</label>
-            <input type="date" className="input-impermeia" value={inicio} onChange={(e) => setInicio(e.target.value)} />
+            <input type="date" className="input-verus" value={inicio} onChange={(e) => setInicio(e.target.value)} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Fim</label>
-            <input type="date" className="input-impermeia" value={fim} onChange={(e) => setFim(e.target.value)} />
+            <input type="date" className="input-verus" value={fim} onChange={(e) => setFim(e.target.value)} />
           </div>
         </div>
       </Card>
@@ -102,7 +102,7 @@ export function FluxoCaixaTab() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Data</th>

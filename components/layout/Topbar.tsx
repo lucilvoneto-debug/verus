@@ -35,7 +35,7 @@ export function Topbar() {
   const baseKey = Object.keys(titleMap)
     .filter((k) => pathname === k || pathname.startsWith(k + "/"))
     .sort((a, b) => b.length - a.length)[0];
-  const title = titleMap[baseKey] ?? "Impermeia";
+  const title = titleMap[baseKey] ?? "Verus";
 
   return (
     <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 h-16 flex items-center gap-4">

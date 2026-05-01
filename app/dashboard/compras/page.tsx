@@ -49,7 +49,7 @@ export default function ComprasPage() {
               className="bg-transparent outline-none text-sm flex-1"
             />
           </div>
-          <select className="input-impermeia" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select className="input-verus" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Todos os status</option>
             <option value="RASCUNHO">Rascunho</option>
             <option value="ENVIADO">Enviado</option>
@@ -61,7 +61,7 @@ export default function ComprasPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Número</th>

@@ -21,7 +21,7 @@ export function StubPage({
         </div>
         <CardTitle>Em desenvolvimento</CardTitle>
         <p className="text-sm text-gray-500 mt-2 max-w-md">
-          Este módulo faz parte do roadmap do Impermeia ERP. A interface e as integrações
+          Este módulo faz parte do roadmap do Verus ERP. A interface e as integrações
           serão entregues em breve.
         </p>
       </Card>

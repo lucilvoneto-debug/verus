@@ -68,7 +68,7 @@ export default function ObrasPage() {
             />
           </div>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -82,7 +82,7 @@ export default function ObrasPage() {
             ))}
           </select>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={responsavelId}
             onChange={(e) => {
               setResponsavelId(e.target.value);
@@ -100,13 +100,13 @@ export default function ObrasPage() {
           </select>
           <input
             type="date"
-            className="input-impermeia"
+            className="input-verus"
             value={inicio}
             onChange={(e) => setInicio(e.target.value)}
           />
           <input
             type="date"
-            className="input-impermeia"
+            className="input-verus"
             value={fim}
             onChange={(e) => setFim(e.target.value)}
           />
@@ -115,7 +115,7 @@ export default function ObrasPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Número</th>

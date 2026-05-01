@@ -93,7 +93,7 @@ export function MovimentarModal({
         <textarea
           {...register("observacao")}
           rows={3}
-          className="input-impermeia"
+          className="input-verus"
           placeholder="Observação..."
         />
         <div className="flex items-center justify-end gap-2 pt-2">

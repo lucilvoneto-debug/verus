@@ -77,7 +77,7 @@ export function ClienteForm({
         <textarea
           {...register("observacoes")}
           rows={4}
-          className="input-impermeia"
+          className="input-verus"
           placeholder="Notas internas sobre o cliente..."
         />
       </Card>

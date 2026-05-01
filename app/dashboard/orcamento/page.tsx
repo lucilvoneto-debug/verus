@@ -83,7 +83,7 @@ export default function OrcamentosPage() {
             />
           </div>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -97,7 +97,7 @@ export default function OrcamentosPage() {
             ))}
           </select>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={vendedorId}
             onChange={(e) => {
               setVendedorId(e.target.value);
@@ -117,7 +117,7 @@ export default function OrcamentosPage() {
           <div className="flex gap-2">
             <input
               type="date"
-              className="input-impermeia"
+              className="input-verus"
               value={dataIni}
               onChange={(e) => {
                 setDataIni(e.target.value);
@@ -126,7 +126,7 @@ export default function OrcamentosPage() {
             />
             <input
               type="date"
-              className="input-impermeia"
+              className="input-verus"
               value={dataFim}
               onChange={(e) => {
                 setDataFim(e.target.value);
@@ -139,7 +139,7 @@ export default function OrcamentosPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Número</th>

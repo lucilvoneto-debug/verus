@@ -68,7 +68,7 @@ export default function ServicosPage() {
             />
           </div>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={unidade}
             onChange={(e) => {
               setUnidade(e.target.value);
@@ -86,7 +86,7 @@ export default function ServicosPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Nome</th>

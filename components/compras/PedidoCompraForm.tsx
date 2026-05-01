@@ -88,7 +88,7 @@ export function PedidoCompraForm({
         </div>
         <div className="mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
-          <textarea {...register("observacoes")} rows={3} className="input-impermeia" />
+          <textarea {...register("observacoes")} rows={3} className="input-verus" />
         </div>
       </Card>
 
@@ -111,7 +111,7 @@ export function PedidoCompraForm({
         )}
 
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Material</th>
@@ -129,7 +129,7 @@ export function PedidoCompraForm({
                 <tr key={field.id}>
                   <td>
                     <select
-                      className="input-impermeia"
+                      className="input-verus"
                       {...register(`itens.${idx}.materialId`, {
                         onChange: (e) => onMaterialChange(idx, e.target.value),
                       })}
@@ -144,7 +144,7 @@ export function PedidoCompraForm({
                   </td>
                   <td className="w-32">
                     <input
-                      className="input-impermeia"
+                      className="input-verus"
                       type="number"
                       step="0.01"
                       {...register(`itens.${idx}.quantidade`, {
@@ -155,7 +155,7 @@ export function PedidoCompraForm({
                   </td>
                   <td className="w-36">
                     <input
-                      className="input-impermeia"
+                      className="input-verus"
                       type="number"
                       step="0.01"
                       {...register(`itens.${idx}.custoUnit`, {

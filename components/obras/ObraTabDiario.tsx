@@ -55,7 +55,7 @@ export function ObraTabDiario({ obraId, diarios }: { obraId: string; diarios: Di
           <div className="md:col-span-2 space-y-1">
             <label className="block text-sm font-medium text-gray-700">Descrição</label>
             <textarea
-              className="input-impermeia"
+              className="input-verus"
               rows={3}
               required
               value={descricao}
@@ -65,7 +65,7 @@ export function ObraTabDiario({ obraId, diarios }: { obraId: string; diarios: Di
           <div className="md:col-span-2 space-y-1">
             <label className="block text-sm font-medium text-gray-700">Problemas</label>
             <textarea
-              className="input-impermeia"
+              className="input-verus"
               rows={2}
               value={problemas}
               onChange={(e) => setProblemas(e.target.value)}

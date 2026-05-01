@@ -39,26 +39,26 @@ html, body {
   .badge-red { @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-red-50 text-red-700; }
   .badge-neutral { @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700; }
 
-  .table-impermeia {
+  .table-verus {
     @apply w-full text-sm;
   }
-  .table-impermeia thead th {
+  .table-verus thead th {
     @apply text-left text-xs font-semibold uppercase tracking-wide text-gray-500 px-4 py-3 border-b border-gray-200 bg-gray-50;
   }
-  .table-impermeia tbody td {
+  .table-verus tbody td {
     @apply px-4 py-3 border-b border-gray-100 text-gray-800;
   }
-  .table-impermeia tbody tr:hover {
+  .table-verus tbody tr:hover {
     @apply bg-gray-50;
   }
 
-  .input-impermeia {
+  .input-verus {
     @apply w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand;
   }
 
   .font-display { font-family: var(--font-barlow), system-ui, sans-serif; letter-spacing: -0.01em; }
 }
 
-.scrollbar-impermeia::-webkit-scrollbar { width: 8px; height: 8px; }
-.scrollbar-impermeia::-webkit-scrollbar-thumb { background: #C7D2DE; border-radius: 8px; }
-.scrollbar-impermeia::-webkit-scrollbar-thumb:hover { background: #0B5FFF; }
+.scrollbar-verus::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-verus::-webkit-scrollbar-thumb { background: #C7D2DE; border-radius: 8px; }
+.scrollbar-verus::-webkit-scrollbar-thumb:hover { background: #0B5FFF; }

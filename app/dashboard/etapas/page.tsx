@@ -44,7 +44,7 @@ export default function EtapasPage() {
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={obraId}
             onChange={(e) => {
               setObraId(e.target.value);
@@ -59,7 +59,7 @@ export default function EtapasPage() {
             ))}
           </select>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -73,7 +73,7 @@ export default function EtapasPage() {
             ))}
           </select>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={responsavelId}
             onChange={(e) => {
               setResponsavelId(e.target.value);
@@ -94,7 +94,7 @@ export default function EtapasPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Obra</th>

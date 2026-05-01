@@ -63,7 +63,7 @@ export default function ClientesPage() {
             />
           </div>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={tipo}
             onChange={(e) => {
               setTipo(e.target.value);
@@ -75,7 +75,7 @@ export default function ClientesPage() {
             <option value="PJ">PJ</option>
           </select>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={categoria}
             onChange={(e) => {
               setCategoria(e.target.value);
@@ -93,7 +93,7 @@ export default function ClientesPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Nome</th>

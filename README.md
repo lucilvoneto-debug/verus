@@ -1,4 +1,4 @@
-# Impermeia ERP
+# Verus ERP
 
 Sistema de gestão para empresa de impermeabilização. Construído com Next.js 14 (App Router), TypeScript, Tailwind CSS, Prisma + SQLite, NextAuth, TanStack Query e Zustand.
 
@@ -23,7 +23,7 @@ npm run dev
 
 Acesse http://localhost:3000.
 
-**Login demo:** `admin@impermeia.com.br` / `admin123`
+**Login demo:** `admin@verus.com.br` / `admin123`
 
 ## Scripts
 

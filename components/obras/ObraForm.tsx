@@ -131,7 +131,7 @@ export function ObraForm({
         <textarea
           {...register("observacoes")}
           rows={4}
-          className="input-impermeia"
+          className="input-verus"
           placeholder="Notas sobre a obra..."
         />
       </Card>

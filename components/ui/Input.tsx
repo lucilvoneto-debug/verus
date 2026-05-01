@@ -18,7 +18,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           {label}
         </label>
       )}
-      <input ref={ref} id={inputId} className={cn("input-impermeia", className)} {...props} />
+      <input ref={ref} id={inputId} className={cn("input-verus", className)} {...props} />
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );

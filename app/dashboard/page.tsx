@@ -80,7 +80,7 @@ export default function DashboardPage() {
             <Badge tone="blue">{obras.length}</Badge>
           </div>
           <div className="overflow-x-auto">
-            <table className="table-impermeia">
+            <table className="table-verus">
               <thead>
                 <tr>
                   <th>Obra</th><th>Cliente</th><th>Responsável</th>

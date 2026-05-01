@@ -31,7 +31,7 @@ export function ObraTabMedicoes({ obraId, medicoes }: { obraId: string; medicoes
         </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="table-impermeia">
+        <table className="table-verus">
           <thead>
             <tr>
               <th>Nº</th>

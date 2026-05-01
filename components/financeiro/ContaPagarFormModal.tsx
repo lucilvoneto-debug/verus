@@ -81,7 +81,7 @@ export function ContaPagarFormModal({
             { value: "PARCIAL", label: "Parcial" },
           ]}
         />
-        <textarea {...register("observacoes")} rows={3} className="input-impermeia" placeholder="Observações..." />
+        <textarea {...register("observacoes")} rows={3} className="input-verus" placeholder="Observações..." />
         <div className="flex items-center justify-end gap-2 pt-2">
           <button type="button" className="btn-outline" onClick={onClose}>
             Cancelar

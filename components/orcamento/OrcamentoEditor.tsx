@@ -151,7 +151,7 @@ export function OrcamentoEditor({
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Cliente</label>
             <select
-              className="input-impermeia"
+              className="input-verus"
               value={clienteId}
               onChange={(e) => setClienteId(e.target.value)}
             >
@@ -166,7 +166,7 @@ export function OrcamentoEditor({
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Vendedor</label>
             <select
-              className="input-impermeia"
+              className="input-verus"
               value={vendedorId}
               onChange={(e) => setVendedorId(e.target.value)}
             >
@@ -231,7 +231,7 @@ export function OrcamentoEditor({
               <div className="md:col-span-3 space-y-1">
                 <label className="text-xs text-gray-500">Serviço</label>
                 <select
-                  className="input-impermeia"
+                  className="input-verus"
                   value={it.servicoId}
                   onChange={(e) => selecionarServico(idx, e.target.value)}
                 >
@@ -246,7 +246,7 @@ export function OrcamentoEditor({
               <div className="md:col-span-3 space-y-1">
                 <label className="text-xs text-gray-500">Descrição</label>
                 <input
-                  className="input-impermeia"
+                  className="input-verus"
                   value={it.descricao}
                   onChange={(e) => updateItem(idx, { descricao: e.target.value })}
                 />
@@ -258,7 +258,7 @@ export function OrcamentoEditor({
                 <input
                   type="number"
                   step="0.01"
-                  className="input-impermeia"
+                  className="input-verus"
                   value={it.quantidade}
                   onChange={(e) =>
                     updateItem(idx, { quantidade: Number(e.target.value) || 0 })
@@ -270,7 +270,7 @@ export function OrcamentoEditor({
                 <input
                   type="number"
                   step="0.01"
-                  className="input-impermeia"
+                  className="input-verus"
                   value={it.custoUnit}
                   onChange={(e) =>
                     updateItem(idx, { custoUnit: Number(e.target.value) || 0 })
@@ -282,7 +282,7 @@ export function OrcamentoEditor({
                 <input
                   type="number"
                   step="0.01"
-                  className="input-impermeia"
+                  className="input-verus"
                   value={it.precoUnit}
                   onChange={(e) =>
                     updateItem(idx, { precoUnit: Number(e.target.value) || 0 })
@@ -315,7 +315,7 @@ export function OrcamentoEditor({
             <input
               type="number"
               step="0.01"
-              className="input-impermeia"
+              className="input-verus"
               value={desconto}
               onChange={(e) => setDesconto(Number(e.target.value) || 0)}
             />
@@ -335,7 +335,7 @@ export function OrcamentoEditor({
           <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
           <textarea
             rows={3}
-            className="input-impermeia"
+            className="input-verus"
             value={observacoes ?? ""}
             onChange={(e) => setObservacoes(e.target.value)}
           />

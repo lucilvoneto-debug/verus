@@ -95,7 +95,7 @@ export function MedicaoForm({
               min={0}
               max={100}
               {...register("percentualExecutado", { valueAsNumber: true })}
-              className="input-impermeia"
+              className="input-verus"
             />
             {errors.percentualExecutado && (
               <p className="text-xs text-danger">{errors.percentualExecutado.message}</p>
@@ -120,7 +120,7 @@ export function MedicaoForm({
         </div>
         <div className="mt-4 space-y-1">
           <label className="block text-sm font-medium text-gray-700">Observações</label>
-          <textarea {...register("observacoes")} rows={3} className="input-impermeia" />
+          <textarea {...register("observacoes")} rows={3} className="input-verus" />
         </div>
       </Card>
 

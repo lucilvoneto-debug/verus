@@ -79,7 +79,7 @@ export function ServicoForm({
           <textarea
             {...register("descricao")}
             rows={3}
-            className="input-impermeia"
+            className="input-verus"
             placeholder="Descrição comercial do serviço..."
           />
         </div>
@@ -90,7 +90,7 @@ export function ServicoForm({
         <textarea
           {...register("observacoesTecnicas")}
           rows={4}
-          className="input-impermeia"
+          className="input-verus"
           placeholder="Cuidados, recomendações, normas técnicas..."
         />
       </Card>

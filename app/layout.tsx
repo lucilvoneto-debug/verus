@@ -17,14 +17,14 @@ const barlow = Barlow({
 });
 
 export const metadata: Metadata = {
-  title: "Impermeia ERP",
+  title: "Verus ERP",
   description: "Sistema de gestão para empresa de impermeabilização",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${barlow.variable}`}>
-      <body className="font-sans antialiased min-h-screen scrollbar-impermeia">
+      <body className="font-sans antialiased min-h-screen scrollbar-verus">
         <QueryProvider>{children}</QueryProvider>
       </body>
     </html>

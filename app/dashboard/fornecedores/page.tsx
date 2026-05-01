@@ -56,7 +56,7 @@ export default function FornecedoresPage() {
               className="bg-transparent outline-none text-sm flex-1"
             />
           </div>
-          <select className="input-impermeia" value={ativo} onChange={(e) => setAtivo(e.target.value)}>
+          <select className="input-verus" value={ativo} onChange={(e) => setAtivo(e.target.value)}>
             <option value="">Todos</option>
             <option value="true">Ativos</option>
             <option value="false">Inativos</option>
@@ -66,7 +66,7 @@ export default function FornecedoresPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Nome</th>

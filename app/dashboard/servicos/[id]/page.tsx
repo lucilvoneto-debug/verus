@@ -157,7 +157,7 @@ function MateriaisTab({
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Material</label>
             <select
-              className="input-impermeia"
+              className="input-verus"
               value={materialId}
               onChange={(e) => setMaterialId(e.target.value)}
             >
@@ -176,7 +176,7 @@ function MateriaisTab({
             <input
               type="number"
               step="0.01"
-              className="input-impermeia"
+              className="input-verus"
               value={quantidade}
               onChange={(e) => setQuantidade(e.target.value)}
             />
@@ -191,7 +191,7 @@ function MateriaisTab({
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Material</th>

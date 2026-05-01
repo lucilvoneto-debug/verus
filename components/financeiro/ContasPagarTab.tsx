@@ -60,15 +60,15 @@ export function ContasPagarTab() {
     <div className="space-y-4">
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <select className="input-impermeia" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select className="input-verus" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Todos os status</option>
             <option value="ABERTA">Aberta</option>
             <option value="PAGA">Paga</option>
             <option value="ATRASADA">Atrasada</option>
             <option value="PARCIAL">Parcial</option>
           </select>
-          <input type="date" className="input-impermeia" value={inicio} onChange={(e) => setInicio(e.target.value)} />
-          <input type="date" className="input-impermeia" value={fim} onChange={(e) => setFim(e.target.value)} />
+          <input type="date" className="input-verus" value={inicio} onChange={(e) => setInicio(e.target.value)} />
+          <input type="date" className="input-verus" value={fim} onChange={(e) => setFim(e.target.value)} />
           <button onClick={() => setOpenNova(true)} className="btn-primary">
             <Plus className="w-4 h-4" /> Nova
           </button>
@@ -77,7 +77,7 @@ export function ContasPagarTab() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Fornecedor / Categoria</th>

@@ -73,12 +73,12 @@ export default function EstoquePage() {
               className="bg-transparent outline-none text-sm flex-1"
             />
           </div>
-          <select className="input-impermeia" value={ativo} onChange={(e) => setAtivo(e.target.value)}>
+          <select className="input-verus" value={ativo} onChange={(e) => setAtivo(e.target.value)}>
             <option value="">Todos</option>
             <option value="true">Ativos</option>
             <option value="false">Inativos</option>
           </select>
-          <select className="input-impermeia" value={baixo} onChange={(e) => setBaixo(e.target.value)}>
+          <select className="input-verus" value={baixo} onChange={(e) => setBaixo(e.target.value)}>
             <option value="">Todo o estoque</option>
             <option value="true">Estoque baixo</option>
           </select>
@@ -87,7 +87,7 @@ export default function EstoquePage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Nome</th>

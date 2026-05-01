@@ -147,7 +147,7 @@ export default function VisitaDetalhePage() {
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Tipo de superfície</label>
             <input
-              className="input-impermeia"
+              className="input-verus"
               value={tipoSuperficie}
               onChange={(e) => setTipoSuperficie(e.target.value)}
               placeholder="Laje, telhado, cobertura..."
@@ -158,7 +158,7 @@ export default function VisitaDetalhePage() {
             <input
               type="number"
               step="0.01"
-              className="input-impermeia"
+              className="input-verus"
               value={areaM2}
               onChange={(e) => setAreaM2(e.target.value)}
             />
@@ -167,7 +167,7 @@ export default function VisitaDetalhePage() {
             <label className="block text-sm font-medium text-gray-700">Causa provável</label>
             <textarea
               rows={2}
-              className="input-impermeia"
+              className="input-verus"
               value={causaProvavel}
               onChange={(e) => setCausaProvavel(e.target.value)}
             />
@@ -178,7 +178,7 @@ export default function VisitaDetalhePage() {
             </label>
             <textarea
               rows={3}
-              className="input-impermeia"
+              className="input-verus"
               value={solucaoRecomendada}
               onChange={(e) => setSolucaoRecomendada(e.target.value)}
             />
@@ -187,7 +187,7 @@ export default function VisitaDetalhePage() {
             <label className="block text-sm font-medium text-gray-700">Diagnóstico geral</label>
             <textarea
               rows={3}
-              className="input-impermeia"
+              className="input-verus"
               value={diagnostico}
               onChange={(e) => setDiagnostico(e.target.value)}
             />
@@ -208,7 +208,7 @@ export default function VisitaDetalhePage() {
         <h3 className="font-display text-lg font-semibold mb-4">Fotos</h3>
         <div className="flex gap-2 mb-3">
           <input
-            className="input-impermeia flex-1"
+            className="input-verus flex-1"
             placeholder="URL da foto..."
             value={novaFotoUrl}
             onChange={(e) => setNovaFotoUrl(e.target.value)}

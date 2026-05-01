@@ -37,7 +37,7 @@ export function VisitaForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Cliente</label>
-            <select className="input-impermeia" {...register("clienteId")}>
+            <select className="input-verus" {...register("clienteId")}>
               <option value="">Selecione...</option>
               {clientes?.data?.map((c: { id: string; nome: string }) => (
                 <option key={c.id} value={c.id}>
@@ -51,7 +51,7 @@ export function VisitaForm({
           </div>
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Técnico</label>
-            <select className="input-impermeia" {...register("tecnicoId")}>
+            <select className="input-verus" {...register("tecnicoId")}>
               <option value="">Selecione...</option>
               {tecnicos?.data?.map(
                 (c: { id: string; nome: string; userId: string | null; funcao: string }) =>
@@ -84,7 +84,7 @@ export function VisitaForm({
           <textarea
             {...register("observacoes")}
             rows={3}
-            className="input-impermeia"
+            className="input-verus"
             placeholder="Notas para o técnico..."
           />
         </div>

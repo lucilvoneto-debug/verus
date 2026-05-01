@@ -40,7 +40,7 @@ async function main() {
   const passwordHash = await bcrypt.hash("admin123", 10);
   const admin = await prisma.user.create({
     data: {
-      email: "admin@impermeia.com.br",
+      email: "admin@verus.com.br",
       passwordHash,
       name: "Administrador",
       role: "ADMIN",
@@ -49,7 +49,7 @@ async function main() {
 
   const vendedor = await prisma.user.create({
     data: {
-      email: "mariana@impermeia.com.br",
+      email: "mariana@verus.com.br",
       passwordHash,
       name: "Mariana Lima",
       role: "COMERCIAL",
@@ -58,7 +58,7 @@ async function main() {
 
   const tecnico = await prisma.user.create({
     data: {
-      email: "carlos@impermeia.com.br",
+      email: "carlos@verus.com.br",
       passwordHash,
       name: "Carlos Mendes",
       role: "TECNICO",
@@ -67,7 +67,7 @@ async function main() {
 
   const supervisor = await prisma.user.create({
     data: {
-      email: "paulo@impermeia.com.br",
+      email: "paulo@verus.com.br",
       passwordHash,
       name: "Paulo Rocha",
       role: "SUPERVISOR",
@@ -346,7 +346,7 @@ async function main() {
   }
 
   console.log("Configurações...");
-  await prisma.configuracao.create({ data: { chave: "empresa.nome", valor: "Impermeia", descricao: "Nome da empresa" } });
+  await prisma.configuracao.create({ data: { chave: "empresa.nome", valor: "Verus", descricao: "Nome da empresa" } });
   await prisma.configuracao.create({ data: { chave: "empresa.timezone", valor: "America/Sao_Paulo" } });
 
   console.log("Auditoria...");
@@ -355,7 +355,7 @@ async function main() {
   });
 
   console.log("Seed concluído com sucesso.");
-  console.log("Login: admin@impermeia.com.br / admin123");
+  console.log("Login: admin@verus.com.br / admin123");
 }
 
 main()

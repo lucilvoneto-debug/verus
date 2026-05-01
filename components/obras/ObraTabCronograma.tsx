@@ -28,7 +28,7 @@ export function ObraTabCronograma({ obraId, etapas }: { obraId: string; etapas: 
         </Link>
       </div>
       <div className="overflow-x-auto">
-        <table className="table-impermeia">
+        <table className="table-verus">
           <thead>
             <tr>
               <th className="w-12">#</th>

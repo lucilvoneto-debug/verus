@@ -61,7 +61,7 @@ export function ContasReceberTab() {
     <div className="space-y-4">
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <select className="input-impermeia" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select className="input-verus" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Todos os status</option>
             <option value="ABERTA">Aberta</option>
             <option value="PAGA">Paga</option>
@@ -70,14 +70,14 @@ export function ContasReceberTab() {
           </select>
           <input
             type="date"
-            className="input-impermeia"
+            className="input-verus"
             value={inicio}
             onChange={(e) => setInicio(e.target.value)}
             placeholder="Início"
           />
           <input
             type="date"
-            className="input-impermeia"
+            className="input-verus"
             value={fim}
             onChange={(e) => setFim(e.target.value)}
             placeholder="Fim"
@@ -90,7 +90,7 @@ export function ContasReceberTab() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Cliente</th>

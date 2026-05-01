@@ -109,7 +109,7 @@ export function ObraTabEquipe({ obraId, alocacoes }: { obraId: string; alocacoes
       </Card>
 
       <Card className="p-0">
-        <table className="table-impermeia">
+        <table className="table-verus">
           <thead>
             <tr>
               <th>Colaborador</th>

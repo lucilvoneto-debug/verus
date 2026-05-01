@@ -79,7 +79,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "shrink-0 bg-brand-dark text-white flex flex-col h-screen sticky top-0 transition-all duration-200 scrollbar-impermeia",
+        "shrink-0 bg-brand-dark text-white flex flex-col h-screen sticky top-0 transition-all duration-200 scrollbar-verus",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -89,7 +89,7 @@ export function Sidebar() {
         </div>
         {!collapsed && (
           <div className="leading-tight">
-            <div className="font-display text-xl font-bold">Impermeia</div>
+            <div className="font-display text-xl font-bold">Verus</div>
             <div className="text-[10px] uppercase tracking-wider text-white/60">ERP</div>
           </div>
         )}
@@ -141,7 +141,7 @@ export function Sidebar() {
 
       {!collapsed && (
         <div className="px-4 py-3 border-t border-white/10 text-[11px] text-white/50">
-          v0.1.0 · Impermeia ERP
+          v0.1.0 · Verus ERP
         </div>
       )}
     </aside>

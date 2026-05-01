@@ -61,7 +61,7 @@ export default function VisitasPage() {
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -75,7 +75,7 @@ export default function VisitasPage() {
             ))}
           </select>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={tecnicoId}
             onChange={(e) => {
               setTecnicoId(e.target.value);
@@ -94,7 +94,7 @@ export default function VisitasPage() {
           </select>
           <input
             type="date"
-            className="input-impermeia"
+            className="input-verus"
             value={dataIni}
             onChange={(e) => {
               setDataIni(e.target.value);
@@ -103,7 +103,7 @@ export default function VisitasPage() {
           />
           <input
             type="date"
-            className="input-impermeia"
+            className="input-verus"
             value={dataFim}
             onChange={(e) => {
               setDataFim(e.target.value);
@@ -115,7 +115,7 @@ export default function VisitasPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Data</th>

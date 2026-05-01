@@ -105,7 +105,7 @@ export default function PedidoDetalhePage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Material</th>

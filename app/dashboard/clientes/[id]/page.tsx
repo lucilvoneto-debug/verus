@@ -71,7 +71,7 @@ export default function ClienteDetalhePage() {
       {cliente.orcamentos.length === 0 ? (
         <p className="text-sm text-gray-500">Nenhum orçamento.</p>
       ) : (
-        <table className="table-impermeia">
+        <table className="table-verus">
           <thead>
             <tr>
               <th>Número</th><th>Status</th><th>Total</th><th>Validade</th>
@@ -97,7 +97,7 @@ export default function ClienteDetalhePage() {
       {cliente.obras.length === 0 ? (
         <p className="text-sm text-gray-500">Nenhuma obra.</p>
       ) : (
-        <table className="table-impermeia">
+        <table className="table-verus">
           <thead>
             <tr>
               <th>Número</th><th>Nome</th><th>Status</th><th>Início</th><th>Previsão</th>

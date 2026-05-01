@@ -83,7 +83,7 @@ export function EtapaForm({
         </div>
         <div className="mt-4 space-y-1">
           <label className="block text-sm font-medium text-gray-700">Descrição</label>
-          <textarea {...register("descricao")} rows={2} className="input-impermeia" />
+          <textarea {...register("descricao")} rows={2} className="input-verus" />
         </div>
       </Card>
 
@@ -107,7 +107,7 @@ export function EtapaForm({
 
       <Card>
         <h3 className="font-display text-lg font-semibold mb-4">Observações</h3>
-        <textarea {...register("observacoes")} rows={3} className="input-impermeia" />
+        <textarea {...register("observacoes")} rows={3} className="input-verus" />
       </Card>
 
       <div className="flex items-center justify-end gap-2">
@@ -166,7 +166,7 @@ function ChecklistEditor({
       </ul>
       <div className="flex gap-2">
         <input
-          className="input-impermeia flex-1"
+          className="input-verus flex-1"
           placeholder="Novo item..."
           value={novo}
           onChange={(e) => setNovo(e.target.value)}
@@ -215,7 +215,7 @@ function FotosEditor({ value, onChange }: { value: string[]; onChange: (v: strin
       </ul>
       <div className="flex gap-2">
         <input
-          className="input-impermeia flex-1"
+          className="input-verus flex-1"
           placeholder="https://..."
           value={url}
           onChange={(e) => setUrl(e.target.value)}

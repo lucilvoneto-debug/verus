@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Droplet } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("admin@impermeia.com.br");
+  const [email, setEmail] = useState("admin@verus.com.br");
   const [password, setPassword] = useState("admin123");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export default function LoginPage() {
             <Droplet className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="font-display text-3xl font-bold text-brand-dark">Impermeia</h1>
+            <h1 className="font-display text-3xl font-bold text-brand-dark">Verus</h1>
             <p className="text-xs text-gray-500 -mt-1">ERP de Impermeabilização</p>
           </div>
         </div>
@@ -58,7 +58,7 @@ export default function LoginPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
               <input
                 type="email"
-                className="input-impermeia"
+                className="input-verus"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -68,7 +68,7 @@ export default function LoginPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
               <input
                 type="password"
-                className="input-impermeia"
+                className="input-verus"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -81,7 +81,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-xs text-gray-400 mt-6 text-center">
-            Demo: admin@impermeia.com.br / admin123
+            Demo: admin@verus.com.br / admin123
           </p>
         </div>
       </div>

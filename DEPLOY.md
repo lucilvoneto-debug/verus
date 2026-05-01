@@ -1,4 +1,4 @@
-# Deploy — Impermeia ERP no Vercel + Supabase (verus)
+# Deploy — Verus ERP no Vercel + Supabase (verus)
 
 ## 1. Pegar as connection strings no Supabase
 
@@ -13,7 +13,7 @@
 ## 2. Aplicar o schema no Supabase (rodar localmente, 1 vez)
 
 ```bash
-cd impermeia-erp
+cd verus-erp
 
 # Cole as strings reais no .env
 cp .env.example .env
@@ -31,18 +31,18 @@ Depois disso o banco do Supabase tem todas as tabelas + dados de exemplo.
 ## 3. Subir código no GitHub
 
 ```bash
-cd impermeia-erp
+cd verus-erp
 git init
 git add .
-git commit -m "Initial commit - Impermeia ERP"
-gh repo create impermeia-erp --private --source=. --push
+git commit -m "Initial commit - Verus ERP"
+gh repo create verus-erp --private --source=. --push
 # OU criar repo manualmente em github.com e fazer push
 ```
 
 ## 4. Deploy no Vercel
 
 1. Acessa [vercel.com](https://vercel.com) e faz login com GitHub
-2. **Add New → Project** → seleciona `impermeia-erp`
+2. **Add New → Project** → seleciona `verus-erp`
 3. Framework: Next.js (auto-detectado)
 4. **Environment Variables** — adiciona estas 4:
 
@@ -60,7 +60,7 @@ gh repo create impermeia-erp --private --source=. --push
 
 Abre `https://SEU-APP.vercel.app/login`
 
-Login: `admin@impermeia.com.br` / `admin123`
+Login: `admin@verus.com.br` / `admin123`
 
 ## Atualizações futuras
 

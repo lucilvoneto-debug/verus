@@ -68,7 +68,7 @@ export default function ContratosPage() {
             />
           </div>
           <select
-            className="input-impermeia"
+            className="input-verus"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -86,7 +86,7 @@ export default function ContratosPage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Número</th>

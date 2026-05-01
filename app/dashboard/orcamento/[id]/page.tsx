@@ -141,7 +141,7 @@ export default function OrcamentoDetalhePage() {
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Serviço</th>

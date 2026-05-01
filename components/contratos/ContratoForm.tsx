@@ -65,7 +65,7 @@ export function ContratoForm({
               Orçamento aprovado
             </label>
             <select
-              className="input-impermeia"
+              className="input-verus"
               disabled={lockOrcamento}
               {...register("orcamentoId")}
             >
@@ -122,7 +122,7 @@ export function ContratoForm({
             <textarea
               {...register("escopo")}
               rows={4}
-              className="input-impermeia"
+              className="input-verus"
               placeholder="Descreva o escopo do serviço..."
             />
             {errors.escopo && (
@@ -136,7 +136,7 @@ export function ContratoForm({
             <textarea
               {...register("obrigacoesCliente")}
               rows={3}
-              className="input-impermeia"
+              className="input-verus"
             />
           </div>
           <div>
@@ -146,7 +146,7 @@ export function ContratoForm({
             <textarea
               {...register("obrigacoesEmpresa")}
               rows={3}
-              className="input-impermeia"
+              className="input-verus"
             />
           </div>
           <div>
@@ -156,7 +156,7 @@ export function ContratoForm({
             <textarea
               {...register("clausulasExtras")}
               rows={3}
-              className="input-impermeia"
+              className="input-verus"
             />
           </div>
         </div>

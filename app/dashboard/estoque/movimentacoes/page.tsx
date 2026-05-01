@@ -41,20 +41,20 @@ export default function MovimentacoesPage() {
 
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <select className="input-impermeia" value={tipo} onChange={(e) => setTipo(e.target.value)}>
+          <select className="input-verus" value={tipo} onChange={(e) => setTipo(e.target.value)}>
             <option value="">Todos os tipos</option>
             <option value="ENTRADA">Entrada</option>
             <option value="SAIDA">Saída</option>
             <option value="AJUSTE">Ajuste</option>
           </select>
-          <input type="date" className="input-impermeia" value={inicio} onChange={(e) => setInicio(e.target.value)} />
-          <input type="date" className="input-impermeia" value={fim} onChange={(e) => setFim(e.target.value)} />
+          <input type="date" className="input-verus" value={inicio} onChange={(e) => setInicio(e.target.value)} />
+          <input type="date" className="input-verus" value={fim} onChange={(e) => setFim(e.target.value)} />
         </div>
       </Card>
 
       <Card className="p-0">
         <div className="overflow-x-auto">
-          <table className="table-impermeia">
+          <table className="table-verus">
             <thead>
               <tr>
                 <th>Data</th>
