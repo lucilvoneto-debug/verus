@@ -79,10 +79,25 @@ model Cliente {
   contasReceber ContaReceber[]
   garantias    Garantia[]
   chamados     ChamadoAssistencia[]
+  acesso       ClienteAcesso?
 
   @@index([nome])
   @@index([documento])
   @@index([categoria])
+}
+
+model ClienteAcesso {
+  id           String   @id @default(cuid())
+  clienteId    String   @unique
+  cliente      Cliente  @relation(fields: [clienteId], references: [id])
+  email        String   @unique
+  passwordHash String
+  ativo        Boolean  @default(true)
+  ultimoLogin  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
 }
 
 model Lead {

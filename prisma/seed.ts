@@ -29,6 +29,7 @@ async function main() {
   await prisma.material.deleteMany();
   await prisma.fornecedor.deleteMany();
   await prisma.servico.deleteMany();
+  await prisma.clienteAcesso.deleteMany();
   await prisma.cliente.deleteMany();
   await prisma.notificacao.deleteMany();
   await prisma.anexo.deleteMany();
@@ -344,6 +345,25 @@ async function main() {
       },
     });
   }
+
+  console.log("Criando acessos de cliente para o portal...");
+  const clienteSenhaHash = await bcrypt.hash("cliente123", 10);
+  await prisma.clienteAcesso.create({
+    data: {
+      clienteId: clientes[2].id,
+      email: clientes[2].email ?? "cliente1@verus.com.br",
+      passwordHash: clienteSenhaHash,
+      ativo: true,
+    },
+  });
+  await prisma.clienteAcesso.create({
+    data: {
+      clienteId: clientes[4].id,
+      email: clientes[4].email ?? "cliente2@verus.com.br",
+      passwordHash: clienteSenhaHash,
+      ativo: true,
+    },
+  });
 
   console.log("Configurações...");
   await prisma.configuracao.create({ data: { chave: "empresa.nome", valor: "Verus", descricao: "Nome da empresa" } });

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
 import { formatDocumento, formatDate, formatCurrency } from "@/lib/utils";
+import { AcessoPortalTab } from "@/components/clientes/AcessoPortalTab";
 
 export default function ClienteDetalhePage() {
   const params = useParams<{ id: string }>();
@@ -149,6 +150,11 @@ export default function ClienteDetalhePage() {
           { key: "orc", label: `Orçamentos (${cliente.orcamentos.length})`, content: orcamentos },
           { key: "obras", label: `Obras (${cliente.obras.length})`, content: obras },
           { key: "anex", label: "Anexos", content: anexos },
+          {
+            key: "acesso",
+            label: "Acesso ao portal",
+            content: <AcessoPortalTab clienteId={cliente.id} clienteEmail={cliente.email} />,
+          },
         ]}
       />
     </div>

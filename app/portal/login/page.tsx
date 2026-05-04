@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 
-export default function LoginPage() {
+export default function PortalLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@verus.com.br");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,13 +18,13 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await signIn("credentials", {
+      const res = await signIn("cliente-credentials", {
         email,
         password,
         redirect: false,
       });
       if (res?.ok) {
-        router.push("/dashboard");
+        router.push("/portal");
         router.refresh();
       } else {
         setError("Credenciais inválidas");
@@ -42,13 +44,13 @@ export default function LoginPage() {
           <img src="/logo.png" alt="Verus" className="w-20 h-20 object-contain" />
           <div className="text-center">
             <h1 className="font-display text-3xl font-bold text-brand-dark">Verus</h1>
-            <p className="text-xs text-gray-500 -mt-1">ERP de Impermeabilização</p>
+            <p className="text-xs text-gray-500 -mt-1">Portal do Cliente</p>
           </div>
         </div>
 
         <div className="card">
-          <h2 className="font-display text-xl font-semibold mb-1">Entrar</h2>
-          <p className="text-sm text-gray-500 mb-6">Acesse sua conta para continuar</p>
+          <h2 className="font-display text-xl font-semibold mb-1">Acessar portal</h2>
+          <p className="text-sm text-gray-500 mb-6">Acompanhe sua obra e seus documentos</p>
 
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
@@ -77,13 +79,10 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-xs text-gray-400 mt-6 text-center">
-            Demo: admin@verus.com.br / admin123
-          </p>
-          <div className="mt-3 text-center">
-            <a href="/portal/login" className="text-xs text-gray-500 hover:text-brand">
-              Sou cliente — acessar portal
-            </a>
+          <div className="mt-6 text-center">
+            <Link href="/login" className="text-xs text-gray-500 hover:text-brand">
+              Sou da equipe — acessar ERP
+            </Link>
           </div>
         </div>
       </div>
