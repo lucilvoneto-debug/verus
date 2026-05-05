@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { renderToBuffer } from "@react-pdf/renderer";
-import { CertificadoGarantiaPDF } from "@/lib/pdf/CertificadoGarantiaPDF";
-import React from "react";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 async function getEmpresa() {
   const rows = await prisma.configuracao.findMany({
@@ -31,6 +29,12 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   if (!g) return NextResponse.json({ error: "Garantia não encontrada" }, { status: 404 });
 
   const empresa = await getEmpresa();
+
+  const [{ renderToBuffer }, { CertificadoGarantiaPDF }, React] = await Promise.all([
+    import("@react-pdf/renderer"),
+    import("@/lib/pdf/CertificadoGarantiaPDF"),
+    import("react"),
+  ]);
 
   const buffer = await renderToBuffer(
     React.createElement(CertificadoGarantiaPDF, {

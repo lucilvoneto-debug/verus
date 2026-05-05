@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -18,7 +20,7 @@ type GarantiaLite = {
 
 type Tecnico = { id: string; nome: string; userId: string | null; funcao: string };
 
-export default function NovoChamadoPage() {
+function NovoChamadoPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const create = useCreateChamado();
@@ -184,3 +186,5 @@ export default function NovoChamadoPage() {
     </div>
   );
 }
+
+export default function Page() { return <Suspense fallback={<div className="p-6 text-sm text-gray-500">Carregando...</div>}><NovoChamadoPageInner /></Suspense>; }

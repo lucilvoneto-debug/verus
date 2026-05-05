@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { renderToBuffer } from "@react-pdf/renderer";
-import { ContratoPDF } from "@/lib/pdf/ContratoPDF";
-import React from "react";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-
-function buildEndereco(c: { logradouro?: string|null; numero?: string|null; complemento?: string|null; bairro?: string|null; cidade?: string|null; uf?: string|null; cep?: string|null }): string | null {
+function buildEndereco(c: {
+  logradouro?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  uf?: string | null;
+  cep?: string | null;
+}): string | null {
   const parts = [
     c.logradouro && c.numero ? `${c.logradouro}, ${c.numero}` : c.logradouro ?? null,
     c.complemento,
@@ -16,8 +22,6 @@ function buildEndereco(c: { logradouro?: string|null; numero?: string|null; comp
   ].filter(Boolean);
   return parts.length ? parts.join(" · ") : null;
 }
-
-export const dynamic = "force-dynamic";
 
 async function getEmpresa() {
   const rows = await prisma.configuracao.findMany({
@@ -41,6 +45,12 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   if (!ctr) return NextResponse.json({ error: "Contrato não encontrado" }, { status: 404 });
 
   const empresa = await getEmpresa();
+
+  const [{ renderToBuffer }, { ContratoPDF }, React] = await Promise.all([
+    import("@react-pdf/renderer"),
+    import("@/lib/pdf/ContratoPDF"),
+    import("react"),
+  ]);
 
   const buffer = await renderToBuffer(
     React.createElement(ContratoPDF, {
