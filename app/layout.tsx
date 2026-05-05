@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Barlow } from "next/font/google";
-import { getServerSession } from "next-auth";
 import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { SessionProvider } from "@/components/providers/SessionProvider";
-import { authOptions } from "@/lib/auth";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,12 +34,11 @@ export const viewport = {
   maximumScale: 1,
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authOptions);
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${barlow.variable}`}>
       <body className="font-sans antialiased min-h-screen scrollbar-verus">
-        <SessionProvider session={session}>
+        <SessionProvider>
           <QueryProvider>{children}</QueryProvider>
         </SessionProvider>
       </body>
