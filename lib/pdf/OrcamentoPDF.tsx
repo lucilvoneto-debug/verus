@@ -79,6 +79,9 @@ export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
         {/* Diagonal blue stripes */}
         <View style={styles.stripeTop} fixed />
         <View style={styles.stripeBottom} fixed />
+        {empresa.logoBase64 ? (
+          <Image src={empresa.logoBase64} style={styles.watermark} fixed />
+        ) : null}
 
         {/* Logo */}
         <View style={styles.logoBlock} fixed>

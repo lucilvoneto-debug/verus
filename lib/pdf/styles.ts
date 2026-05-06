@@ -34,23 +34,32 @@ export const styles = StyleSheet.create({
   // Diagonal blue stripe top-right
   stripeTop: {
     position: "absolute",
-    top: -120,
-    right: -180,
-    width: 380,
-    height: 240,
+    top: -150,
+    right: -200,
+    width: 400,
+    height: 220,
     backgroundColor: brand.primary,
-    transform: "rotate(-25deg)",
+    transform: "rotate(-30deg)",
   },
-  // Diagonal blue stripe bottom-left
+  // Diagonal blue stripe bottom-left (smaller / more subtle)
   stripeBottom: {
     position: "absolute",
-    bottom: -100,
-    left: -180,
-    width: 380,
-    height: 200,
+    bottom: -120,
+    left: -200,
+    width: 360,
+    height: 180,
     backgroundColor: brand.primary,
-    transform: "rotate(-25deg)",
+    transform: "rotate(-30deg)",
     opacity: 0.85,
+  },
+  // Subtle watermark V (centered behind content)
+  watermark: {
+    position: "absolute",
+    bottom: 120,
+    right: 60,
+    width: 220,
+    height: 220,
+    opacity: 0.06,
   },
   // Watermark V (subtle, bottom-right)
   watermarkV: {
