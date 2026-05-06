@@ -245,6 +245,75 @@ export const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
     color: brand.primaryDark,
   },
+  // Legacy styles (used by Contrato e Certificado)
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    borderBottomWidth: 2,
+    borderBottomColor: brand.primary,
+    paddingBottom: 12,
+    marginBottom: 16,
+  },
+  brandBlock: {
+    flexDirection: "column",
+  },
+  brandMark: {
+    fontSize: 22,
+    fontFamily: "Helvetica-Bold",
+    color: brand.primary,
+    letterSpacing: 2,
+  },
+  brandSub: {
+    fontSize: 8,
+    color: brand.muted,
+    marginTop: 2,
+  },
+  empresaBlock: {
+    fontSize: 8,
+    color: brand.muted,
+    textAlign: "right",
+  },
+  empresaNome: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 10,
+    color: brand.dark,
+    marginBottom: 2,
+  },
+  subtitle: {
+    fontSize: 10,
+    color: brand.muted,
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  section: {
+    marginBottom: 12,
+  },
+  paragraph: {
+    fontSize: 10,
+    lineHeight: 1.5,
+    color: brand.text,
+  },
+  label: {
+    fontSize: 8,
+    color: brand.muted,
+    textTransform: "uppercase",
+    marginBottom: 1,
+  },
+  signatureRow: {
+    marginTop: 40,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  signatureBox: {
+    width: "45%",
+    borderTopWidth: 1,
+    borderTopColor: brand.text,
+    paddingTop: 4,
+    fontSize: 9,
+    textAlign: "center",
+    color: brand.muted,
+  },
   // Certificate-specific (kept for garantia)
   certificateBorder: {
     borderWidth: 4,
