@@ -1,5 +1,5 @@
-import { Document, Page, Text, View } from "@react-pdf/renderer";
-import { styles, empresaFallback } from "./styles";
+import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
+import { styles, empresaFallback, brand } from "./styles";
 
 type Empresa = {
   nome: string;
@@ -7,6 +7,7 @@ type Empresa = {
   endereco: string;
   telefone: string;
   email: string;
+  logoBase64?: string | null;
 };
 
 type Item = {
@@ -24,6 +25,9 @@ export type OrcamentoPDFData = {
   numero: string;
   criadoEm: Date | string;
   dataValidade: Date | string;
+  obraNome?: string | null;
+  responsavel?: string | null;
+  contatoResponsavel?: string | null;
   cliente: {
     nome: string;
     tipo: string;
@@ -38,6 +42,7 @@ export type OrcamentoPDFData = {
   total: number;
   condicaoPagamento?: string | null;
   prazoExecucao?: string | null;
+  garantiaMeses?: number | null;
   observacoes?: string | null;
   empresa?: Partial<Empresa>;
 };
@@ -54,150 +59,197 @@ function fmtDate(d: Date | string): string {
   return date.toLocaleDateString("pt-BR");
 }
 
+function fmtArea(area: number | null, qty: number, unidade: string): string {
+  const n = area ?? qty;
+  return `${new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n)} ${unidade.toLowerCase()}`;
+}
+
 export function OrcamentoPDF({ data }: { data: OrcamentoPDFData }) {
   const empresa = { ...empresaFallback, ...(data.empresa ?? {}) };
+  const garantia = data.garantiaMeses ?? 60;
+  const garantiaAnos = Math.round(garantia / 12);
 
   return (
     <Document>
+      {/* PAGE 1 — capa + serviços */}
       <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.brandBlock}>
-            <Text style={styles.brandMark}>VERUS</Text>
-            <Text style={styles.brandSub}>Impermeabilizações</Text>
-          </View>
-          <View style={styles.empresaBlock}>
-            <Text style={styles.empresaNome}>{empresa.nome}</Text>
-            <Text>CNPJ: {empresa.cnpj}</Text>
-            <Text>{empresa.endereco}</Text>
-            <Text>
-              {empresa.telefone} · {empresa.email}
+        {/* Diagonal blue stripes */}
+        <View style={styles.stripeTop} fixed />
+        <View style={styles.stripeBottom} fixed />
+
+        {/* Logo */}
+        <View style={styles.logoBlock} fixed>
+          {empresa.logoBase64 ? (
+            <Image src={empresa.logoBase64} style={styles.logoImage} />
+          ) : (
+            <Text style={{ fontSize: 24, fontFamily: "Helvetica-Bold", color: brand.primary }}>
+              VERUS
             </Text>
-          </View>
+          )}
+          <Text style={styles.brandName}>IMPERMEABILIZAÇÕES</Text>
         </View>
 
-        <Text style={styles.title}>ORÇAMENTO Nº {data.numero}</Text>
-        <Text style={styles.subtitle}>
-          Emitido em {fmtDate(data.criadoEm)} · Validade {fmtDate(data.dataValidade)}
+        {/* Title */}
+        <Text style={styles.title}>CONTRATO DE PRESTAÇÃO DE SERVIÇOS</Text>
+
+        <Text style={styles.intro}>
+          O presente Contrato tem como objetivo executar serviços de impermeabilização visando
+          proteção contra umidade e infiltrações, garantindo maior vida útil.
         </Text>
 
-        {/* Cliente */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Cliente</Text>
-          <View style={styles.row}>
-            <View style={styles.col}>
-              <Text style={styles.label}>Nome</Text>
-              <Text style={styles.value}>{data.cliente.nome}</Text>
-            </View>
-            <View style={styles.col}>
-              <Text style={styles.label}>{data.cliente.tipo === "PJ" ? "CNPJ" : "CPF"}</Text>
-              <Text style={styles.value}>{data.cliente.documento}</Text>
-            </View>
-          </View>
-          <View style={styles.row}>
-            <View style={styles.col}>
-              <Text style={styles.label}>Contato</Text>
-              <Text style={styles.value}>
-                {data.cliente.email || "—"} · {data.cliente.telefone || "—"}
-              </Text>
-            </View>
-            <View style={styles.col}>
-              <Text style={styles.label}>Endereço</Text>
-              <Text style={styles.value}>{data.cliente.endereco || "—"}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Itens */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Itens do orçamento</Text>
-          <View style={styles.table}>
-            <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, { flex: 3 }]}>Serviço / descrição</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: "right" }]}>Área</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: "right" }]}>Qtd</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: "right" }]}>
-                Custo un.
-              </Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: "right" }]}>
-                Preço un.
-              </Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: "right" }]}>
-                Subtotal
-              </Text>
-            </View>
-            {data.itens.map((it, idx) => (
-              <View key={idx} style={styles.tableRow} wrap={false}>
-                <View style={{ flex: 3 }}>
-                  <Text style={[styles.tableCell, { fontFamily: "Helvetica-Bold" }]}>
-                    {it.servicoNome}
-                  </Text>
-                  <Text style={[styles.tableCell, { color: "#6B7280" }]}>{it.descricao}</Text>
-                </View>
-                <Text style={[styles.tableCell, { flex: 1, textAlign: "right" }]}>
-                  {it.area ? `${it.area} m²` : "—"}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 1, textAlign: "right" }]}>
-                  {it.quantidade} {it.unidade}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 1.2, textAlign: "right" }]}>
-                  {fmtCurrency(it.custoUnit)}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 1.2, textAlign: "right" }]}>
-                  {fmtCurrency(it.precoUnit)}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 1.2, textAlign: "right" }]}>
-                  {fmtCurrency(it.subtotal)}
-                </Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Totals */}
-          <View style={styles.totals}>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Subtotal</Text>
-              <Text style={styles.totalsValue}>{fmtCurrency(data.subtotal)}</Text>
-            </View>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Desconto</Text>
-              <Text style={styles.totalsValue}>- {fmtCurrency(data.desconto)}</Text>
-            </View>
-            <View style={styles.totalFinal}>
-              <Text style={styles.totalFinalLabel}>TOTAL</Text>
-              <Text style={styles.totalFinalValue}>{fmtCurrency(data.total)}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Condições */}
-        <View style={styles.section} wrap={false}>
-          <Text style={styles.sectionTitle}>Condições</Text>
-          <View style={styles.row}>
-            <View style={styles.col}>
-              <Text style={styles.label}>Condição de pagamento</Text>
-              <Text style={styles.value}>{data.condicaoPagamento || "—"}</Text>
-            </View>
-            <View style={styles.col}>
-              <Text style={styles.label}>Prazo de execução</Text>
-              <Text style={styles.value}>{data.prazoExecucao || "—"}</Text>
-            </View>
-            <View style={styles.col}>
-              <Text style={styles.label}>Validade</Text>
-              <Text style={styles.value}>{fmtDate(data.dataValidade)}</Text>
-            </View>
-          </View>
-          {data.observacoes ? (
-            <>
-              <Text style={styles.label}>Observações</Text>
-              <Text style={styles.paragraph}>{data.observacoes}</Text>
-            </>
+        {/* Header data */}
+        <View style={styles.headerData}>
+          <Text style={styles.headerLine}>
+            <Text style={styles.headerLabel}>Data: </Text>
+            {fmtDate(data.criadoEm)}
+          </Text>
+          {data.obraNome ? (
+            <Text style={styles.headerLine}>
+              <Text style={styles.headerLabel}>Obra: </Text>
+              {data.obraNome}
+            </Text>
+          ) : null}
+          <Text style={styles.headerLine}>
+            <Text style={styles.headerLabel}>Cliente: </Text>
+            {data.cliente.nome}
+          </Text>
+          {data.cliente.endereco ? (
+            <Text style={styles.headerLine}>
+              <Text style={styles.headerLabel}>Endereço: </Text>
+              {data.cliente.endereco}
+            </Text>
+          ) : null}
+          {data.responsavel ? (
+            <Text style={styles.headerLine}>
+              <Text style={styles.headerLabel}>Responsável: </Text>
+              {data.responsavel}
+            </Text>
+          ) : null}
+          {data.contatoResponsavel || data.cliente.telefone ? (
+            <Text style={styles.headerLine}>
+              <Text style={styles.headerLabel}>Contato: </Text>
+              {data.contatoResponsavel || data.cliente.telefone}
+            </Text>
           ) : null}
         </View>
 
-        <Text style={styles.footer} fixed>
-          {empresa.nome} · {empresa.cnpj} · {empresa.telefone} · {empresa.email}
-        </Text>
+        {/* DESCRIÇÃO DOS SERVIÇOS */}
+        <Text style={styles.sectionTitle}>DESCRIÇÃO DOS SERVIÇOS:</Text>
+        <View style={styles.servicesBox}>
+          {data.itens.map((it, idx) => (
+            <Text key={idx} style={styles.serviceItem}>
+              {it.servicoNome}
+              {it.descricao ? ` — ${it.descricao}` : ""}: {fmtArea(it.area, it.quantidade, it.unidade)}
+            </Text>
+          ))}
+        </View>
+
+        {/* DESCRIÇÃO DAS ÁREAS */}
+        <Text style={styles.sectionTitle}>DESCRIÇÃO DAS ÁREAS:</Text>
+        {data.itens.map((it, idx) => (
+          <View key={idx} style={styles.serviceBlock} wrap={false}>
+            <Text style={styles.serviceBlockTitle}>{it.servicoNome.toUpperCase()}</Text>
+            <Text style={styles.serviceBlockRow}>
+              ÁREA TOTAL: {fmtArea(it.area, it.quantidade, it.unidade)}
+            </Text>
+            <Text style={styles.serviceBlockRow}>
+              VALOR UNITÁRIO: {fmtCurrency(it.precoUnit)}
+            </Text>
+            <Text style={styles.serviceBlockRowLast}>
+              VALOR TOTAL: {fmtCurrency(it.subtotal)}
+            </Text>
+          </View>
+        ))}
+
+        {/* Total geral */}
+        <View style={styles.totalBox}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Subtotal</Text>
+            <Text style={styles.totalValue}>{fmtCurrency(data.subtotal)}</Text>
+          </View>
+          {data.desconto > 0 ? (
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Desconto</Text>
+              <Text style={styles.totalValue}>- {fmtCurrency(data.desconto)}</Text>
+            </View>
+          ) : null}
+          <View style={styles.totalRow}>
+            <Text style={styles.totalFinalLabel}>VALOR TOTAL</Text>
+            <Text style={styles.totalFinalValue}>{fmtCurrency(data.total)}</Text>
+          </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer} fixed>
+          <View>
+            <Text style={styles.footerLine}>{empresa.telefone}</Text>
+            <Text style={styles.footerLine}>{empresa.email}</Text>
+          </View>
+        </View>
+      </Page>
+
+      {/* PAGE 2 — termos e assinaturas */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.stripeTop} fixed />
+        <View style={styles.stripeBottom} fixed />
+
+        <View style={styles.logoBlock} fixed>
+          {empresa.logoBase64 ? (
+            <Image src={empresa.logoBase64} style={styles.logoImage} />
+          ) : (
+            <Text style={{ fontSize: 24, fontFamily: "Helvetica-Bold", color: brand.primary }}>
+              VERUS
+            </Text>
+          )}
+          <Text style={styles.brandName}>IMPERMEABILIZAÇÕES</Text>
+        </View>
+
+        <View style={styles.termSection}>
+          <Text style={styles.termTitle}>PRAZO DE EXECUÇÃO:</Text>
+          <Text style={styles.termText}>
+            {data.prazoExecucao || "Conforme cronograma e liberação das áreas da obra."}
+          </Text>
+        </View>
+
+        <View style={styles.termSection}>
+          <Text style={styles.termTitle}>CONDIÇÕES DE PAGAMENTOS:</Text>
+          <Text style={styles.termText}>
+            {data.condicaoPagamento || "À vista: Medições quinzenais."}
+          </Text>
+        </View>
+
+        <View style={styles.termSection}>
+          <Text style={styles.termTitle}>GARANTIA:</Text>
+          <Text style={styles.termText}>
+            A Verus Impermeabilizações garante os serviços executados pelo prazo de{" "}
+            {String(garantiaAnos).padStart(2, "0")} ({garantiaAnos === 1 ? "um" : garantiaAnos === 2 ? "dois" : garantiaAnos === 3 ? "três" : garantiaAnos === 4 ? "quatro" : garantiaAnos === 5 ? "cinco" : garantiaAnos === 10 ? "dez" : String(garantiaAnos)}) anos contra falhas de aplicação, não incluindo danos causados por terceiros ou problemas estruturais.
+          </Text>
+        </View>
+
+        {data.observacoes ? (
+          <View style={styles.termSection}>
+            <Text style={styles.termTitle}>OBSERVAÇÕES:</Text>
+            <Text style={styles.termText}>{data.observacoes}</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.signaturesArea}>
+          <Text style={styles.signatureLabel}>VERUS IMPERMEABILIZAÇÕES</Text>
+          <View style={styles.signatureLine} />
+
+          <Text style={[styles.signatureLabel, { marginTop: 50 }]}>CONTRATANTE</Text>
+          <View style={styles.signatureLine} />
+        </View>
+
+        <View style={styles.footer} fixed>
+          <View>
+            <Text style={styles.footerLine}>{empresa.telefone}</Text>
+            <Text style={styles.footerLine}>{empresa.email}</Text>
+          </View>
+        </View>
       </Page>
     </Document>
   );

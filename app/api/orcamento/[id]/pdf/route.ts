@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import fs from "node:fs";
+import path from "node:path";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -15,12 +17,10 @@ function buildEndereco(c: {
 }): string | null {
   const parts = [
     c.logradouro && c.numero ? `${c.logradouro}, ${c.numero}` : c.logradouro ?? null,
-    c.complemento,
     c.bairro,
     c.cidade && c.uf ? `${c.cidade}/${c.uf}` : c.cidade ?? null,
-    c.cep ? `CEP ${c.cep}` : null,
   ].filter(Boolean);
-  return parts.length ? parts.join(" · ") : null;
+  return parts.length ? parts.join(" - ") : null;
 }
 
 async function getEmpresa() {
@@ -28,13 +28,44 @@ async function getEmpresa() {
     where: { chave: { startsWith: "empresa." } },
   });
   const map = Object.fromEntries(rows.map((r) => [r.chave, r.valor]));
+
+  // Carrega logo do filesystem como base64 data URL
+  let logoBase64: string | null = null;
+  try {
+    const logoPath = path.join(process.cwd(), "public", "logo.png");
+    const buf = fs.readFileSync(logoPath);
+    logoBase64 = `data:image/png;base64,${buf.toString("base64")}`;
+  } catch {
+    logoBase64 = null;
+  }
+
   return {
-    nome: map["empresa.nome"],
-    cnpj: map["empresa.cnpj"],
-    endereco: map["empresa.endereco"],
-    telefone: map["empresa.telefone"],
-    email: map["empresa.email"],
+    nome: map["empresa.nome"] || "Verus Impermeabilizações",
+    cnpj: map["empresa.cnpj"] || "—",
+    endereco: map["empresa.endereco"] || "—",
+    telefone: map["empresa.telefone"] || "(82) 99166-9449 | (82) 99673-0005",
+    email: map["empresa.email"] || "verusimpermeabilizacoes@gmail.com",
+    logoBase64,
   };
+}
+
+/** Extrai obraNome / responsavel / contatoResponsavel das observações se gravadas como JSON */
+function extractMeta(observacoes: string | null) {
+  if (!observacoes) return { obraNome: null, responsavel: null, contatoResponsavel: null, notas: null };
+  try {
+    const parsed = JSON.parse(observacoes);
+    if (parsed && typeof parsed === "object") {
+      return {
+        obraNome: parsed.obra ?? parsed.obraNome ?? null,
+        responsavel: parsed.responsavel ?? null,
+        contatoResponsavel: parsed.contato ?? parsed.contatoResponsavel ?? null,
+        notas: parsed.notas ?? parsed.observacoes ?? null,
+      };
+    }
+  } catch {
+    /* observacoes texto livre */
+  }
+  return { obraNome: null, responsavel: null, contatoResponsavel: null, notas: observacoes };
 }
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
@@ -43,11 +74,13 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     include: {
       cliente: true,
       itens: { include: { servico: true }, orderBy: { id: "asc" } },
+      vendedor: { select: { name: true } },
     },
   });
   if (!orc) return NextResponse.json({ error: "Orçamento não encontrado" }, { status: 404 });
 
   const empresa = await getEmpresa();
+  const meta = extractMeta(orc.observacoes);
 
   const [{ renderToBuffer }, { OrcamentoPDF }, React] = await Promise.all([
     import("@react-pdf/renderer"),
@@ -61,6 +94,9 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
         numero: orc.numero,
         criadoEm: orc.criadoEm,
         dataValidade: orc.dataValidade,
+        obraNome: meta.obraNome,
+        responsavel: meta.responsavel ?? orc.vendedor?.name ?? null,
+        contatoResponsavel: meta.contatoResponsavel,
         cliente: {
           nome: orc.cliente.nome,
           tipo: orc.cliente.tipo,
@@ -84,7 +120,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
         total: orc.total,
         condicaoPagamento: orc.condicaoPagamento,
         prazoExecucao: orc.prazoExecucao,
-        observacoes: orc.observacoes,
+        observacoes: meta.notas,
         empresa,
       },
     }) as Parameters<typeof renderToBuffer>[0]

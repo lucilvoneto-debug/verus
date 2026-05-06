@@ -1,208 +1,251 @@
 import { StyleSheet } from "@react-pdf/renderer";
 
-// Brand colors (Verus / Retric)
+// Brand colors (Verus — azul petróleo)
 export const brand = {
-  primary: "#C8102E",
-  primaryDark: "#9B0B20",
-  primaryLight: "#FDEAED",
-  dark: "#0D0406",
+  primary: "#0F5E7E",
+  primaryDark: "#0A4258",
+  primaryLight: "#E1EDF2",
+  dark: "#0A4258",
   text: "#111827",
   muted: "#6B7280",
-  border: "#E5E7EB",
+  border: "#D1D5DB",
   bgSoft: "#F9FAFB",
+  white: "#FFFFFF",
 };
 
 export const empresaFallback = {
   nome: "Verus Impermeabilizações",
   cnpj: "—",
   endereco: "—",
-  telefone: "—",
-  email: "—",
+  telefone: "(82) 99166-9449 | (82) 99673-0005",
+  email: "verusimpermeabilizacoes@gmail.com",
 };
 
 export const styles = StyleSheet.create({
   page: {
-    paddingTop: 40,
-    paddingBottom: 60,
-    paddingHorizontal: 40,
+    paddingTop: 110,
+    paddingBottom: 80,
+    paddingHorizontal: 50,
     fontSize: 10,
     fontFamily: "Helvetica",
     color: brand.text,
+    position: "relative",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    borderBottomWidth: 2,
-    borderBottomColor: brand.primary,
-    paddingBottom: 12,
-    marginBottom: 16,
+  // Diagonal blue stripe top-right
+  stripeTop: {
+    position: "absolute",
+    top: -120,
+    right: -180,
+    width: 380,
+    height: 240,
+    backgroundColor: brand.primary,
+    transform: "rotate(-25deg)",
   },
-  brandBlock: {
-    flexDirection: "column",
+  // Diagonal blue stripe bottom-left
+  stripeBottom: {
+    position: "absolute",
+    bottom: -100,
+    left: -180,
+    width: 380,
+    height: 200,
+    backgroundColor: brand.primary,
+    transform: "rotate(-25deg)",
+    opacity: 0.85,
   },
-  brandMark: {
-    fontSize: 22,
+  // Watermark V (subtle, bottom-right)
+  watermarkV: {
+    position: "absolute",
+    bottom: 80,
+    right: 20,
+    width: 120,
+    height: 120,
+    opacity: 0.06,
+  },
+  // Logo header centered
+  logoBlock: {
+    position: "absolute",
+    top: 30,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  logoImage: {
+    width: 70,
+    height: 70,
+    objectFit: "contain",
+  },
+  brandName: {
+    fontSize: 9,
     fontFamily: "Helvetica-Bold",
     color: brand.primary,
-    letterSpacing: 2,
-  },
-  brandSub: {
-    fontSize: 8,
-    color: brand.muted,
     marginTop: 2,
-  },
-  empresaBlock: {
-    fontSize: 8,
-    color: brand.muted,
-    textAlign: "right",
-  },
-  empresaNome: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 10,
-    color: brand.dark,
-    marginBottom: 2,
+    letterSpacing: 1,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "Helvetica-Bold",
-    color: brand.dark,
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 10,
-    color: brand.muted,
-    textAlign: "center",
-    marginBottom: 16,
-  },
-  section: {
+    color: brand.text,
     marginBottom: 12,
+    textAlign: "center",
   },
+  intro: {
+    fontSize: 11,
+    lineHeight: 1.5,
+    color: brand.text,
+    marginBottom: 20,
+  },
+  // Header data lines (Data, Obra, Cliente, etc)
+  headerData: {
+    marginBottom: 20,
+  },
+  headerLine: {
+    fontSize: 11,
+    marginBottom: 4,
+    color: brand.text,
+    flexDirection: "row",
+  },
+  headerLabel: {
+    fontFamily: "Helvetica-Bold",
+  },
+  // Section titles (DESCRIÇÃO DOS SERVIÇOS, etc)
   sectionTitle: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: brand.text,
+    marginTop: 8,
+    marginBottom: 8,
+    letterSpacing: 0.3,
+  },
+  // Bordered box for service list
+  servicesBox: {
+    borderWidth: 1,
+    borderColor: brand.text,
+    padding: 12,
+    marginBottom: 18,
+  },
+  serviceItem: {
+    fontSize: 10,
+    lineHeight: 1.6,
+    marginBottom: 2,
+    color: brand.text,
+  },
+  // Service detail block (Title bar + 3 rows)
+  serviceBlock: {
+    marginBottom: 6,
+    borderWidth: 0.5,
+    borderColor: brand.muted,
+  },
+  serviceBlockTitle: {
+    backgroundColor: brand.primaryLight,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    textAlign: "center",
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: brand.text,
+    borderBottomWidth: 0.5,
+    borderBottomColor: brand.muted,
+  },
+  serviceBlockRow: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     fontSize: 10,
     fontFamily: "Helvetica-Bold",
-    color: brand.primaryDark,
-    textTransform: "uppercase",
-    marginBottom: 4,
-    letterSpacing: 0.5,
+    borderBottomWidth: 0.5,
+    borderBottomColor: brand.muted,
+    color: brand.text,
   },
-  paragraph: {
+  serviceBlockRowLast: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: brand.text,
+  },
+  // Page 2 sections
+  termSection: {
+    marginBottom: 18,
+  },
+  termTitle: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: brand.text,
+    marginBottom: 4,
+  },
+  termText: {
+    fontSize: 11,
     lineHeight: 1.5,
     color: brand.text,
   },
-  row: {
-    flexDirection: "row",
+  // Signatures
+  signaturesArea: {
+    marginTop: 60,
+    alignItems: "center",
   },
-  col: {
-    flex: 1,
-  },
-  label: {
-    fontSize: 8,
-    color: brand.muted,
-    textTransform: "uppercase",
-    marginBottom: 1,
-  },
-  value: {
-    fontSize: 10,
+  signatureLabel: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
     color: brand.text,
-    marginBottom: 6,
+    marginTop: 30,
+    marginBottom: 4,
   },
-  // Tables
-  table: {
-    width: "100%",
-    borderTopWidth: 1,
-    borderTopColor: brand.border,
-    marginTop: 4,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    backgroundColor: brand.primaryLight,
+  signatureLine: {
+    width: 280,
     borderBottomWidth: 1,
-    borderBottomColor: brand.primary,
-    paddingVertical: 6,
-    paddingHorizontal: 4,
+    borderBottomColor: brand.text,
+    height: 1,
+    marginTop: 20,
   },
-  tableHeaderCell: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 9,
-    color: brand.primaryDark,
-  },
-  tableRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: brand.border,
-    paddingVertical: 5,
-    paddingHorizontal: 4,
-  },
-  tableCell: {
-    fontSize: 9,
-    color: brand.text,
-  },
-  totals: {
-    marginTop: 8,
-    alignSelf: "flex-end",
-    width: "50%",
-  },
-  totalsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 3,
-  },
-  totalsLabel: {
-    fontSize: 10,
-    color: brand.muted,
-  },
-  totalsValue: {
-    fontSize: 10,
-    color: brand.text,
-  },
-  totalFinal: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 6,
-    marginTop: 4,
-    borderTopWidth: 1,
-    borderTopColor: brand.primary,
-  },
-  totalFinalLabel: {
-    fontSize: 12,
-    fontFamily: "Helvetica-Bold",
-    color: brand.primaryDark,
-  },
-  totalFinalValue: {
-    fontSize: 12,
-    fontFamily: "Helvetica-Bold",
-    color: brand.primaryDark,
-  },
+  // Footer
   footer: {
     position: "absolute",
     bottom: 30,
     left: 40,
     right: 40,
-    fontSize: 8,
-    color: brand.muted,
-    textAlign: "center",
-    borderTopWidth: 1,
-    borderTopColor: brand.border,
-    paddingTop: 8,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 9,
+    color: brand.text,
   },
-  signatureRow: {
-    marginTop: 40,
+  footerLine: {
+    fontSize: 9,
+    color: brand.text,
+    marginBottom: 2,
+    textAlign: "center",
+  },
+  // Total summary box (final do orçamento)
+  totalBox: {
+    marginTop: 12,
+    padding: 10,
+    backgroundColor: brand.primaryLight,
+    borderWidth: 1,
+    borderColor: brand.primary,
+  },
+  totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingVertical: 2,
   },
-  signatureBox: {
-    width: "45%",
-    borderTopWidth: 1,
-    borderTopColor: brand.text,
-    paddingTop: 4,
-    fontSize: 9,
-    textAlign: "center",
-    color: brand.muted,
+  totalLabel: {
+    fontSize: 11,
+    color: brand.text,
   },
-  // Certificate-specific
+  totalValue: {
+    fontSize: 11,
+    color: brand.text,
+  },
+  totalFinalLabel: {
+    fontSize: 13,
+    fontFamily: "Helvetica-Bold",
+    color: brand.primaryDark,
+  },
+  totalFinalValue: {
+    fontSize: 13,
+    fontFamily: "Helvetica-Bold",
+    color: brand.primaryDark,
+  },
+  // Certificate-specific (kept for garantia)
   certificateBorder: {
     borderWidth: 4,
     borderColor: brand.primary,
