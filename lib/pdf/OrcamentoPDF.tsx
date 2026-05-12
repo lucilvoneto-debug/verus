@@ -56,8 +56,8 @@ const s = StyleSheet.create({
     color: brand.text,
     position: "relative",
     paddingTop: 130,
-    paddingBottom: 110,
-    paddingHorizontal: 56,
+    paddingBottom: 200,
+    paddingHorizontal: 70,
   },
   bgImage: {
     position: "absolute",
