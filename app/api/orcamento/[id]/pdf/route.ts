@@ -29,14 +29,15 @@ async function getEmpresa() {
   });
   const map = Object.fromEntries(rows.map((r) => [r.chave, r.valor]));
 
-  // Carrega logo do filesystem como base64 data URL
-  let logoBase64: string | null = null;
-  try {
-    const logoPath = path.join(process.cwd(), "public", "logo.png");
-    const buf = fs.readFileSync(logoPath);
-    logoBase64 = `data:image/png;base64,${buf.toString("base64")}`;
-  } catch {
-    logoBase64 = null;
+  // Carrega assets do filesystem como base64 data URL
+  function loadImage(name: string): string | null {
+    try {
+      const p = path.join(process.cwd(), "public", name);
+      const buf = fs.readFileSync(p);
+      return `data:image/png;base64,${buf.toString("base64")}`;
+    } catch {
+      return null;
+    }
   }
 
   return {
@@ -45,7 +46,9 @@ async function getEmpresa() {
     endereco: map["empresa.endereco"] || "—",
     telefone: map["empresa.telefone"] || "(82) 99166-9449 | (82) 99673-0005",
     email: map["empresa.email"] || "verusimpermeabilizacoes@gmail.com",
-    logoBase64,
+    logoBase64: loadImage("logo.png"),
+    bgPag1Base64: loadImage("bg-orcamento-1.png"),
+    bgPag2Base64: loadImage("bg-orcamento-2.png"),
   };
 }
 
