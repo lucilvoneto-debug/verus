@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Plus, Search, Trash2, Pencil, Eye } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, Eye, Upload } from "lucide-react";
 import { useOrcamentos, useDeleteOrcamento } from "@/hooks/useOrcamentos";
 import { useColaboradores } from "@/hooks/useVisitas";
 import { Card } from "@/components/ui/Card";
@@ -63,9 +63,14 @@ export default function OrcamentosPage() {
           <h2 className="font-display text-2xl font-bold text-brand-dark">Orçamentos</h2>
           <p className="text-sm text-gray-500">Elaboração, envio e aprovação de orçamentos.</p>
         </div>
-        <Link href="/dashboard/orcamento/novo" className="btn-primary">
-          <Plus className="w-4 h-4" /> Novo orçamento
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard/orcamento/por-planta" className="btn-outline">
+            <Upload className="w-4 h-4" /> Por planta (DXF/planilha)
+          </Link>
+          <Link href="/dashboard/orcamento/novo" className="btn-primary">
+            <Plus className="w-4 h-4" /> Novo orçamento
+          </Link>
+        </div>
       </div>
 
       <Card>
