@@ -2,7 +2,7 @@ import type { AmbienteEntrada } from "../regras";
 import { parseDxf, type UnidadeDesenho } from "./dxf";
 import { parsePlanilha } from "./planilha";
 
-export type FormatoEntrada = "dxf" | "planilha" | "dwg" | "ifc" | "pdf" | "desconhecido";
+export type FormatoEntrada = "dxf" | "planilha" | "dwg" | "ifc" | "rvt" | "pdf" | "desconhecido";
 
 export interface ResultadoParse {
   ambientes: AmbienteEntrada[];
@@ -17,6 +17,7 @@ export function formatoDoNome(nome: string): FormatoEntrada {
   if (["xlsx", "xls", "csv", "ods"].includes(ext)) return "planilha";
   if (ext === "dwg") return "dwg";
   if (ext === "ifc") return "ifc";
+  if (ext === "rvt") return "rvt";
   if (ext === "pdf") return "pdf";
   return "desconhecido";
 }
@@ -53,12 +54,12 @@ export function parseArquivo(
       };
     }
     case "dwg":
-      throw new Error(
-        "DWG não é lido direto no servidor. No AutoCAD: SALVAR COMO → 'AutoCAD DXF (*.dxf)' e suba o DXF. (Os ambientes precisam ser polilinhas fechadas.)"
-      );
     case "ifc":
+      // DWG e IFC são lidos no navegador (WASM), não passam por aqui.
+      throw new Error("DWG/IFC são processados no navegador — recarregue a página e tente de novo.");
+    case "rvt":
       throw new Error(
-        "IFC (BIM) ainda não é lido aqui. Exporte a lista de ambientes (IfcSpace: nome + área) para planilha, ou salve a planta em DXF."
+        "Revit (.rvt) é formato fechado da Autodesk e não abre direto. No Revit: Arquivo → Exportar → IFC (marque 'exportar ambientes/rooms') e suba o .ifc — sai quase automático."
       );
     case "pdf":
       throw new Error(

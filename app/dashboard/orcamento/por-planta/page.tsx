@@ -42,7 +42,22 @@ export default function OrcamentoPorPlantaPage() {
   const [salvando, setSalvando] = useState(false);
   const [erroModal, setErroModal] = useState<string | null>(null);
 
-  const resumo = useMemo(() => calcularOrcamento(ambientes), [ambientes]);
+  const [areaMax, setAreaMax] = useState<number>(0); // 0 = sem limite
+  const ehCad = !!arquivo && /\.(dwg|dxf)$/i.test(arquivo);
+
+  const { ambientesFiltrados, indicesOriginais } = useMemo(() => {
+    const fa: AmbienteEntrada[] = [];
+    const idx: number[] = [];
+    ambientes.forEach((a, i) => {
+      if (areaMax <= 0 || (a.areaPiso || 0) <= areaMax) {
+        fa.push(a);
+        idx.push(i);
+      }
+    });
+    return { ambientesFiltrados: fa, indicesOriginais: idx };
+  }, [ambientes, areaMax]);
+  const resumo = useMemo(() => calcularOrcamento(ambientesFiltrados), [ambientesFiltrados]);
+  const ocultados = ambientes.length - ambientesFiltrados.length;
   const valorTotal = useMemo(() => resumo.areaTotalGeral * (preco || 0), [resumo, preco]);
 
   async function baixarPdf() {
@@ -51,7 +66,7 @@ export default function OrcamentoPorPlantaPage() {
       const res = await fetch("/api/orcamento/por-planta/memorial", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ arquivo, ambientes, preco }),
+        body: JSON.stringify({ arquivo, ambientes: ambientesFiltrados, preco }),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Falha ao gerar PDF.");
       const blob = await res.blob();
@@ -144,10 +159,33 @@ export default function OrcamentoPorPlantaPage() {
   async function enviar(file: File, uni: Unidade) {
     setCarregando(true);
     setErro(null);
+    const ext = file.name.toLowerCase().split(".").pop() || "";
     try {
+      // DWG e IFC: lidos no NAVEGADOR (WASM), não vão pro servidor
+      if (ext === "dwg") {
+        const { parseDwgClient } = await import("@/lib/impermeabilizacao/parse/dwgClient");
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const r = await parseDwgClient(bytes, uni);
+        setArquivo(file.name);
+        setDetalhe(`${r.ambientes.length} ambiente(s) · ${r.poligonosLidos} polígono(s) · unidade ${r.unidadeDetectada}`);
+        setAvisosArquivo(r.avisos);
+        setAmbientes(r.ambientes);
+        return;
+      }
+      if (ext === "ifc") {
+        const { parseIfcClient } = await import("@/lib/impermeabilizacao/parse/ifcClient");
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const r = await parseIfcClient(bytes);
+        setArquivo(file.name);
+        setDetalhe(`${r.espacosLidos} ambiente(s) do IFC${r.software ? ` · ${r.software}` : ""}${r.schema ? ` · ${r.schema}` : ""}`);
+        setAvisosArquivo(r.avisos);
+        setAmbientes(r.ambientes);
+        return;
+      }
+      // DXF e planilha: servidor
       const fd = new FormData();
       fd.append("arquivo", file);
-      if (file.name.toLowerCase().endsWith(".dxf")) fd.append("unidade", uni);
+      if (ext === "dxf") fd.append("unidade", uni);
       const res = await fetch("/api/orcamento/por-planta/parse", { method: "POST", body: fd });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Falha ao ler o arquivo.");
@@ -187,7 +225,8 @@ export default function OrcamentoPorPlantaPage() {
 
   function trocarUnidade(u: Unidade) {
     setUnidade(u);
-    if (ultimoFile && ultimoFile.name.toLowerCase().endsWith(".dxf")) enviar(ultimoFile, u);
+    const nome = ultimoFile?.name.toLowerCase() || "";
+    if (ultimoFile && (nome.endsWith(".dxf") || nome.endsWith(".dwg"))) enviar(ultimoFile, u);
   }
 
   function editar(i: number, patch: Partial<AmbienteEntrada>) {
@@ -257,18 +296,19 @@ export default function OrcamentoPorPlantaPage() {
               {carregando ? "Lendo arquivo..." : "Clique para enviar o arquivo"}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              DXF (planta CAD) · XLSX/CSV/ODS (planilha de áreas) · até 40 MB
+              IFC · DWG · DXF · XLSX/CSV/ODS · Revit: exporte IFC · até 40 MB
             </div>
           </button>
           <input
             ref={inputRef}
             type="file"
-            accept=".dxf,.xlsx,.xls,.csv,.ods"
+            accept=".dwg,.dxf,.ifc,.xlsx,.xls,.csv,.ods"
             className="hidden"
             onChange={onPick}
           />
           <div className="text-xs text-gray-500 md:w-64 space-y-1">
-            <p className="flex items-start gap-1"><Info className="w-3.5 h-3.5 mt-0.5 shrink-0" /> DWG: salve como <b>DXF</b> no AutoCAD. Ambientes = polilinhas fechadas.</p>
+            <p className="flex items-start gap-1"><Info className="w-3.5 h-3.5 mt-0.5 shrink-0" /> <b>IFC</b> é o melhor: ambiente já vem com nome e área (quase automático).</p>
+            <p className="flex items-start gap-1"><Info className="w-3.5 h-3.5 mt-0.5 shrink-0" /> <b>DWG/DXF</b>: ambientes = polilinhas fechadas. <b>Revit (.rvt)</b>: exporte IFC.</p>
             <p className="flex items-start gap-1"><FileSpreadsheet className="w-3.5 h-3.5 mt-0.5 shrink-0" /> Planilha: colunas <b>ambiente, área, perímetro</b> (opcional: altura, box, tipo, qtd).</p>
           </div>
         </div>
@@ -339,6 +379,21 @@ export default function OrcamentoPorPlantaPage() {
                 {preco > 0 ? `R$ ${fmt(valorTotal)}` : "—"}
               </div>
             </div>
+            {ehCad && (
+              <label className="text-sm">
+                <span className="block text-gray-600 mb-1">Ignorar áreas acima de (m²)</span>
+                <input
+                  type="number"
+                  min={0}
+                  step="10"
+                  value={areaMax || ""}
+                  onChange={(e) => setAreaMax(Number(e.target.value) || 0)}
+                  placeholder="ex.: 300 (corta bordas)"
+                  className="input-verus !w-48"
+                />
+                {ocultados > 0 && <span className="block text-xs text-amber-600 mt-1">{ocultados} ambiente(s) ocultado(s)</span>}
+              </label>
+            )}
             <div className="flex-1" />
             <button onClick={baixarCsv} className="btn-outline"><Download className="w-4 h-4" /> Memorial (CSV)</button>
             <button onClick={baixarPdf} disabled={gerandoPdf} className="btn-outline">
@@ -370,10 +425,11 @@ export default function OrcamentoPorPlantaPage() {
               <tbody>
                 {resumo.ambientes.map((a, i) => {
                   const regra = REGRAS[a.tipo];
+                  const oi = indicesOriginais[i];
                   return (
                     <tr key={i}>
                       <td>
-                        <input value={a.nome} onChange={(e) => editar(i, { nome: e.target.value })} className="input-verus !py-1 min-w-[160px]" />
+                        <input value={a.nome} onChange={(e) => editar(oi, { nome: e.target.value })} className="input-verus !py-1 min-w-[160px]" />
                         {a.origem && <div className="text-[10px] text-gray-400 mt-0.5">{a.origem}</div>}
                         {a.avisos.map((av, k) => (
                           <div key={k} className="text-[10px] text-amber-600 flex items-start gap-0.5 mt-0.5"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />{av}</div>
@@ -382,7 +438,7 @@ export default function OrcamentoPorPlantaPage() {
                       <td>
                         <select
                           value={a.tipo}
-                          onChange={(e) => editar(i, { tipo: e.target.value as TipoAmbiente })}
+                          onChange={(e) => editar(oi, { tipo: e.target.value as TipoAmbiente })}
                           className="input-verus !py-1 !w-auto"
                           style={{ borderLeft: `3px solid ${regra.cor}` }}
                         >
@@ -391,26 +447,26 @@ export default function OrcamentoPorPlantaPage() {
                           ))}
                         </select>
                       </td>
-                      <td className="text-right"><NumIn v={a.areaPiso} on={(v) => editar(i, { areaPiso: v })} /></td>
-                      <td className="text-right"><NumIn v={a.perimetro} on={(v) => editar(i, { perimetro: v })} /></td>
+                      <td className="text-right"><NumIn v={a.areaPiso} on={(v) => editar(oi, { areaPiso: v })} /></td>
+                      <td className="text-right"><NumIn v={a.perimetro} on={(v) => editar(oi, { perimetro: v })} /></td>
                       <td className="text-right">
                         <NumIn
                           v={a.altura ?? a.alturaUsada}
                           placeholder={`auto ${fmt(regra.alturaPadrao)}`}
-                          on={(v) => editar(i, { altura: v })}
+                          on={(v) => editar(oi, { altura: v })}
                         />
                       </td>
                       <td className="text-right">
                         {regra.aceitaBox ? (
-                          <NumIn v={a.boxComprimento ?? 0} on={(v) => editar(i, { boxComprimento: v || undefined })} />
+                          <NumIn v={a.boxComprimento ?? 0} on={(v) => editar(oi, { boxComprimento: v || undefined })} />
                         ) : (
                           <span className="text-gray-300">—</span>
                         )}
                       </td>
-                      <td className="text-right"><NumIn v={a.repeticaoUsada} step={1} on={(v) => editar(i, { repeticao: Math.max(1, Math.round(v)) })} /></td>
+                      <td className="text-right"><NumIn v={a.repeticaoUsada} step={1} on={(v) => editar(oi, { repeticao: Math.max(1, Math.round(v)) })} /></td>
                       <td className="text-right font-semibold text-brand-dark">{fmt(a.areaTotal)}</td>
                       <td>
-                        <button onClick={() => remover(i)} className="text-gray-400 hover:text-danger p-1"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => remover(oi)} className="text-gray-400 hover:text-danger p-1"><Trash2 className="w-4 h-4" /></button>
                       </td>
                     </tr>
                   );
