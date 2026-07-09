@@ -1,7 +1,7 @@
 import DxfParser from "dxf-parser";
 import type { AmbienteEntrada } from "../regras";
 import {
-  ambientesDeGeometria,
+  extrairAmbientes,
   type PoligonoGeo,
   type TextoGeo,
   type UnidadeDesenho,
@@ -46,7 +46,7 @@ export function entidadesDxf(conteudo: string): { poligonos: PoligonoGeo[]; text
 
 export function parseDxf(conteudo: string, unidade?: UnidadeDesenho): ResultadoDxf {
   const { poligonos, textos } = entidadesDxf(conteudo);
-  const r = ambientesDeGeometria(poligonos, textos, "DXF", unidade);
+  const r = extrairAmbientes(poligonos, textos, "DXF", unidade);
   return {
     ambientes: r.ambientes,
     unidadeDetectada: r.unidadeDetectada,

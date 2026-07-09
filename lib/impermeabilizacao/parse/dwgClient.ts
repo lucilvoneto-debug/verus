@@ -4,7 +4,7 @@
  * núcleo de geometria do DXF (piso + perímetro + nome pelo texto interno).
  */
 import {
-  ambientesDeGeometria,
+  extrairAmbientes,
   type PoligonoGeo,
   type TextoGeo,
   type UnidadeDesenho,
@@ -59,5 +59,5 @@ export async function parseDwgClient(bytes: Uint8Array, unidade?: UnidadeDesenho
 
   try { libredwg.dwg_free(dwg); } catch { /* ignore */ }
 
-  return ambientesDeGeometria(poligonos, textos, "DWG", unidade);
+  return extrairAmbientes(poligonos, textos, "DWG", unidade);
 }

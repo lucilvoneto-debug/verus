@@ -138,3 +138,130 @@ export function ambientesDeGeometria(
 
   return { ambientes: filtrados, unidadeDetectada: uni, poligonosLidos: poligonos.length, avisos };
 }
+
+// ---------- Extração por ETIQUETA de área (nome + "N,NN m²" em texto) ----------
+
+const RE_AREA = /(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*m\s*[²2]/i;
+// textos que NÃO são nome de ambiente (título de prancha, escala, cota, nota técnica)
+const RE_LIXO = /planta|escala|1\s*[\/:]\s*\d|projeto|prancha|folha|data|rev\b|revis|norma|nbr|abnt|obs\b|detalhe|legenda|quadro|total|soma|áreas:|areas:|cliente|resp\b|arquiteto|engenheiro|prof\.|profundidade|espessura|n[íi]vel|cota|=\s*\d|[øØ]|^rua\b|avenida|^av\.|logradouro|desnível|desnivel|projeç|informaç|informac|ltda|s\.?\/?a\.?\b|eireli|cnpj|apoio administrativo|serviços de apoio|incorpora|construtora|empreendiment/i;
+
+/** Converte "2.33m²", "4.320,70 m²", "57,25m²" em número (m²). */
+export function parseAreaTexto(raw: string): number | null {
+  const m = raw.match(RE_AREA);
+  if (!m) return null;
+  let s = m[1];
+  const ponto = s.includes("."), virg = s.includes(",");
+  if (ponto && virg) s = s.replace(/\./g, "").replace(",", ".");
+  else if (virg) s = s.replace(",", ".");
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Nome limpo a partir de um texto (remove a parte da área, se houver). */
+function nomeDeTexto(t: string): string {
+  return t.replace(RE_AREA, "").replace(/\s+/g, " ").replace(/[:\-–]\s*$/, "").trim();
+}
+
+function ehNomeValido(t: string): boolean {
+  const s = t.trim();
+  if (s.length < 2 || s.length > 45) return false;
+  if (RE_LIXO.test(s)) return false;
+  const letras = (s.match(/[A-Za-zÀ-ÿ]/g) || []).length;
+  return letras >= 2; // precisa ter letras (não é só número/cota)
+}
+
+/**
+ * Extrai ambientes a partir das ETIQUETAS de área anotadas no desenho.
+ * Cada texto "N,NN m²" vira um ambiente; o nome vem do próprio texto (se tiver
+ * letras) ou do rótulo de texto mais próximo. Perímetro e unidade são
+ * autocalibrados pelo menor polígono que contém a etiqueta (se existir).
+ */
+export function ambientesDeTags(
+  poligonos: PoligonoGeo[],
+  textos: TextoGeo[],
+  origem: string
+): ResultadoGeo {
+  const avisos: string[] = [];
+
+  const etiquetas = textos
+    .map((t) => ({ t, area: parseAreaTexto(t.texto) }))
+    .filter((x): x is { t: TextoGeo; area: number } => x.area != null && x.area >= 0.3 && x.area <= 5000);
+
+  if (etiquetas.length === 0) {
+    throw new Error("Sem etiquetas de área no texto.");
+  }
+
+  // candidatos a NOME: textos sem área, com letras, que não sejam lixo
+  const rotulos = textos.filter((t) => !RE_AREA.test(t.texto) && ehNomeValido(t.texto));
+
+  let estimados = 0;
+  const ambientes: AmbienteEntrada[] = etiquetas.map(({ t, area }, i) => {
+    // nome: do próprio texto se sobrar letras; senão rótulo mais próximo
+    let nome = nomeDeTexto(t.texto);
+    if (!ehNomeValido(nome)) {
+      const rot = rotulos
+        .map((r) => ({ r, d: Math.hypot(r.x - t.x, r.y - t.y) }))
+        .sort((a, b) => a.d - b.d)[0];
+      nome = rot?.r.texto?.trim() || `Ambiente ${i + 1}`;
+    }
+
+    // menor polígono que contém a etiqueta → perímetro real + calibra unidade
+    let perimetro = 0;
+    const contendo = poligonos
+      .filter((p) => dentro({ x: t.x, y: t.y }, p.pts))
+      .map((p) => ({ p, aDes: areaPoligono(p.pts) }))
+      .filter((x) => x.aDes > 0)
+      .sort((a, b) => a.aDes - b.aDes)[0];
+    if (contendo) {
+      const fator = Math.sqrt(area / contendo.aDes); // unidade por ambiente
+      perimetro = Math.round(perimetroPoligono(contendo.p.pts) * fator * 100) / 100;
+    } else {
+      perimetro = Math.round(4.5 * Math.sqrt(area) * 100) / 100; // estimativa p/ retângulo
+      estimados++;
+    }
+
+    return {
+      nome,
+      areaPiso: Math.round(area * 100) / 100,
+      perimetro,
+      tipo: classificarNome(nome),
+      origem: `${origem} · etiqueta`,
+    };
+  });
+
+  // dedupe por nome+área (etiqueta repetida em cortes/viewports)
+  const vistos = new Set<string>();
+  const unicos = ambientes.filter((a) => {
+    const k = `${a.nome}|${a.areaPiso}`;
+    if (vistos.has(k)) return false;
+    vistos.add(k);
+    return true;
+  });
+  if (unicos.length < ambientes.length) avisos.push(`${ambientes.length - unicos.length} etiqueta(s) repetida(s) removida(s).`);
+  if (estimados > 0) avisos.push(`${estimados} ambiente(s) com perímetro ESTIMADO (sem contorno fechado) — confirme pro rodapé.`);
+
+  return { ambientes: unicos, unidadeDetectada: "m", poligonosLidos: poligonos.length, avisos };
+}
+
+/**
+ * Estratégia adaptativa: se o desenho tem etiquetas de área ("N,NN m²"),
+ * usa elas (confiável). Senão cai pro modo geométrico (polilinhas fechadas).
+ */
+export function extrairAmbientes(
+  poligonos: PoligonoGeo[],
+  textos: TextoGeo[],
+  origem: string,
+  opcoes?: UnidadeDesenho | OpcoesGeo
+): ResultadoGeo {
+  const comArea = textos.filter((t) => RE_AREA.test(t.texto)).length;
+  if (comArea >= 3) {
+    try {
+      const r = ambientesDeTags(poligonos, textos, origem);
+      r.avisos.unshift(`Modo etiqueta: ${r.ambientes.length} ambiente(s) lidos das áreas anotadas no desenho.`);
+      return r;
+    } catch {
+      /* sem etiquetas úteis — cai pro geométrico */
+    }
+  }
+  return ambientesDeGeometria(poligonos, textos, origem, opcoes);
+}

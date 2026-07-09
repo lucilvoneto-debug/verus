@@ -36,7 +36,12 @@ export function parseArquivo(
 
   switch (formato) {
     case "dxf": {
-      const r = parseDxf(buffer.toString("latin1"), opts?.unidade);
+      // DXF moderno (R2007+) é UTF-8; se a decodificação UTF-8 tiver muitos
+      // caracteres de substituição, cai pra latin1 (DXF ANSI antigo).
+      const utf8 = buffer.toString("utf-8");
+      const ruins = (utf8.match(/�/g) || []).length;
+      const conteudo = ruins > 20 ? buffer.toString("latin1") : utf8;
+      const r = parseDxf(conteudo, opts?.unidade);
       return {
         ambientes: r.ambientes,
         formato,
