@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Upload, FileSpreadsheet, Trash2, Plus, Download, Printer, AlertTriangle, Info, FileText, Save, X, Loader2 } from "lucide-react";
@@ -59,6 +59,31 @@ export default function OrcamentoPorPlantaPage() {
   const resumo = useMemo(() => calcularOrcamento(ambientesFiltrados), [ambientesFiltrados]);
   const ocultados = ambientes.length - ambientesFiltrados.length;
   const valorTotal = useMemo(() => resumo.areaTotalGeral * (preco || 0), [resumo, preco]);
+
+  // preço/m² padrão lembrado — cadastra 1x, já vem preenchido
+  const [salvandoPreco, setSalvandoPreco] = useState(false);
+  useEffect(() => {
+    fetch("/api/orcamento/preco-padrao")
+      .then((r) => r.json())
+      .then((j) => { if (j.preco > 0) setPreco((p) => (p > 0 ? p : j.preco)); })
+      .catch(() => {});
+  }, []);
+  async function salvarPrecoPadrao() {
+    setSalvandoPreco(true);
+    try {
+      const r = await fetch("/api/orcamento/preco-padrao", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preco }),
+      });
+      if (!r.ok) throw new Error((await r.json()).error || "Falha.");
+      alert(`Preço padrão salvo: R$ ${fmt(preco)}/m². Já vem preenchido nos próximos.`);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro.");
+    } finally {
+      setSalvandoPreco(false);
+    }
+  }
 
   async function baixarPdf() {
     setGerandoPdf(true);
@@ -362,16 +387,27 @@ export default function OrcamentoPorPlantaPage() {
           {/* Preço + ações */}
           <div className="card flex flex-wrap items-end gap-4">
             <label className="text-sm">
-              <span className="block text-gray-600 mb-1">Preço por m² (R$)</span>
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={preco || ""}
-                onChange={(e) => setPreco(Number(e.target.value) || 0)}
-                placeholder="ex.: 45,00"
-                className="input-verus !w-40"
-              />
+              <span className="block text-gray-600 mb-1">Preço por m² — mão de obra (R$)</span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={preco || ""}
+                  onChange={(e) => setPreco(Number(e.target.value) || 0)}
+                  placeholder="ex.: 45,00"
+                  className="input-verus !w-40"
+                />
+                <button
+                  type="button"
+                  onClick={salvarPrecoPadrao}
+                  disabled={salvandoPreco || !preco}
+                  title="Salvar como padrão — já vem preenchido nos próximos orçamentos"
+                  className="btn-outline text-xs whitespace-nowrap"
+                >
+                  {salvandoPreco ? "Salvando…" : "Salvar padrão"}
+                </button>
+              </div>
             </label>
             <div className="text-sm">
               <span className="block text-gray-600 mb-1">Valor estimado</span>
