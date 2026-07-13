@@ -14,6 +14,7 @@ import {
   MessageCircle,
   Link2,
   Copy,
+  Files,
 } from "lucide-react";
 import {
   useOrcamento,
@@ -58,6 +59,17 @@ export default function OrcamentoDetalhePage() {
       alert(e instanceof Error ? e.message : "Erro.");
     } finally {
       setGerandoLink(false);
+    }
+  }
+
+  async function duplicar() {
+    try {
+      const r = await fetch(`/api/orcamento/${params.id}/duplicar`, { method: "POST" });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Falha ao duplicar.");
+      router.push(`/dashboard/orcamento/${j.id}/editar`);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro.");
     }
   }
 
@@ -140,6 +152,9 @@ export default function OrcamentoDetalhePage() {
           </a>
           <button onClick={abrirWhatsApp} className="btn-outline">
             <MessageCircle className="w-4 h-4" /> WhatsApp
+          </button>
+          <button onClick={duplicar} className="btn-outline">
+            <Files className="w-4 h-4" /> Duplicar
           </button>
           <button onClick={gerarLink} disabled={gerandoLink} className="btn-primary">
             <Link2 className="w-4 h-4" /> {gerandoLink ? "Gerando…" : "Link p/ aprovar"}

@@ -17,17 +17,17 @@ function deB64url(s: string): Buffer {
   return Buffer.from(s.replace(/-/g, "+").replace(/_/g, "/"), "base64");
 }
 
-function assinar(id: string): string {
-  return b64url(crypto.createHmac("sha256", segredo()).update(id).digest());
+function assinar(ns: string, id: string): string {
+  return b64url(crypto.createHmac("sha256", segredo()).update(`${ns}:${id}`).digest());
 }
 
-/** Gera o token público do orçamento. */
-export function gerarTokenProposta(orcamentoId: string): string {
-  return `${b64url(Buffer.from(orcamentoId))}.${assinar(orcamentoId)}`;
+/** Gera token público assinado pra um recurso (namespace evita reuso cruzado). */
+export function gerarToken(ns: string, id: string): string {
+  return `${b64url(Buffer.from(id))}.${assinar(ns, id)}`;
 }
 
-/** Valida o token e devolve o orcamentoId, ou null se inválido/adulterado. */
-export function lerTokenProposta(token: string): string | null {
+/** Valida o token do namespace e devolve o id, ou null se inválido/adulterado. */
+export function lerToken(ns: string, token: string): string | null {
   const [idPart, sig] = (token || "").split(".");
   if (!idPart || !sig) return null;
   let id: string;
@@ -36,10 +36,14 @@ export function lerTokenProposta(token: string): string | null {
   } catch {
     return null;
   }
-  const esperado = assinar(id);
-  // comparação em tempo constante
   const a = Buffer.from(sig);
-  const b = Buffer.from(esperado);
+  const b = Buffer.from(assinar(ns, id));
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
   return id;
 }
+
+// wrappers por recurso
+export const gerarTokenProposta = (orcamentoId: string) => gerarToken("proposta", orcamentoId);
+export const lerTokenProposta = (token: string) => lerToken("proposta", token);
+export const gerarTokenObra = (obraId: string) => gerarToken("obra", obraId);
+export const lerTokenObra = (token: string) => lerToken("obra", token);

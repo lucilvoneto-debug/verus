@@ -48,6 +48,7 @@ export async function middleware(req: NextRequest) {
       !pathname.startsWith("/api/foto") &&
       !pathname.startsWith("/api/mp") &&
       !pathname.startsWith("/api/proposta") &&
+      !pathname.startsWith("/api/obra/") &&
       !pathname.startsWith("/api/portal"));
 
   if (needsAdmin) {

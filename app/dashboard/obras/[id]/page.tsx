@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, FileText } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, FileText, Link2, Copy, MessageCircle } from "lucide-react";
 import { useObra } from "@/hooks/useObras";
 import { Tabs } from "@/components/ui/Tabs";
 import { ObraTabDados } from "@/components/obras/ObraTabDados";
@@ -16,6 +17,23 @@ import { ObraTabFotos } from "@/components/obras/ObraTabFotos";
 export default function ObraDetalhePage() {
   const params = useParams<{ id: string }>();
   const { data: obra, isLoading } = useObra(params.id);
+  const [linkObra, setLinkObra] = useState<string | null>(null);
+  const [gerandoLink, setGerandoLink] = useState(false);
+
+  async function gerarLink() {
+    setGerandoLink(true);
+    try {
+      const r = await fetch(`/api/obras/${params.id}/link`, { method: "POST", headers: { origin: window.location.origin } });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Falha ao gerar link.");
+      setLinkObra(j.url);
+      try { await navigator.clipboard.writeText(j.url); } catch { /* clipboard bloqueado */ }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro.");
+    } finally {
+      setGerandoLink(false);
+    }
+  }
 
   async function emitirNF() {
     if (!obra) return;
@@ -53,10 +71,34 @@ export default function ObraDetalhePage() {
           </h2>
           <p className="text-sm text-gray-500">{obra.cliente.nome}</p>
         </div>
+        <button onClick={gerarLink} disabled={gerandoLink} className="btn-primary">
+          <Link2 className="w-4 h-4" /> {gerandoLink ? "Gerando…" : "Link p/ construtora"}
+        </button>
         <button onClick={emitirNF} className="btn-outline">
           <FileText className="w-4 h-4" /> Emitir NF
         </button>
       </div>
+
+      {linkObra && (
+        <div className="card !bg-brand-light !border-brand/30 flex flex-wrap items-center gap-3">
+          <Link2 className="w-5 h-5 text-brand shrink-0" />
+          <div className="flex-1 min-w-[200px]">
+            <div className="text-sm font-medium text-brand-dark">Link de acompanhamento (copiado) — construtora vê sem login</div>
+            <a href={linkObra} target="_blank" rel="noopener noreferrer" className="text-xs text-brand break-all underline">{linkObra}</a>
+          </div>
+          <button onClick={() => navigator.clipboard.writeText(linkObra)} className="btn-outline text-sm">
+            <Copy className="w-4 h-4" /> Copiar
+          </button>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`Acompanhe a obra ${obra.nome}: ${linkObra}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ background: "#25D366", color: "#fff", display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, fontWeight: 600 }}
+          >
+            <MessageCircle className="w-4 h-4" /> WhatsApp
+          </a>
+        </div>
+      )}
 
       <Tabs
         items={[
