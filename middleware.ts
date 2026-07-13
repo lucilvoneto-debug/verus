@@ -44,6 +44,10 @@ export async function middleware(req: NextRequest) {
     (pathname.startsWith("/api/") &&
       !pathname.startsWith("/api/auth") &&
       !pathname.startsWith("/api/cron") &&
+      !pathname.startsWith("/api/mobile") &&
+      !pathname.startsWith("/api/foto") &&
+      !pathname.startsWith("/api/mp") &&
+      !pathname.startsWith("/api/proposta") &&
       !pathname.startsWith("/api/portal"));
 
   if (needsAdmin) {

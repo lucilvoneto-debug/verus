@@ -12,6 +12,8 @@ import {
   ScrollText,
   Download,
   MessageCircle,
+  Link2,
+  Copy,
 } from "lucide-react";
 import {
   useOrcamento,
@@ -41,6 +43,23 @@ export default function OrcamentoDetalhePage() {
   const [waTelefone, setWaTelefone] = useState("");
   const [waMensagem, setWaMensagem] = useState("");
   const [waEnviando, setWaEnviando] = useState(false);
+  const [linkProposta, setLinkProposta] = useState<string | null>(null);
+  const [gerandoLink, setGerandoLink] = useState(false);
+
+  async function gerarLink() {
+    setGerandoLink(true);
+    try {
+      const r = await fetch(`/api/orcamento/${params.id}/link`, { method: "POST", headers: { origin: window.location.origin } });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Falha ao gerar link.");
+      setLinkProposta(j.url);
+      try { await navigator.clipboard.writeText(j.url); } catch { /* clipboard bloqueado */ }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro.");
+    } finally {
+      setGerandoLink(false);
+    }
+  }
 
   if (isLoading) return <div className="text-gray-500">Carregando...</div>;
   if (!orc) return <div className="text-gray-500">Orçamento não encontrado.</div>;
@@ -122,6 +141,9 @@ export default function OrcamentoDetalhePage() {
           <button onClick={abrirWhatsApp} className="btn-outline">
             <MessageCircle className="w-4 h-4" /> WhatsApp
           </button>
+          <button onClick={gerarLink} disabled={gerandoLink} className="btn-primary">
+            <Link2 className="w-4 h-4" /> {gerandoLink ? "Gerando…" : "Link p/ aprovar"}
+          </button>
           {orc.status !== "APROVADO" && (
             <button
               onClick={() => setStatus("APROVADO")}
@@ -165,6 +187,28 @@ export default function OrcamentoDetalhePage() {
           )}
         </div>
       </div>
+
+      {linkProposta && (
+        <div className="card !bg-brand-light !border-brand/30 flex flex-wrap items-center gap-3">
+          <Link2 className="w-5 h-5 text-brand shrink-0" />
+          <div className="flex-1 min-w-[200px]">
+            <div className="text-sm font-medium text-brand-dark">Link da proposta (copiado)</div>
+            <a href={linkProposta} target="_blank" rel="noopener noreferrer" className="text-xs text-brand break-all underline">{linkProposta}</a>
+          </div>
+          <button onClick={() => navigator.clipboard.writeText(linkProposta)} className="btn-outline text-sm">
+            <Copy className="w-4 h-4" /> Copiar
+          </button>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`Proposta Verus ${orc.numero}: ${linkProposta}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-wa text-sm"
+            style={{ background: "#25D366", color: "#fff", display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, fontWeight: 600 }}
+          >
+            <MessageCircle className="w-4 h-4" /> Enviar no WhatsApp
+          </a>
+        </div>
+      )}
 
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
