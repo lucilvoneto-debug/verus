@@ -27,6 +27,7 @@ async function main() {
   await prisma.lead.deleteMany();
   await prisma.colaborador.deleteMany();
   await prisma.material.deleteMany();
+  await prisma.fabricante.deleteMany();
   await prisma.fornecedor.deleteMany();
   await prisma.servico.deleteMany();
   await prisma.clienteAcesso.deleteMany();
@@ -117,12 +118,29 @@ async function main() {
     prisma.fornecedor.create({ data: { nome: "Otto Baumgart", cnpj: "55555555000155" } }),
   ]);
 
+  console.log("Criando fabricantes...");
+  const fabricantesData = [
+    { nome: "Viapol", ativo: true, catalogoSincronizado: true, fispqUrl: "https://www.viapol.com.br/fispq", normasTecnicas: "NBR 9575/9574", garantiaAnosPadrao: 10 },
+    { nome: "Sika", ativo: true, catalogoSincronizado: true, garantiaAnosPadrao: 15 },
+    { nome: "Quartzolit", ativo: true, catalogoSincronizado: true, garantiaAnosPadrao: 8 },
+    { nome: "Denver", ativo: true, catalogoSincronizado: false, observacoes: "ficha técnica pendente" },
+    { nome: "Dryko", ativo: true, catalogoSincronizado: true },
+    { nome: "Vedacit", ativo: true, catalogoSincronizado: true, normasTecnicas: "linha elastomérica" },
+    { nome: "Bautech", ativo: true, catalogoSincronizado: false },
+    { nome: "Icobit", ativo: true, catalogoSincronizado: true },
+    { nome: "Soprema", ativo: true, catalogoSincronizado: true, normasTecnicas: "membrana líquida" },
+  ];
+  const fabricantes = await Promise.all(
+    fabricantesData.map((f) => prisma.fabricante.create({ data: f }))
+  );
+  const fabricantePorNome = (nome: string) => fabricantes.find((f) => f.nome === nome)!;
+
   console.log("Criando materiais...");
   const materiaisData = [
     { nome: "Manta asfáltica 4mm", categoria: "Manta", unidade: "m2", custoMedio: 28, estoqueAtual: 320, estoqueMinimo: 100 },
-    { nome: "Manta líquida PU 18kg", categoria: "Manta líquida", unidade: "balde", custoMedio: 480, estoqueAtual: 22, estoqueMinimo: 8 },
-    { nome: "Primer asfáltico 18L", categoria: "Primer", unidade: "balde", custoMedio: 220, estoqueAtual: 18, estoqueMinimo: 6 },
-    { nome: "Argamassa polimérica 18kg", categoria: "Argamassa", unidade: "saco", custoMedio: 180, estoqueAtual: 45, estoqueMinimo: 15 },
+    { nome: "Manta líquida PU 18kg", categoria: "Manta líquida", unidade: "balde", custoMedio: 480, estoqueAtual: 22, estoqueMinimo: 8, fabricanteId: fabricantePorNome("Sika").id },
+    { nome: "Primer asfáltico 18L", categoria: "Primer", unidade: "balde", custoMedio: 220, estoqueAtual: 18, estoqueMinimo: 6, fabricanteId: fabricantePorNome("Viapol").id },
+    { nome: "Argamassa polimérica 18kg", categoria: "Argamassa", unidade: "saco", custoMedio: 180, estoqueAtual: 45, estoqueMinimo: 15, fabricanteId: fabricantePorNome("Quartzolit").id },
     { nome: "Tela de poliéster 1m x 50m", categoria: "Tela", unidade: "rolo", custoMedio: 95, estoqueAtual: 30, estoqueMinimo: 10 },
     { nome: "Resina epóxi 5kg", categoria: "Resina", unidade: "balde", custoMedio: 210, estoqueAtual: 12, estoqueMinimo: 5 },
     { nome: "Selante PU 600ml", categoria: "Selante", unidade: "tubo", custoMedio: 38, estoqueAtual: 80, estoqueMinimo: 20 },

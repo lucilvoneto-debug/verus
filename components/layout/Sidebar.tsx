@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, Headset, MapPin, FileText, Wrench,
   ScrollText, Hammer, ListChecks, HardHat, Calendar, Boxes, ShoppingCart,
   Truck, Wallet, Ruler, ShieldCheck, Smile, FolderOpen, BarChart3, Bell,
-  UserCog, Settings, ChevronLeft, ChevronRight,
+  UserCog, Settings, ChevronLeft, ChevronRight, RefreshCw, CloudRain, Factory,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -45,6 +45,7 @@ const groups: Group[] = [
     label: "Suprimentos",
     items: [
       { label: "Estoque", href: "/dashboard/estoque", icon: Boxes },
+      { label: "Fabricantes", href: "/dashboard/fabricantes", icon: Factory },
       { label: "Compras", href: "/dashboard/compras", icon: ShoppingCart },
       { label: "Fornecedores", href: "/dashboard/fornecedores", icon: Truck },
     ],
@@ -57,6 +58,8 @@ const groups: Group[] = [
     label: "Pós-venda",
     items: [
       { label: "Garantias", href: "/dashboard/garantias", icon: ShieldCheck },
+      { label: "Manutenção", href: "/dashboard/manutencao", icon: RefreshCw },
+      { label: "Gatilho Clima", href: "/dashboard/gatilho-clima", icon: CloudRain },
       { label: "Pós-venda", href: "/dashboard/pos-venda", icon: Smile },
       { label: "Documentos", href: "/dashboard/documentos", icon: FolderOpen },
     ],
