@@ -89,3 +89,61 @@ export function whatsappStatus(): { provider: string; connected: boolean } {
     provider !== "none" && !!process.env.WHATSAPP_TOKEN && !!process.env.WHATSAPP_INSTANCE;
   return { provider, connected };
 }
+
+function evoConfig() {
+  return {
+    host: (process.env.WHATSAPP_HOST ?? "").replace(/\/+$/, ""),
+    token: process.env.WHATSAPP_TOKEN ?? "",
+    instance: process.env.WHATSAPP_INSTANCE ?? "",
+  };
+}
+
+export type InstanceState =
+  | "conectado"
+  | "conectando"
+  | "desconectado"
+  | "nao_configurado"
+  | "erro";
+
+/** Estado real da instância (Evolution). "open" = conectado. */
+export async function getInstanceState(): Promise<{ state: InstanceState; detalhe?: string }> {
+  const provider = (process.env.WHATSAPP_PROVIDER ?? "none").toLowerCase();
+  const { host, token, instance } = evoConfig();
+  if (provider !== "evolution" || !host || !token || !instance) {
+    return { state: "nao_configurado" };
+  }
+  try {
+    const res = await fetch(`${host}/instance/connectionState/${instance}`, {
+      headers: { apikey: token },
+      cache: "no-store",
+    });
+    if (!res.ok) return { state: "erro", detalhe: `HTTP ${res.status}` };
+    const json = (await res.json().catch(() => ({}))) as { instance?: { state?: string } };
+    const s = json.instance?.state;
+    if (s === "open") return { state: "conectado" };
+    if (s === "connecting") return { state: "conectando" };
+    return { state: "desconectado", detalhe: s };
+  } catch (err) {
+    return { state: "erro", detalhe: err instanceof Error ? err.message : "falha" };
+  }
+}
+
+/** Pega o QR code (base64) pra conectar/reconectar a instância (Evolution). */
+export async function getQrCode(): Promise<{ ok: boolean; base64?: string; code?: string; error?: string }> {
+  const provider = (process.env.WHATSAPP_PROVIDER ?? "none").toLowerCase();
+  const { host, token, instance } = evoConfig();
+  if (provider !== "evolution" || !host || !token || !instance) {
+    return { ok: false, error: "WhatsApp não configurado. Defina WHATSAPP_PROVIDER=evolution + HOST/TOKEN/INSTANCE." };
+  }
+  try {
+    const res = await fetch(`${host}/instance/connect/${instance}`, {
+      headers: { apikey: token },
+      cache: "no-store",
+    });
+    const json = (await res.json().catch(() => ({}))) as { base64?: string; code?: string; error?: string };
+    if (!res.ok) return { ok: false, error: json.error ?? `HTTP ${res.status}` };
+    return { ok: true, base64: json.base64, code: json.code };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "falha" };
+  }
+}

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Save, MessageCircle, FileText, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { Save, MessageCircle, FileText, ExternalLink, QrCode } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 
@@ -123,6 +124,7 @@ export default function ConfiguracoesPage() {
             envs={["WHATSAPP_PROVIDER", "WHATSAPP_TOKEN", "WHATSAPP_INSTANCE"]}
             docsUrl="https://developer.z-api.io/"
             status={statusData?.whatsapp}
+            manageUrl="/dashboard/configuracoes/whatsapp"
           />
           <IntegracaoCard
             icon={<FileText className="w-5 h-5" />}
@@ -145,6 +147,7 @@ function IntegracaoCard({
   envs,
   docsUrl,
   status,
+  manageUrl,
 }: {
   icon: React.ReactNode;
   titulo: string;
@@ -152,6 +155,7 @@ function IntegracaoCard({
   envs: string[];
   docsUrl: string;
   status?: IntegracaoStatus;
+  manageUrl?: string;
 }) {
   const connected = status?.connected ?? false;
   return (
@@ -182,6 +186,11 @@ function IntegracaoCard({
           >
             Documentação <ExternalLink className="w-3.5 h-3.5" />
           </a>
+          {manageUrl && (
+            <Link href={manageUrl} className="btn-primary text-sm mt-3 !py-1.5">
+              <QrCode className="w-4 h-4" /> Conectar / Ver QR
+            </Link>
+          )}
         </div>
       </div>
     </Card>
