@@ -79,6 +79,9 @@ model Cliente {
   contasReceber ContaReceber[]
   garantias    Garantia[]
   chamados     ChamadoAssistencia[]
+  planosManutencao PlanoManutencao[]
+  disparosTemporais DisparoTemporal[]
+  pagamentos   Pagamento[]
   acesso       ClienteAcesso?
 
   @@index([nome])
@@ -187,6 +190,16 @@ model Servico {
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
 
+  // --- Bloco 2: motor de orçamento (cálculo automático de custoPadrao/precoPadrao) ---
+  percaPercent             Float?    // perdas/sobreposição sobre subtotal de materiais, ex.: 0.08 = 8%
+  maoDeObraPorUnidade      Float?    // R$ por unidade do Servico.unidade
+  equipamentosPorUnidade   Float?    // R$ por unidade
+  episTransportePorUnidade Float?    // R$ por unidade
+  bdiPercent               Float?    // sobre (materiais+perdas+mão de obra+equipamentos+epis)
+  impostosPercent          Float?    // sobre subtotal+BDI
+  lucroPercent             Float?    // sobre subtotal+BDI+impostos
+  custoCalculadoEm         DateTime? // última vez que o motor recalculou custoPadrao/precoPadrao
+
   materiais             ServicoMaterial[]
   itensOrcamento        OrcamentoItem[]
 
@@ -205,6 +218,26 @@ model ServicoMaterial {
   @@unique([servicoId, materialId])
 }
 
+// Bloco 1 — Módulo de Inteligência de Compras + Orçamentação.
+// Fabricante do produto (Viapol, Sika, Quartzolit...), distinto do Fornecedor (quem vende/distribui).
+model Fabricante {
+  id                     String   @id @default(cuid())
+  nome                   String   @unique
+  ativo                  Boolean  @default(true)
+  catalogoSincronizado   Boolean  @default(false)
+  fichaTecnicaUrl        String?
+  fispqUrl               String?
+  normasTecnicas         String?
+  garantiaAnosPadrao     Int?
+  observacoes            String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  produtos               Material[]
+
+  @@index([nome])
+}
+
 model Material {
   id                  String   @id @default(cuid())
   nome                String
@@ -218,13 +251,33 @@ model Material {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
+  // --- Bloco 1: inteligência de compras/orçamentação ---
+  fabricanteId        String?
+  codigo              String?
+  codigoBarras        String?
+  embalagem           String?
+  rendimentoM2        Float?
+  tempoCuraHoras      Int?
+  precoMedio          Float?
+  ultimoPrecoPago     Float?
+  custoFrete          Float?
+  icmsPercent         Float?
+  ipiPercent          Float?
+  pisPercent          Float?
+  cofinsPercent       Float?
+  validade            DateTime?
+  leadTimeDias        Int?
+
   fornecedorPadrao    Fornecedor? @relation(fields: [fornecedorPadraoId], references: [id])
+  fabricante          Fabricante? @relation(fields: [fabricanteId], references: [id])
   servicos            ServicoMaterial[]
   movimentacoes       MovimentacaoEstoque[]
   itensCompra         ItemCompra[]
+  precos              PrecoHistorico[]
 
   @@index([nome])
   @@index([categoria])
+  @@index([fabricanteId])
 }
 
 model MovimentacaoEstoque {
@@ -261,9 +314,25 @@ model Fornecedor {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // --- Bloco 1: inteligência de compras/orçamentação ---
+  regiaoAtendida          String?
+  representanteNome       String?
+  representanteTelefone   String?
+  representanteWhatsapp   String?
+  prazoMedioDias          Int?
+  prazoNegociadoDias      Int?
+  freteDescricao          String?
+  pedidoMinimo            Float?
+  descontoVolumePercent   Float?
+  tabelaVigenteUrl        String?
+  indiceAtrasoPercent     Float?
+  indiceQualidade         Float?
+  avaliacaoMedia          Float?
+
   materiais    Material[]
   pedidos      PedidoCompra[]
   contasPagar  ContaPagar[]
+  precos       PrecoHistorico[]
 
   @@index([nome])
 }
@@ -372,6 +441,7 @@ model Obra {
   movimentacoes    MovimentacaoEstoque[]
   contasReceber    ContaReceber[]
   garantias        Garantia[]
+  planosManutencao PlanoManutencao[]
 
   @@index([clienteId])
   @@index([status])
@@ -410,10 +480,22 @@ model DiarioObra {
   fotos           String?
   createdAt       DateTime @default(now())
 
+  // --- Diário automático pro cliente (WhatsApp) ---
+  etapa            String?   // PRIMER | REGULARIZACAO | MANTA | MEMBRANA | TESTE | ENTREGA | CHUVA | GERAL
+  m2               Float?
+  lote             String?
+  percentualObra   Int?
+  fotoUrl          String?   // foto principal (link enviado ao cliente)
+  visivelCliente   Boolean   @default(true)
+  mensagemCliente  String?   // texto exato disparado no WhatsApp (vira prova)
+  enviadoClienteEm DateTime?
+  statusEnvio      String?   // PENDENTE | ENVIADO | FALHOU | SEM_WHATSAPP
+
   obra            Obra     @relation(fields: [obraId], references: [id], onDelete: Cascade)
   autor           User     @relation(fields: [autorId], references: [id])
 
   @@index([obraId])
+  @@index([enviadoClienteEm])
 }
 
 model Medicao {
@@ -503,6 +585,7 @@ model PedidoCompra {
   fornecedor    Fornecedor          @relation(fields: [fornecedorId], references: [id])
   itens         ItemCompra[]
   movimentacoes MovimentacaoEstoque[]
+  precos        PrecoHistorico[]
 
   @@index([fornecedorId])
   @@index([status])
@@ -518,6 +601,24 @@ model ItemCompra {
 
   pedido      PedidoCompra @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
   material    Material     @relation(fields: [materialId], references: [id])
+}
+
+// Bloco 1 — histórico de preços por material, para o futuro gráfico de evolução de preços.
+model PrecoHistorico {
+  id              String        @id @default(cuid())
+  materialId      String
+  fornecedorId    String?
+  preco           Float
+  dataReferencia  DateTime
+  fonte           String?
+  pedidoCompraId  String?
+  createdAt       DateTime      @default(now())
+
+  material        Material      @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  fornecedor      Fornecedor?   @relation(fields: [fornecedorId], references: [id])
+  pedidoCompra    PedidoCompra? @relation(fields: [pedidoCompraId], references: [id])
+
+  @@index([materialId, dataReferencia])
 }
 
 model ContaReceber {
@@ -539,6 +640,7 @@ model ContaReceber {
   cliente         Cliente     @relation(fields: [clienteId], references: [id])
   contrato        Contrato?   @relation(fields: [contratoId], references: [id])
   obra            Obra?       @relation(fields: [obraId], references: [id])
+  pagamentos      Pagamento[]
 
   @@index([clienteId])
   @@index([status])
@@ -575,6 +677,9 @@ model Garantia {
   tipoGarantia  String
   condicoes     String?
   status        String  @default("ATIVA")
+  // Garantia viva — avisos ao cliente (marco 180/90/30 dias antes do fim)
+  avisosClienteEnviados Int      @default(0)
+  ultimoAvisoClienteEm  DateTime?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -642,10 +747,105 @@ model Notificacao {
   @@index([lida])
 }
 
+// Pagamento do cliente (Pix/cartão via Mercado Pago) de uma conta a receber.
+model Pagamento {
+  id             String   @id @default(cuid())
+  contaReceberId String
+  clienteId      String
+  valor          Float
+  metodo         String   @default("PIX") // PIX | CARTAO
+  provedor       String   @default("MERCADOPAGO")
+  providerId     String?  // id do pagamento no Mercado Pago
+  status         String   @default("PENDENTE") // PENDENTE | APROVADO | RECUSADO | EXPIRADO | CANCELADO
+  qrCode         String?  // imagem base64 do QR (data)
+  copiaCola      String?  // pix copia-e-cola
+  ticketUrl      String?
+  expiraEm       DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  contaReceber   ContaReceber @relation(fields: [contaReceberId], references: [id])
+  cliente        Cliente      @relation(fields: [clienteId], references: [id])
+
+  @@index([contaReceberId])
+  @@index([clienteId])
+  @@index([providerId])
+  @@index([status])
+}
+
+// Foto guardada no próprio banco (bytea) — servida pública em /api/foto/:id.
+// Usada no diário de obra (link vai pro WhatsApp do cliente).
+model Foto {
+  id            String   @id @default(cuid())
+  mime          String   @default("image/jpeg")
+  dados         Bytes
+  tamanho       Int      @default(0)
+  contexto      String?  // ex.: "diario"
+  criadoPorId   String?
+  createdAt     DateTime @default(now())
+
+  @@index([contexto])
+}
+
 model Configuracao {
   id         String   @id @default(cuid())
   chave      String   @unique
   valor      String
   descricao  String?
   updatedAt  DateTime @updatedAt
+}
+
+// Idea 16 — plano de manutenção preventiva anual (receita recorrente).
+model PlanoManutencao {
+  id                 String    @id @default(cuid())
+  obraId             String
+  clienteId          String
+  periodicidadeMeses Int       @default(12)
+  proximaData        DateTime
+  valor              Float     @default(0)
+  status             String    @default("ATIVO") // ATIVO | PAUSADO | CANCELADO
+  ultimaExecucao     DateTime?
+  ultimoAvisoEm      DateTime?
+  observacoes        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  obra    Obra    @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  cliente Cliente @relation(fields: [clienteId], references: [id])
+
+  @@index([clienteId])
+  @@index([status])
+  @@index([proximaData])
+}
+
+// Idea 28 — gatilho pós-temporal (chuva forte na cidade dispara oferta de vistoria).
+model GatilhoTemporal {
+  id              String    @id @default(cuid())
+  cidade          String
+  lat             Float
+  lng             Float
+  ativo           Boolean   @default(true)
+  limiarChuvaMm   Float     @default(10)
+  cooldownDias    Int       @default(15)
+  mensagem        String    // template; {nome} vira o nome do cliente
+  ultimoDisparoEm DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([ativo])
+}
+
+model DisparoTemporal {
+  id        String   @id @default(cuid())
+  clienteId String
+  gatilhoId String
+  chuvaMm   Float
+  mensagem  String
+  status    String // ENVIADO | FALHOU | SEM_WHATSAPP
+  createdAt DateTime @default(now())
+
+  cliente   Cliente  @relation(fields: [clienteId], references: [id])
+
+  @@index([clienteId])
+  @@index([createdAt])
 }
