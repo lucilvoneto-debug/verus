@@ -8,7 +8,7 @@ const fmtData = (s?: string | null) => (s ? new Date(s).toLocaleDateString("pt-B
 interface Item { descricao: string; area?: number | null; quantidade: number; unidade: string; precoUnit: number; subtotal: number }
 interface Proposta {
   numero: string; status: string; validade: string; aprovadoEm?: string | null;
-  condicaoPagamento?: string | null; prazoExecucao?: string | null;
+  condicaoPagamento?: string | null; prazoExecucao?: string | null; escopo?: string | null;
   subtotal: number; desconto: number; total: number;
   cliente: { nome: string; documento?: string | null; cidade?: string | null; uf?: string | null };
   itens: Item[];
@@ -111,7 +111,15 @@ export default function PropostaPublica({ params }: { params: { token: string } 
             </div>
           </div>
 
-          {/* garantia / escopo */}
+          {/* escopo técnico */}
+          {p.escopo && (
+            <div style={{ marginTop: 20 }}>
+              <div style={{ fontWeight: 700, color: "#0A4258", marginBottom: 8 }}>Escopo dos serviços</div>
+              <div style={{ fontSize: 13, color: "#374151", whiteSpace: "pre-line", lineHeight: 1.55 }}>{p.escopo}</div>
+            </div>
+          )}
+
+          {/* garantia */}
           <div style={{ marginTop: 20, background: "#E1EDF2", borderRadius: 8, padding: 16, fontSize: 13, color: "#0A4258" }}>
             <b>Garantia:</b> serviço executado conforme ABNT NBR 9575/9574, com garantia de 5 anos contra
             infiltração no sistema aplicado. Materiais de primeira linha. Inclui limpeza e preparo de substrato.

@@ -38,6 +38,12 @@ export async function GET(_req: NextRequest, { params }: { params: { token: stri
     aprovadoEm: o.aprovadoEm,
     condicaoPagamento: o.condicaoPagamento,
     prazoExecucao: o.prazoExecucao,
+    // observações sem os carimbos internos de aceite (IP/data)
+    escopo: (o.observacoes || "")
+      .split("\n")
+      .filter((l) => !/^\s*\[(APROVADO|RECUSADO) via link/.test(l))
+      .join("\n")
+      .trim() || null,
     subtotal: o.subtotal,
     desconto: o.desconto,
     total: o.total,

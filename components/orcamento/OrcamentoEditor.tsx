@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { useColaboradores, useClientesSelect } from "@/hooks/useVisitas";
 import { useServicos } from "@/hooks/useServicos";
 import type { OrcamentoInput, OrcamentoItemInput } from "@/lib/validations/orcamento";
+import { ESCOPOS } from "@/lib/impermeabilizacao/escopos";
 import { formatCurrency } from "@/lib/utils";
 
 type Servico = {
@@ -332,9 +333,23 @@ export function OrcamentoEditor({
           />
         </div>
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Observações / escopo técnico</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            <span className="text-xs text-gray-500 self-center">Inserir escopo padrão:</span>
+            {ESCOPOS.map((e) => (
+              <button
+                key={e.id}
+                type="button"
+                onClick={() => setObservacoes((prev) => (prev ? `${prev}\n\n${e.texto}` : e.texto))}
+                title={e.aplicacao}
+                className="text-xs px-2 py-1 rounded-md border border-gray-300 text-brand hover:border-brand hover:bg-brand-light/40"
+              >
+                + {e.nome}
+              </button>
+            ))}
+          </div>
           <textarea
-            rows={3}
+            rows={6}
             className="input-verus"
             value={observacoes ?? ""}
             onChange={(e) => setObservacoes(e.target.value)}
