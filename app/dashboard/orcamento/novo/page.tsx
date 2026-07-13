@@ -1,12 +1,35 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { OrcamentoEditor } from "@/components/orcamento/OrcamentoEditor";
 import { useCreateOrcamento } from "@/hooks/useOrcamentos";
+import type { OrcamentoItemInput } from "@/lib/validations/orcamento";
+
+const MOTOR_ITEM_KEY = "motor-orcamento-item";
+
+/**
+ * Lê o item pré-calculado pelo Motor de orçamento (se houver) de forma
+ * SÍNCRONA, no inicializador do useState — não em um useEffect. OrcamentoEditor
+ * faz `useState(defaultValues?.itens ?? [])`, ou seja, só lê a prop uma vez no
+ * mount: se o valor chegasse depois (via effect assíncrono), o item nunca
+ * apareceria no editor.
+ */
+function lerItemDoMotor(): OrcamentoItemInput[] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(MOTOR_ITEM_KEY);
+    if (!raw) return null;
+    const item = JSON.parse(raw);
+    if (!item || typeof item !== "object" || !item.servicoId) return null;
+    return [item as OrcamentoItemInput];
+  } catch {
+    return null;
+  }
+}
 
 function NovoOrcamentoPageInner() {
   const router = useRouter();
@@ -15,6 +38,14 @@ function NovoOrcamentoPageInner() {
 
   const visitaId = sp.get("visitaId") ?? undefined;
   const clienteId = sp.get("clienteId") ?? undefined;
+
+  const [itensPrefill] = useState<OrcamentoItemInput[] | null>(() => lerItemDoMotor());
+
+  // Some com a chave depois que o valor já foi consumido no estado inicial
+  // do editor, pra não vazar num "novo orçamento" futuro sem relação.
+  useEffect(() => {
+    if (itensPrefill) sessionStorage.removeItem(MOTOR_ITEM_KEY);
+  }, [itensPrefill]);
 
   return (
     <div className="space-y-6">
@@ -34,7 +65,7 @@ function NovoOrcamentoPageInner() {
         defaultValues={{
           clienteId,
           visitaId,
-          itens: [],
+          itens: itensPrefill ?? [],
           desconto: 0,
         }}
         submitting={create.isPending}

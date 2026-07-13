@@ -59,6 +59,13 @@ export async function POST(req: NextRequest) {
         tempoMedio: data.tempoMedio ?? null,
         observacoesTecnicas: data.observacoesTecnicas || null,
         ativo: data.ativo,
+        percaPercent: data.percaPercent ?? null,
+        maoDeObraPorUnidade: data.maoDeObraPorUnidade ?? null,
+        equipamentosPorUnidade: data.equipamentosPorUnidade ?? null,
+        episTransportePorUnidade: data.episTransportePorUnidade ?? null,
+        bdiPercent: data.bdiPercent ?? null,
+        impostosPercent: data.impostosPercent ?? null,
+        lucroPercent: data.lucroPercent ?? null,
       },
     });
     return NextResponse.json(servico, { status: 201 });

@@ -14,6 +14,17 @@ export const servicoSchema = z.object({
   tempoMedio: z.number().nonnegative().optional().nullable(),
   observacoesTecnicas: z.string().optional().or(z.literal("")),
   ativo: z.boolean().default(true),
+
+  // Bloco 2 — motor de orçamento. Percentuais são armazenados como fração
+  // (0.08 = 8%); a conversão de/para "número que o usuário digita como %"
+  // acontece no componente de formulário, não aqui.
+  percaPercent: z.number().min(0).max(1).optional().nullable(),
+  maoDeObraPorUnidade: z.number().nonnegative().optional().nullable(),
+  equipamentosPorUnidade: z.number().nonnegative().optional().nullable(),
+  episTransportePorUnidade: z.number().nonnegative().optional().nullable(),
+  bdiPercent: z.number().min(0).max(1).optional().nullable(),
+  impostosPercent: z.number().min(0).max(1).optional().nullable(),
+  lucroPercent: z.number().min(0).max(1).optional().nullable(),
 });
 
 export type ServicoInput = z.infer<typeof servicoSchema>;

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ServicoInput, ServicoMaterialInput } from "@/lib/validations/servico";
+import type { ResultadoCalculo } from "@/lib/orcamento/motor";
 
 type ListParams = {
   q?: string;
@@ -125,6 +126,45 @@ export function useRemoveServicoMaterial(servicoId: string) {
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["servico", servicoId] }),
+  });
+}
+
+export function useCalcularServico(servicoId: string) {
+  return useMutation({
+    mutationFn: async (quantidade: number) => {
+      const res = await fetch(`/api/servicos/${servicoId}/calcular`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantidade }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? "Erro ao calcular");
+      }
+      return res.json() as Promise<ResultadoCalculo>;
+    },
+  });
+}
+
+export function useAplicarCalculoServico(servicoId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (quantidade: number) => {
+      const res = await fetch(`/api/servicos/${servicoId}/aplicar-calculo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantidade }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? "Erro ao aplicar cálculo");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["servico", servicoId] });
+      qc.invalidateQueries({ queryKey: ["servicos"] });
+    },
   });
 }
 

@@ -25,6 +25,13 @@ export default function EditarServicoPage() {
     tempoMedio: data.tempoMedio ?? undefined,
     observacoesTecnicas: data.observacoesTecnicas ?? "",
     ativo: data.ativo,
+    percaPercent: data.percaPercent ?? undefined,
+    maoDeObraPorUnidade: data.maoDeObraPorUnidade ?? undefined,
+    equipamentosPorUnidade: data.equipamentosPorUnidade ?? undefined,
+    episTransportePorUnidade: data.episTransportePorUnidade ?? undefined,
+    bdiPercent: data.bdiPercent ?? undefined,
+    impostosPercent: data.impostosPercent ?? undefined,
+    lucroPercent: data.lucroPercent ?? undefined,
   };
 
   return (

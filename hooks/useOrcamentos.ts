@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { OrcamentoInput } from "@/lib/validations/orcamento";
+import type { ResultadoCalculo } from "@/lib/orcamento/motor";
 
 type ListParams = {
   q?: string;
@@ -117,6 +118,28 @@ export function useChangeOrcamentoStatus(id: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["orcamentos"] });
       qc.invalidateQueries({ queryKey: ["orcamento", id] });
+    },
+  });
+}
+
+export type MotorOrcamentoResposta = {
+  servico: { id: string; nome: string; unidade: string };
+  resultado: ResultadoCalculo;
+};
+
+export function useMotorOrcamento() {
+  return useMutation({
+    mutationFn: async (input: { servicoId: string; quantidade: number }) => {
+      const res = await fetch("/api/orcamento/motor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? "Erro ao calcular");
+      }
+      return res.json() as Promise<MotorOrcamentoResposta>;
     },
   });
 }

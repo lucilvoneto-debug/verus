@@ -3,17 +3,20 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Calculator, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   useServico,
   useAddServicoMaterial,
   useRemoveServicoMaterial,
   useMateriais,
+  useCalcularServico,
+  useAplicarCalculoServico,
 } from "@/hooks/useServicos";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import type { ResultadoCalculo } from "@/lib/orcamento/motor";
 
 const unidadeLabel: Record<string, string> = {
   M2: "m²",
@@ -151,6 +154,8 @@ function MateriaisTab({
 
   return (
     <div className="space-y-4">
+      <RecalcularCard servicoId={servicoId} temMateriais={materiais.length > 0} />
+
       <Card>
         <h3 className="font-display text-lg font-semibold mb-4">Adicionar material</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -235,6 +240,165 @@ function MateriaisTab({
         </div>
       </Card>
     </div>
+  );
+}
+
+function RecalcularCard({
+  servicoId,
+  temMateriais,
+}: {
+  servicoId: string;
+  temMateriais: boolean;
+}) {
+  const [quantidade, setQuantidade] = useState("100");
+  const [resultado, setResultado] = useState<ResultadoCalculo | null>(null);
+  const calcular = useCalcularServico(servicoId);
+  const aplicar = useAplicarCalculoServico(servicoId);
+
+  async function handleCalcular() {
+    const q = Number(quantidade);
+    if (!q || q <= 0) {
+      alert("Informe uma quantidade de referência válida");
+      return;
+    }
+    try {
+      const r = await calcular.mutateAsync(q);
+      setResultado(r);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao calcular");
+    }
+  }
+
+  async function handleAplicar() {
+    const q = Number(quantidade);
+    if (!q || q <= 0) return;
+    try {
+      await aplicar.mutateAsync(q);
+      alert("Custo padrão e preço padrão atualizados a partir do cálculo.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao aplicar");
+    }
+  }
+
+  return (
+    <Card>
+      <div className="flex items-center gap-2 mb-1">
+        <Calculator className="w-4 h-4 text-brand-red" />
+        <h3 className="font-display text-lg font-semibold">Recalcular a partir dos materiais</h3>
+      </div>
+      <p className="text-xs text-gray-500 mb-4">
+        Usa o preço médio (ou custo médio, se não houver preço médio) de cada material vinculado
+        para gerar o custo e o preço padrão do serviço.
+      </p>
+
+      {!temMateriais && (
+        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-4">
+          Nenhum material vinculado ainda — adicione ao menos um material abaixo antes de calcular.
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <label className="text-xs text-gray-500">Quantidade de referência</label>
+          <input
+            type="number"
+            step="0.01"
+            className="input-verus w-40"
+            value={quantidade}
+            onChange={(e) => setQuantidade(e.target.value)}
+          />
+        </div>
+        <button
+          onClick={handleCalcular}
+          disabled={calcular.isPending || !temMateriais}
+          className="btn-outline"
+        >
+          {calcular.isPending ? "Calculando..." : "Calcular"}
+        </button>
+        {resultado && (
+          <button onClick={handleAplicar} disabled={aplicar.isPending} className="btn-primary">
+            {aplicar.isPending ? "Aplicando..." : "Aplicar ao serviço"}
+          </button>
+        )}
+      </div>
+
+      {resultado && (
+        <div className="mt-4 overflow-x-auto">
+          <table className="table-verus">
+            <tbody>
+              {resultado.linhasMateriais.map((l, i) => (
+                <tr key={i}>
+                  <td>{l.label}</td>
+                  <td className="text-right tabular-nums">{formatCurrency(l.valor)}</td>
+                </tr>
+              ))}
+              <tr>
+                <td className="font-medium">Subtotal materiais</td>
+                <td className="text-right tabular-nums font-medium">
+                  {formatCurrency(resultado.materiaisSubtotal)}
+                </td>
+              </tr>
+              <tr>
+                <td>{resultado.perdas.label}</td>
+                <td className="text-right tabular-nums">{formatCurrency(resultado.perdas.valor)}</td>
+              </tr>
+              <tr>
+                <td>{resultado.maoDeObra.label}</td>
+                <td className="text-right tabular-nums">
+                  {formatCurrency(resultado.maoDeObra.valor)}
+                </td>
+              </tr>
+              <tr>
+                <td>{resultado.equipamentos.label}</td>
+                <td className="text-right tabular-nums">
+                  {formatCurrency(resultado.equipamentos.valor)}
+                </td>
+              </tr>
+              <tr>
+                <td>{resultado.episTransporte.label}</td>
+                <td className="text-right tabular-nums">
+                  {formatCurrency(resultado.episTransporte.valor)}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-medium">Custo direto</td>
+                <td className="text-right tabular-nums font-medium">
+                  {formatCurrency(resultado.custoDireto)}
+                </td>
+              </tr>
+              <tr>
+                <td>{resultado.bdi.label}</td>
+                <td className="text-right tabular-nums">{formatCurrency(resultado.bdi.valor)}</td>
+              </tr>
+              <tr>
+                <td>{resultado.impostos.label}</td>
+                <td className="text-right tabular-nums">
+                  {formatCurrency(resultado.impostos.valor)}
+                </td>
+              </tr>
+              <tr>
+                <td>{resultado.lucro.label}</td>
+                <td className="text-right tabular-nums">{formatCurrency(resultado.lucro.valor)}</td>
+              </tr>
+              <tr>
+                <td className="font-display font-semibold text-brand-dark">Preço total</td>
+                <td className="text-right tabular-nums font-display font-semibold text-brand-dark">
+                  {formatCurrency(resultado.precoTotal)}
+                </td>
+              </tr>
+              <tr>
+                <td className="text-gray-500">
+                  Custo unit. ({quantidade} un.) / Preço unit.
+                </td>
+                <td className="text-right tabular-nums text-gray-500">
+                  {formatCurrency(resultado.custoUnit)} / {formatCurrency(resultado.precoUnit)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
   );
 }
 
