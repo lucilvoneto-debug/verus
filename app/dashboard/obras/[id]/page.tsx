@@ -19,6 +19,7 @@ export default function ObraDetalhePage() {
   const { data: obra, isLoading } = useObra(params.id);
   const [linkObra, setLinkObra] = useState<string | null>(null);
   const [gerandoLink, setGerandoLink] = useState(false);
+  const [envioInfo, setEnvioInfo] = useState<{ autoEnviado: boolean; telefone: string | null; motivo?: string } | null>(null);
 
   async function gerarLink() {
     setGerandoLink(true);
@@ -27,6 +28,7 @@ export default function ObraDetalhePage() {
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || "Falha ao gerar link.");
       setLinkObra(j.url);
+      setEnvioInfo({ autoEnviado: j.autoEnviado, telefone: j.telefone, motivo: j.motivo });
       try { await navigator.clipboard.writeText(j.url); } catch { /* clipboard bloqueado */ }
     } catch (e) {
       alert(e instanceof Error ? e.message : "Erro.");
@@ -83,7 +85,14 @@ export default function ObraDetalhePage() {
         <div className="card !bg-brand-light !border-brand/30 flex flex-wrap items-center gap-3">
           <Link2 className="w-5 h-5 text-brand shrink-0" />
           <div className="flex-1 min-w-[200px]">
-            <div className="text-sm font-medium text-brand-dark">Link de acompanhamento (copiado) — construtora vê sem login</div>
+            <div className="text-sm font-medium text-brand-dark">
+              {envioInfo?.autoEnviado
+                ? `✓ Enviado automático no WhatsApp ${envioInfo.telefone ?? ""}`
+                : "Link de acompanhamento (copiado) — construtora vê sem login"}
+            </div>
+            {!envioInfo?.autoEnviado && envioInfo?.motivo && (
+              <div className="text-xs text-amber-600">{envioInfo.motivo}</div>
+            )}
             <a href={linkObra} target="_blank" rel="noopener noreferrer" className="text-xs text-brand break-all underline">{linkObra}</a>
           </div>
           <button onClick={() => navigator.clipboard.writeText(linkObra)} className="btn-outline text-sm">
