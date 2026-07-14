@@ -1,6 +1,7 @@
+import Link from "next/link";
 import {
   DollarSign, FileText, CheckCircle2, Hammer, AlertTriangle, ArrowDownCircle,
-  ArrowUpCircle, Percent,
+  ArrowUpCircle, Percent, Search,
 } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
@@ -23,11 +24,16 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="font-display text-2xl font-bold text-brand-dark">Visão geral</h2>
-        <p className="text-sm text-gray-500">
-          Acompanhe os indicadores comerciais, operacionais e financeiros do mês.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="font-display text-2xl font-bold text-brand-dark">Visão geral</h2>
+          <p className="text-sm text-gray-500">
+            Acompanhe os indicadores comerciais, operacionais e financeiros do mês.
+          </p>
+        </div>
+        <Link href="/dashboard/busca" className="btn-outline">
+          <Search className="w-4 h-4" /> Buscar
+        </Link>
       </div>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
