@@ -71,6 +71,18 @@ export default function PropostaPublica({ params }: { params: { token: string } 
           {aprovado && <Faixa cor="#1D9E75">✓ Proposta APROVADA{p.aprovadoEm ? ` em ${fmtData(p.aprovadoEm)}` : ""}. A Verus entrará em contato.</Faixa>}
           {recusado && <Faixa cor="#9CA3AF">Proposta recusada.</Faixa>}
 
+          {/* baixar PDF */}
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+            <a
+              href={`/api/proposta/${params.token}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 13, color: "#0F5E7E", border: "1px solid #0F5E7E", borderRadius: 8, padding: "6px 12px", textDecoration: "none", fontWeight: 600 }}
+            >
+              ↓ Baixar PDF
+            </a>
+          </div>
+
           {/* cliente */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 24, marginBottom: 20 }}>
             <Bloco titulo="Cliente" texto={`${p.cliente.nome}${p.cliente.documento ? `\n${p.cliente.documento}` : ""}${p.cliente.cidade ? `\n${p.cliente.cidade}${p.cliente.uf ? "/" + p.cliente.uf : ""}` : ""}`} />
