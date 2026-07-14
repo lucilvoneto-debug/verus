@@ -86,6 +86,22 @@ export default function OrcamentoDetalhePage() {
     }
   }
 
+  async function recusar() {
+    const motivo = window.prompt("Motivo da perda (preço, prazo, concorrente, desistiu...):", "");
+    if (motivo === null) return; // cancelou
+    try {
+      const r = await fetch(`/api/orcamento/${params.id}/aprovar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "RECUSADO", motivo }),
+      });
+      if (!r.ok) throw new Error((await r.json()).error || "Falha.");
+      window.location.reload();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro");
+    }
+  }
+
   function abrirWhatsApp() {
     if (!orc) return;
     const tel = orc.cliente?.whatsapp ?? orc.cliente?.telefone ?? "";
@@ -172,7 +188,7 @@ export default function OrcamentoDetalhePage() {
           )}
           {orc.status !== "RECUSADO" && (
             <button
-              onClick={() => setStatus("RECUSADO")}
+              onClick={recusar}
               disabled={changeStatus.isPending}
               className="btn-outline"
             >

@@ -7,6 +7,7 @@ import { useOrcamentos, useDeleteOrcamento } from "@/hooks/useOrcamentos";
 import { useColaboradores } from "@/hooks/useVisitas";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { statusExibido } from "@/lib/orcamento-vencido";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const statusOpts = [
@@ -179,6 +180,7 @@ export default function OrcamentosPage() {
                   id: string;
                   numero: string;
                   criadoEm: string;
+                  dataValidade: string;
                   total: number;
                   margemPrevista: number;
                   status: string;
@@ -191,7 +193,7 @@ export default function OrcamentosPage() {
                     <td>{formatCurrency(o.total)}</td>
                     <td className="tabular-nums">{o.margemPrevista.toFixed(1)}%</td>
                     <td>
-                      <Badge tone={statusTone[o.status] ?? "neutral"}>{o.status}</Badge>
+                      {(() => { const st = statusExibido(o.status, o.dataValidade); return <Badge tone={statusTone[st] ?? "neutral"}>{st}</Badge>; })()}
                     </td>
                     <td>
                       <div className="flex items-center justify-end gap-1 pr-2">
