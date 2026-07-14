@@ -1,4 +1,7 @@
-import { StubPage } from "@/components/StubPage";
+import { DocumentosClient } from "@/components/documentos/DocumentosClient";
+
+export const dynamic = "force-dynamic";
+
 export default function Page() {
-  return <StubPage title="Documentos" description="Repositório de anexos por entidade." />;
+  return <DocumentosClient />;
 }
