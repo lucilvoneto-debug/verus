@@ -76,6 +76,9 @@ export default function ObraDetalhePage() {
         <button onClick={gerarLink} disabled={gerandoLink} className="btn-primary">
           <Link2 className="w-4 h-4" /> {gerandoLink ? "Gerando…" : "Link p/ construtora"}
         </button>
+        <a href={`/api/obras/${params.id}/garantia-pdf`} target="_blank" rel="noopener noreferrer" className="btn-outline">
+          <FileText className="w-4 h-4" /> Termo de garantia
+        </a>
         <button onClick={emitirNF} className="btn-outline">
           <FileText className="w-4 h-4" /> Emitir NF
         </button>
