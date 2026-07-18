@@ -176,6 +176,11 @@ function ehNomeValido(t: string): boolean {
  * letras) ou do rótulo de texto mais próximo. Perímetro e unidade são
  * autocalibrados pelo menor polígono que contém a etiqueta (se existir).
  */
+/** Acima disso não é ambiente — é total de prédio / linha de quadro de áreas. */
+const LIMITE_AMBIENTE_M2 = 2000;
+/** Convenção de tag de sala do arquiteto: "A=12,34 m²". */
+const RE_TAG_A = /A\s*=\s*[\d.]*\d,\d{2}\s*m\s*[²2]/i;
+
 export function ambientesDeTags(
   poligonos: PoligonoGeo[],
   textos: TextoGeo[],
@@ -183,13 +188,34 @@ export function ambientesDeTags(
 ): ResultadoGeo {
   const avisos: string[] = [];
 
-  const etiquetas = textos
-    .map((t) => ({ t, area: parseAreaTexto(t.texto) }))
-    .filter((x): x is { t: TextoGeo; area: number } => x.area != null && x.area >= 0.3 && x.area <= 5000);
+  const temTagA = textos.filter((t) => RE_TAG_A.test(t.texto)).length >= 3;
 
-  if (etiquetas.length === 0) {
-    throw new Error("Sem etiquetas de área no texto.");
+  let brutas = textos
+    .map((t) => ({ t, area: parseAreaTexto(t.texto), isA: RE_TAG_A.test(t.texto) }))
+    .filter((x): x is { t: TextoGeo; area: number; isA: boolean } => x.area != null && x.area >= 0.3);
+
+  // 1) corta número gigante = quadro de áreas / total do prédio (não é ambiente)
+  const gigantes = brutas.filter((x) => x.area > LIMITE_AMBIENTE_M2).length;
+  brutas = brutas.filter((x) => x.area <= LIMITE_AMBIENTE_M2);
+  if (gigantes) avisos.push(`${gigantes} número(s) grande(s) (> ${LIMITE_AMBIENTE_M2} m²) ignorado(s) — provável quadro de áreas do prédio, não ambiente.`);
+
+  // 2) se o desenho usa a convenção de sala "A=", usa SÓ ela (ignora número solto de tabela)
+  if (temTagA) {
+    const antes = brutas.length;
+    brutas = brutas.filter((x) => x.isA);
+    if (brutas.length < antes) avisos.push(`Usando só as etiquetas de sala "A=" (${brutas.length}); ${antes - brutas.length} número(s) solto(s) do desenho ignorado(s).`);
   }
+
+  if (brutas.length === 0) throw new Error("Sem etiquetas de área úteis.");
+
+  // 3) dedupe por (valor + posição) — mata cópia exata da mesma etiqueta
+  const vistosPos = new Set<string>();
+  const etiquetas = brutas.filter((x) => {
+    const k = `${Math.round(x.area * 100)}@${Math.round(x.t.x / 30)}_${Math.round(x.t.y / 30)}`;
+    if (vistosPos.has(k)) return false;
+    vistosPos.add(k);
+    return true;
+  });
 
   // candidatos a NOME: textos sem área, com letras, que não sejam lixo
   const rotulos = textos.filter((t) => !RE_AREA.test(t.texto) && ehNomeValido(t.texto));
@@ -239,6 +265,14 @@ export function ambientesDeTags(
   });
   if (unicos.length < ambientes.length) avisos.push(`${ambientes.length - unicos.length} etiqueta(s) repetida(s) removida(s).`);
   if (estimados > 0) avisos.push(`${estimados} ambiente(s) com perímetro ESTIMADO (sem contorno fechado) — confirme pro rodapé.`);
+
+  // aviso multi-prancha: mesma área repetindo muito = desenho com várias pranchas
+  const cont = new Map<number, number>();
+  for (const a of unicos) cont.set(a.areaPiso, (cont.get(a.areaPiso) ?? 0) + 1);
+  const repetidos = Array.from(cont.values()).filter((n) => n >= 4).length;
+  if (repetidos >= 2) {
+    avisos.push("⚠ Desenho parece ter VÁRIAS PRANCHAS (mesma área repetida em muitos lugares). A mesma sala pode estar contada mais de uma vez — confira a lista, remova duplicatas ou filtre por prancha/layer antes de fechar.");
+  }
 
   return { ambientes: unicos, unidadeDetectada: "m", poligonosLidos: poligonos.length, avisos };
 }
