@@ -115,7 +115,7 @@ model Lead {
   cidade          String?
   bairro          String?
   tipoImovel      String?     // RESIDENCIAL | CONDOMINIO | COMERCIAL | INDUSTRIA | OBRA
-  origem          String      // SITE | WHATSAPP | GOOGLE_GBP | GOOGLE_ADS | META_ADS | INSTAGRAM | INDICACAO | MANUAL
+  origem          String      // SITE | WHATSAPP | GOOGLE_GBP | GOOGLE_ADS | META_ADS | INSTAGRAM | FACEBOOK | TIKTOK | INDICACAO | MANUAL
   descricao       String
   urgencia        String      @default("MEDIA")
   status          String      @default("NOVO") // NOVO | CONTATO | VISITA_AGENDADA | ORCAMENTO_ENVIADO | NEGOCIACAO | GANHO | PERDIDO

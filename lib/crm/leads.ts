@@ -29,6 +29,8 @@ export const ORIGENS: Record<string, string> = {
   GOOGLE_ADS: "Google Ads",
   META_ADS: "Meta Ads",
   INSTAGRAM: "Instagram",
+  FACEBOOK: "Facebook",
+  TIKTOK: "TikTok",
   INDICACAO: "Indicação",
   MANUAL: "Manual",
 };
@@ -254,7 +256,9 @@ export function atribuirPorMensagem(texto: string, referral?: any): Atribuicao {
     return { origem, utmSource: src, utmCampaign: camp ?? null };
   }
   if (t.includes("vim pelo google")) return { origem: "GOOGLE_GBP", utmSource: "google", utmMedium: "gbp" };
-  if (t.includes("vim pelo instagram")) return { origem: "INSTAGRAM", utmSource: "instagram" };
+  if (t.includes("vim pelo instagram")) return { origem: "INSTAGRAM", utmSource: "instagram", utmMedium: "bio" };
+  if (t.includes("vim pelo facebook")) return { origem: "FACEBOOK", utmSource: "facebook", utmMedium: "bio" };
+  if (t.includes("vim pelo tiktok")) return { origem: "TIKTOK", utmSource: "tiktok", utmMedium: "bio" };
   if (t.includes("vim pelo site")) return { origem: "SITE", utmSource: "site" };
   return { origem: "WHATSAPP" };
 }
