@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { autorizaRota, moduloDaRota } from "@/lib/permissions";
+import { autorizaRota, moduloDaRota, papelValido } from "@/lib/permissions";
 
 const ADMIN_COOKIE_NAMES = [
   "next-auth.session-token",
@@ -80,9 +80,18 @@ export async function middleware(req: NextRequest) {
         );
       }
       const url = req.nextUrl.clone();
-      url.pathname = "/dashboard";
       url.search = "";
-      url.searchParams.set("negado", moduloDaRota(pathname) ?? "");
+      const modulo = moduloDaRota(pathname);
+      if (modulo === "dashboard" || modulo === "campo" || !papelValido(papel)) {
+        // Papel fora da matriz (ex.: "admin" minúsculo no banco) não pode nem
+        // abrir o dashboard — mandar pra lá faria loop de redirect.
+        url.pathname = "/login";
+        url.searchParams.set("erro", "papel");
+        url.searchParams.set("papel", papel ?? "");
+        return NextResponse.redirect(url);
+      }
+      url.pathname = "/dashboard";
+      url.searchParams.set("negado", modulo ?? "");
       return NextResponse.redirect(url);
     }
   }

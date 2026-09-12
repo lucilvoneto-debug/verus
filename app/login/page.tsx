@@ -1,15 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <Login />
+    </Suspense>
+  );
+}
+
+function Login() {
   const router = useRouter();
+  const sp = useSearchParams();
   const [email, setEmail] = useState("admin@verus.com.br");
   const [password, setPassword] = useState("admin123");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    sp.get("erro") === "papel"
+      ? `Seu usuário tem papel "${sp.get("papel") || "?"}", que não existe na matriz de permissão. Peça ao administrador para corrigir em Usuários.`
+      : null,
+  );
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

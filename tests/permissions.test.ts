@@ -54,3 +54,11 @@ describe("matriz", () => {
     }
   });
 });
+
+describe("normalização de papel", () => {
+  it("aceita caixa mista e espaço", () => {
+    expect(podeLer("admin", "financeiro")).toBe(true);
+    expect(podeLer(" Gestor ", "obras")).toBe(true);
+    expect(podeLer("ADMINISTRADOR", "obras")).toBe(false);
+  });
+});

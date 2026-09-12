@@ -209,22 +209,30 @@ export function moduloDaRota(pathname: string): Modulo | null {
   return null;
 }
 
+/** "admin ", "Gestor" → "ADMIN", "GESTOR". Banco antigo pode ter caixa mista. */
+export function normalizarPapel(v: unknown): Papel | null {
+  if (typeof v !== "string") return null;
+  const up = v.trim().toUpperCase();
+  return (PAPEIS as readonly string[]).includes(up) ? (up as Papel) : null;
+}
+
 export function papelValido(v: unknown): v is Papel {
-  return typeof v === "string" && (PAPEIS as readonly string[]).includes(v);
+  return normalizarPapel(v) !== null;
 }
 
 export function podeLer(papel: string | undefined, modulo: Modulo): boolean {
-  if (!papelValido(papel)) return false;
-  return MATRIZ[modulo].ler.includes(papel);
+  const p = normalizarPapel(papel);
+  return !!p && MATRIZ[modulo].ler.includes(p);
 }
 
 export function podeEscrever(papel: string | undefined, modulo: Modulo): boolean {
-  if (!papelValido(papel)) return false;
-  return MATRIZ[modulo].escrever.includes(papel);
+  const p = normalizarPapel(papel);
+  return !!p && MATRIZ[modulo].escrever.includes(p);
 }
 
 export function podeExcluir(papel: string | undefined): boolean {
-  return papelValido(papel) && PODE_EXCLUIR.includes(papel);
+  const p = normalizarPapel(papel);
+  return !!p && PODE_EXCLUIR.includes(p);
 }
 
 /**
