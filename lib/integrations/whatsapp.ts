@@ -1,9 +1,9 @@
 /**
- * Cliente WhatsApp (Z-API ou Evolution API).
+ * Cliente WhatsApp (Meta Cloud API, Z-API ou Evolution API).
  *
- * TODO: trocar por chamada real ao provedor.
  * Variáveis de env necessárias:
- *   WHATSAPP_PROVIDER  -> "zapi" | "evolution" | "none"
+ *   WHATSAPP_PROVIDER  -> "meta" | "zapi" | "evolution" | "none"
+ *                         "meta" = Cloud API oficial (coexistência) — ver lib/whatsapp/meta.ts
  *   WHATSAPP_TOKEN     -> token de cliente/instance
  *   WHATSAPP_INSTANCE  -> id da instância (Z-API) ou nome (Evolution)
  *
@@ -33,6 +33,15 @@ export async function sendMessage(
 
   if (!phone) {
     return { ok: false, error: "Telefone inválido" };
+  }
+
+  // Cloud API oficial (coexistência): sai pela linha padrão cadastrada.
+  if (provider === "meta") {
+    const { enviarTexto, linhaPadrao } = await import("@/lib/whatsapp/meta");
+    const linha = await linhaPadrao();
+    if (!linha) return { ok: false, error: "Nenhum número conectado na Cloud API" };
+    const r = await enviarTexto(linha.phoneNumberId, phone, text);
+    return { ok: r.ok, id: r.waId, error: r.error };
   }
 
   if (provider === "none" || !token || !instance) {
@@ -86,7 +95,9 @@ export async function sendMessage(
 export function whatsappStatus(): { provider: string; connected: boolean } {
   const provider = (process.env.WHATSAPP_PROVIDER ?? "none").toLowerCase();
   const connected =
-    provider !== "none" && !!process.env.WHATSAPP_TOKEN && !!process.env.WHATSAPP_INSTANCE;
+    provider === "meta"
+      ? !!process.env.META_APP_ID
+      : provider !== "none" && !!process.env.WHATSAPP_TOKEN && !!process.env.WHATSAPP_INSTANCE;
   return { provider, connected };
 }
 

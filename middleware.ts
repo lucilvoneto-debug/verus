@@ -37,6 +37,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Públicos: webhooks (Meta valida por assinatura) e formulário de lead do site.
+  const isPublicApi =
+    pathname.startsWith("/api/webhooks/") ||
+    (pathname === "/api/leads" && req.method === "POST");
+  if (isPublicApi) return NextResponse.next();
+
   // /dashboard/*, /campo/* e /api/* (não-auth, não-cron, não-portal) — sessão admin
   const needsAdmin =
     pathname.startsWith("/dashboard") ||

@@ -21,6 +21,8 @@ model User {
   colaborador   Colaborador?
   auditLogs     AuditLog[]
   leadsResp     Lead[]            @relation("LeadResp")
+  leadEventos   LeadEvento[]
+  linhasWa      LinhaWhatsapp[]   @relation("LinhaResp")
   atendResp     Atendimento[]     @relation("AtendResp")
   visitasTec    Visita[]          @relation("VisitaTec")
   orcamentos    Orcamento[]       @relation("OrcVend")
@@ -106,23 +108,152 @@ model ClienteAcesso {
 model Lead {
   id              String      @id @default(cuid())
   clienteId       String?
-  origem          String
+  // Contato bruto (antes de virar Cliente)
+  nome            String?
+  telefone        String?     // E.164 sem +, ex: 5582999990000
+  email           String?
+  cidade          String?
+  bairro          String?
+  tipoImovel      String?     // RESIDENCIAL | CONDOMINIO | COMERCIAL | INDUSTRIA | OBRA
+  origem          String      // SITE | WHATSAPP | GOOGLE_GBP | GOOGLE_ADS | META_ADS | INSTAGRAM | INDICACAO | MANUAL
   descricao       String
-  urgencia        String    @default("MEDIA")
-  status          String  @default("NOVO")
+  urgencia        String      @default("MEDIA")
+  status          String      @default("NOVO") // NOVO | CONTATO | VISITA_AGENDADA | ORCAMENTO_ENVIADO | NEGOCIACAO | GANHO | PERDIDO
+  statusEm        DateTime?
   motivoPerda     String?
-  responsavelId   String
+  valorEstimado   Float?
+  valorFechado    Float?
+  responsavelId   String?
   proximaAcao     String?
   dataProximaAcao DateTime?
+  // ─── Rastreio de marketing (UTM / Google / Meta) ───────────────────────
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  utmTerm         String?
+  utmContent      String?
+  gclid           String?     // Google Click ID (conversão offline)
+  fbclid          String?
+  fbc             String?
+  fbp             String?
+  ctwaClid        String?     // Click-to-WhatsApp click id (Meta)
+  adId            String?     // id do anúncio (Meta referral.source_id)
+  landingPage     String?
+  referrer        String?
+  conversaId      String?     @unique // conversa WhatsApp de origem
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
   cliente         Cliente?    @relation(fields: [clienteId], references: [id])
-  responsavel     User        @relation("LeadResp", fields: [responsavelId], references: [id])
+  responsavel     User?       @relation("LeadResp", fields: [responsavelId], references: [id])
+  conversa        ConversaWA? @relation(fields: [conversaId], references: [id])
   atendimentos    Atendimento[]
+  eventos         LeadEvento[]
 
   @@index([status])
   @@index([responsavelId])
+  @@index([telefone])
+  @@index([origem])
+  @@index([createdAt])
+}
+
+/// Timeline do lead: mudança de etapa, nota, ligação, mensagem, conversão.
+model LeadEvento {
+  id        String   @id @default(cuid())
+  leadId    String
+  tipo      String   // ETAPA | NOTA | LIGACAO | WHATSAPP | EMAIL | VISITA | ORCAMENTO | CONVERSAO | SISTEMA
+  descricao String
+  userId    String?
+  createdAt DateTime @default(now())
+
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([leadId])
+}
+
+/// Lead capturado por formulário de Lead Ads da Meta (webhook leadgen).
+model MetaLead {
+  id             String    @id @default(cuid())
+  leadgenId      String    @unique
+  formId         String?
+  pageId         String?
+  adId           String?
+  adsetId        String?
+  campaignId     String?
+  payload        Json
+  nome           String?
+  email          String?
+  telefone       String?
+  leadId         String?
+  criadoNaMetaEm DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+// ─── WhatsApp Cloud API (coexistência com o app WhatsApp Business) ────────
+
+/// Número da empresa conectado na Cloud API (phone_number_id).
+model LinhaWhatsapp {
+  id             String       @id @default(cuid())
+  phoneNumberId  String       @unique
+  wabaId         String?
+  numeroExibicao String?      // E.164 sem +
+  nomeVerificado String?
+  rotulo         String?      // "Empresa", "Vendedor X"
+  responsavelId  String?      // dono da caixa (userId)
+  padrao         Boolean      @default(false)
+  ativo          Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  responsavel    User?        @relation("LinhaResp", fields: [responsavelId], references: [id])
+  conversas      ConversaWA[]
+}
+
+model ConversaWA {
+  id               String       @id @default(cuid())
+  linhaId          String?
+  telefone         String       // E.164 sem +
+  nome             String?
+  clienteId        String?
+  responsavelId    String?
+  naoLidas         Int          @default(0)
+  ultimaMensagem   String?
+  ultimaMensagemEm DateTime?
+  arquivadaEm      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  linha            LinhaWhatsapp? @relation(fields: [linhaId], references: [id])
+  mensagens        MensagemWA[]
+  lead             Lead?
+
+  @@unique([linhaId, telefone])
+  @@index([telefone])
+  @@index([ultimaMensagemEm])
+}
+
+model MensagemWA {
+  id          String     @id @default(cuid())
+  conversaId  String
+  waId        String?    @unique // id da mensagem na Meta (wamid.…)
+  texto       String
+  tipo        String     @default("TEXT") // TEXT | IMAGE | AUDIO | VIDEO | DOCUMENT | LOCATION | STICKER | CONTACT
+  enviada     Boolean    // true = empresa → cliente
+  status      String     @default("sent") // sent | delivered | read | failed
+  statusErro  String?
+  mediaId     String?    // media id da Meta (proxy em /api/whatsapp/midia/{id})
+  mediaMime   String?
+  mediaNome   String?
+  latitude    Float?
+  longitude   Float?
+  viaApp      Boolean    @default(false) // enviada pelo celular (echo da coexistência)
+  userId      String?    // quem enviou pelo ERP
+  createdAt   DateTime   @default(now())
+
+  conversa    ConversaWA @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+
+  @@index([conversaId, createdAt])
 }
 
 model Atendimento {

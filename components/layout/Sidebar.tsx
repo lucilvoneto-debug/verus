@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, Headset, MapPin, FileText, Wrench,
   ScrollText, Hammer, ListChecks, HardHat, Calendar, Boxes, ShoppingCart,
   Truck, Wallet, Ruler, ShieldCheck, Smile, FolderOpen, BarChart3, Bell,
-  UserCog, Settings, ChevronLeft, ChevronRight, RefreshCw, CloudRain, Factory,
+  UserCog, Settings, ChevronLeft, ChevronRight, RefreshCw, CloudRain, Factory, MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,7 @@ const groups: Group[] = [
     items: [
       { label: "Clientes", href: "/dashboard/clientes", icon: Users },
       { label: "CRM & Funil", href: "/dashboard/crm", icon: BarChart3 },
+      { label: "WhatsApp", href: "/dashboard/whatsapp", icon: MessageCircle },
       { label: "Atendimentos", href: "/dashboard/atendimento", icon: Headset },
       { label: "Visitas", href: "/dashboard/visita", icon: MapPin },
       { label: "Orçamentos", href: "/dashboard/orcamento", icon: FileText },

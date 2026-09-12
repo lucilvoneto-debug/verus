@@ -53,8 +53,10 @@ Fontes: **Inter** (UI) e **Barlow** (títulos/números).
 | Módulo | Status |
 |---|---|
 | Dashboard (KPIs + charts mock) | OK |
+| Site público `/` (landing + formulário → CRM) | OK |
+| WhatsApp Cloud API (coexistência, inbox, webhook) | OK |
 | Clientes (CRUD completo) | OK |
-| CRM & Funil | Stub |
+| CRM & Funil (Kanban, leads com UTM, timeline, WhatsApp) | OK |
 | Atendimentos | Stub |
 | Visitas técnicas | Stub |
 | Orçamentos | Stub |
