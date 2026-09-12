@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Search, Users, FileText, Hammer, ScrollText } from "lucide-react";
 
 interface Resultados {
@@ -14,7 +15,23 @@ interface Resultados {
 const vazio: Resultados = { clientes: [], orcamentos: [], obras: [], contratos: [] };
 
 export default function BuscaPage() {
-  const [q, setQ] = useState("");
+  return (
+    <Suspense fallback={null}>
+      <Busca />
+    </Suspense>
+  );
+}
+
+function Busca() {
+  const sp = useSearchParams();
+  const [q, setQ] = useState(sp.get("q") ?? "");
+
+  // Busca vinda da Topbar (?q=) troca o termo mesmo com a página já aberta.
+  useEffect(() => {
+    const novo = sp.get("q");
+    if (novo && novo !== q) setQ(novo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp]);
   const [res, setRes] = useState<Resultados>(vazio);
   const [carregando, setCarregando] = useState(false);
 

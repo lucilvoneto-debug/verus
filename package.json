@@ -11,7 +11,10 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:wipe": "tsx prisma/wipe.ts",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p ."
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -52,6 +55,7 @@
     "tailwindcss": "^3.4.13",
     "tsx": "^4.19.1",
     "typescript": "^5",
-    "vercel": "^53.1.1"
+    "vercel": "^53.1.1",
+    "vitest": "^2.1.9"
   }
 }

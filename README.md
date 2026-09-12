@@ -50,36 +50,70 @@ Fontes: **Inter** (UI) e **Barlow** (títulos/números).
 
 ## Status dos módulos
 
-| Módulo | Status |
-|---|---|
-| Dashboard (KPIs + charts mock) | OK |
-| Site público `/` (landing + formulário → CRM) | OK |
-| WhatsApp Cloud API (coexistência, inbox, webhook) | OK |
-| Clientes (CRUD completo) | OK |
-| CRM & Funil (Kanban, leads com UTM, timeline, WhatsApp) | OK |
-| Atendimentos | Stub |
-| Visitas técnicas | Stub |
-| Orçamentos | Stub |
-| Serviços | Stub |
-| Contratos | Stub |
-| Obras | Stub |
-| Etapas | Stub |
-| Equipes | Stub |
-| Agenda | Stub |
-| Estoque | Stub |
-| Compras | Stub |
-| Fornecedores | Stub |
-| Financeiro | Stub |
-| Medições | Stub |
-| Garantias | Stub |
-| Pós-venda | Stub |
-| Documentos | Stub |
-| Relatórios | Stub |
-| Notificações | Stub |
-| Usuários | Stub |
-| Configurações | Stub |
+| Módulo | Status | Observação |
+|---|---|---|
+| Dashboard | OK | KPIs e gráficos com dados reais |
+| Site público `/` | OK | Landing com captura de lead (UTM, gclid, pixel) |
+| WhatsApp Cloud API | OK | Coexistência, inbox, mídia, templates aprovados, dono da conversa |
+| Clientes | OK | CRUD + anexos + portal do cliente |
+| CRM & Funil | OK | Kanban, leads com atribuição, timeline |
+| Atendimentos | OK | Chamados por canal, urgência, fotos, agenda visita |
+| Visitas técnicas | OK | Check-in/out, diagnóstico, fotos |
+| Orçamentos | OK | Motor por materiais, por planta (DWG/DXF), PDF, link público com aceite, e-mail |
+| Serviços / Materiais / Fabricantes | OK | |
+| Contratos | OK | Gerado do orçamento |
+| Obras | OK | Cronograma, diário com fotos, equipe, medições, custos, anexos, link público, termo de garantia |
+| Etapas | OK | |
+| Equipes | OK | Colaboradores, custo, login, quem está em qual obra |
+| Agenda | OK | Com clima (Open-Meteo) |
+| Estoque / Compras / Fornecedores | OK | |
+| Financeiro | OK | Contas a pagar/receber, fluxo de caixa |
+| Medições | OK | |
+| Garantias / Pós-venda | OK | Chamados de assistência |
+| Manutenção preventiva | OK | Plano por obra, aviso automático 30 dias antes (equipe + cliente) |
+| Gatilho de chuva | OK | Choveu acima do limiar na cidade → WhatsApp para a carteira |
+| Documentos | OK | Anexos por cliente/obra/contrato/orçamento |
+| Relatórios | OK | Comercial, orçamentos, obras, financeiro, pós-venda — export CSV |
+| Notificações | OK | Cron diário |
+| Usuários | OK | Papéis, senha, inativação |
+| Configurações | OK | WhatsApp, integrações |
+| App de campo `/campo` | OK | Técnico: etapas, diário, fotos, ponto |
+| Portal do cliente `/portal` | OK | |
 
-O schema Prisma já cobre **todas** as entidades necessárias para implementar os módulos restantes (`prisma/schema.prisma`).
+## Permissões
+
+`lib/permissions.ts` define a matriz papel × módulo. O middleware aplica em `/api/*` e `/dashboard/*`; a Sidebar esconde o que o papel não lê.
+
+| Papel | Resumo |
+|---|---|
+| ADMIN | tudo, inclusive usuários e configurações |
+| GESTOR | tudo, menos usuários/configurações |
+| SUPERVISOR / ENGENHEIRO | operação de obra, estoque, compras; engenheiro também orça |
+| COMERCIAL | clientes, CRM, WhatsApp, visitas, orçamentos, contratos |
+| FINANCEIRO | financeiro, compras, medições, contratos |
+| TECNICO | campo: visitas, etapas, diário |
+
+Só ADMIN/GESTOR apagam registros; os demais inativam/cancelam.
+
+## Arquivos e integrações
+
+| Integração | Env | Sem configurar |
+|---|---|---|
+| Fotos/documentos | `STORAGE_PROVIDER=db` (padrão, Postgres) ou `supabase` + `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` | funciona no banco |
+| WhatsApp | `WHATSAPP_PROVIDER=meta` + app da Meta (ver `docs/MARKETING-SETUP.md`) | modo mock (só loga) |
+| E-mail | `RESEND_API_KEY`, `EMAIL_FROM` | modo mock |
+| NFS-e | `NFE_PROVIDER=nfeio\|enotas`, `NFE_TOKEN`, `NFE_COMPANY_ID`, `NFE_SERVICE_CODE` | modo mock |
+| Cron | `CRON_SECRET`; Vercel chama `/api/cron/notifications` às 9h (notificações, manutenção, gatilho de chuva) | — |
+
+Imagens são reduzidas no navegador (1600 px, JPEG 0.82) antes do upload. Teto 15 MB por arquivo.
+
+## Testes
+
+```bash
+npm test          # vitest (permissões, relatórios/CSV, storage, whatsapp)
+npm run typecheck # tsc --noEmit
+npm run lint
+```
 
 ## Estrutura
 
@@ -91,11 +125,14 @@ app/
   dashboard/
     layout.tsx            Sidebar + Topbar
     page.tsx              Dashboard com KPIs e gráficos
-    clientes/             CRUD funcional
-    {módulos}/page.tsx    stubs
+    {módulo}/             uma pasta por módulo (lista, novo, [id])
   api/
     auth/[...nextauth]/   NextAuth credentials
-    clientes/             GET/POST + GET/PUT/DELETE por id
+    {módulo}/             GET/POST + [id] GET/PUT/DELETE
+    foto/                 upload (POST) e leitura pública (GET /api/foto/{id})
+    anexos/               documentos por entidade
+    relatorios/           JSON e CSV
+    cron/notifications    rotina diária
 
 components/
   layout/                 Sidebar, Topbar
@@ -103,13 +140,18 @@ components/
   dashboard/              KpiCard, RevenueChart, ObrasStatusChart
   clientes/               ClienteForm
   providers/              QueryProvider
-  StubPage.tsx
 
 lib/
   prisma.ts               singleton
   auth.ts                 NextAuth config
+  permissions.ts          matriz papel × módulo (middleware + sidebar)
+  storage.ts              arquivos (db | supabase)
+  relatorios.ts           consultas gerenciais + CSV
+  pos-venda.ts            manutenção preventiva e gatilho de chuva (cron)
+  integrations/           whatsapp, email (Resend), nfe (NFe.io/eNotas)
+  whatsapp/meta.ts        Cloud API: texto, mídia, templates, webhook
   utils.ts                cn, formatCurrency, formatDate, formatCNPJ/CPF/Phone
-  validations/            zod schemas (cliente, orcamento, obra)
+  validations/            zod schemas
 
 hooks/
   useClientes.ts          TanStack Query hooks
@@ -123,8 +165,7 @@ prisma/
 
 ## Próximos passos sugeridos
 
-1. Implementar autenticação real no front (uso de `next-auth/react` `SessionProvider` + middleware).
-2. Replicar o padrão do módulo **Clientes** para **Fornecedores**, **Serviços**, **Materiais**.
-3. Implementar fluxo Lead → Atendimento → Visita → Orçamento → Contrato → Obra.
-4. Plugar dados reais nos KPIs e gráficos do dashboard.
-5. Upload de anexos (S3 ou storage local).
+1. Configurar na Vercel: Meta (WhatsApp/pixel), Resend, NF-e e `STORAGE_PROVIDER=supabase` se o banco crescer.
+2. Testes de integração das rotas com banco de teste (hoje só unitários).
+3. Assinatura eletrônica de contrato (hoje só a proposta tem aceite digital).
+4. App de campo offline (PWA com fila de sincronização).

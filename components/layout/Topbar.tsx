@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Bell, Check, CheckCheck, LogOut, Search, User } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
   useMarcarLida,
@@ -175,6 +175,8 @@ function NotificacoesSino() {
 
 export function Topbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [busca, setBusca] = useState("");
   const { data: session } = useSession();
   const baseKey = Object.keys(titleMap)
     .filter((k) => pathname === k || pathname.startsWith(k + "/"))
@@ -186,13 +188,24 @@ export function Topbar() {
     <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 h-16 flex items-center gap-4">
       <h1 className="font-display text-xl font-semibold text-brand-dark">{title}</h1>
       <div className="ml-auto flex items-center gap-2">
-        <div className="hidden md:flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5 w-72">
+        <form
+          className="hidden md:flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5 w-72"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const q = busca.trim();
+            if (q.length < 2) return;
+            router.push(`/dashboard/busca?q=${encodeURIComponent(q)}`);
+            setBusca("");
+          }}
+        >
           <Search className="w-4 h-4 text-gray-400" />
           <input
-            placeholder="Buscar..."
+            placeholder="Buscar cliente, orçamento, obra…"
             className="bg-transparent outline-none text-sm flex-1 placeholder-gray-400"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
           />
-        </div>
+        </form>
         <NotificacoesSino />
         <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5">
           <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center">
