@@ -203,3 +203,114 @@ export async function inscreverWebhookWaba(wabaId: string): Promise<boolean> {
     return false;
   }
 }
+
+// ─── Mídia de saída ─────────────────────────────────────────────────────────
+
+export type TipoMidiaWA = "image" | "document" | "video" | "audio";
+
+export function tipoMidiaDoMime(mime: string): TipoMidiaWA {
+  if (mime.startsWith("image/")) return "image";
+  if (mime.startsWith("video/")) return "video";
+  if (mime.startsWith("audio/")) return "audio";
+  return "document";
+}
+
+/** Sobe o arquivo para a Meta e devolve o media id (válido por 30 dias). */
+export async function subirMidia(
+  phoneNumberId: string,
+  bytes: Buffer,
+  mime: string,
+  nome: string,
+): Promise<{ ok: boolean; mediaId?: string; error?: string }> {
+  const token = await metaToken();
+  if (!token) return { ok: false, error: "Token da Meta ausente" };
+  try {
+    const fd = new FormData();
+    fd.append("messaging_product", "whatsapp");
+    fd.append("type", mime);
+    fd.append("file", new Blob([new Uint8Array(bytes)], { type: mime }), nome);
+    const r = await fetch(`${GRAPH_BASE}/${phoneNumberId}/media`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
+      cache: "no-store",
+    });
+    const d: any = await r.json().catch(() => ({}));
+    if (!r.ok || !d?.id) return { ok: false, error: d?.error?.message || `Graph ${r.status}` };
+    return { ok: true, mediaId: String(d.id) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "falha no upload" };
+  }
+}
+
+export async function enviarMidia(
+  phoneNumberId: string,
+  para: string,
+  midia: { mediaId: string; tipo: TipoMidiaWA; legenda?: string; nomeArquivo?: string },
+): Promise<EnvioResultado> {
+  const to = normalizarTelefoneBR(para);
+  if (!to) return { ok: false, error: "Telefone inválido" };
+  const corpo: Record<string, unknown> = { id: midia.mediaId };
+  if (midia.legenda && midia.tipo !== "audio") corpo.caption = midia.legenda;
+  if (midia.tipo === "document" && midia.nomeArquivo) corpo.filename = midia.nomeArquivo;
+  try {
+    const d = await graphPost<{ messages?: { id: string }[] }>(`${phoneNumberId}/messages`, {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to,
+      type: midia.tipo,
+      [midia.tipo]: corpo,
+    });
+    return { ok: true, waId: d?.messages?.[0]?.id };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "falha" };
+  }
+}
+
+// ─── Templates ──────────────────────────────────────────────────────────────
+
+export type TemplateWA = {
+  name: string;
+  language: string;
+  category: string;
+  status: string;
+  /** Texto do corpo com {{1}}, {{2}}… */
+  body: string;
+  header?: { format: string; text?: string } | null;
+  footer?: string | null;
+  /** Quantidade de variáveis do corpo. */
+  variaveis: number;
+  botoes: string[];
+};
+
+/** Templates APROVADOS da WABA (só esses passam fora da janela de 24h). */
+export async function listarTemplates(wabaId: string): Promise<TemplateWA[]> {
+  const d = await graphGet<{ data?: any[] }>(
+    `${wabaId}/message_templates?status=APPROVED&limit=100&fields=name,language,status,category,components`,
+  );
+  return (d?.data ?? []).map((t: any) => {
+    const comps: any[] = t.components ?? [];
+    const body = comps.find((c) => c.type === "BODY")?.text ?? "";
+    const header = comps.find((c) => c.type === "HEADER");
+    const footer = comps.find((c) => c.type === "FOOTER")?.text ?? null;
+    const botoes = (comps.find((c) => c.type === "BUTTONS")?.buttons ?? []).map((b: any) => b.text ?? b.type);
+    const vars = new Set<string>();
+    body.replace(/\{\{(\d+)\}\}/g, (_: string, n: string) => (vars.add(n), ""));
+    return {
+      name: t.name,
+      language: t.language,
+      category: t.category,
+      status: t.status,
+      body,
+      header: header ? { format: header.format, text: header.text } : null,
+      footer,
+      variaveis: vars.size,
+      botoes,
+    };
+  });
+}
+
+/** Substitui {{n}} pelo parâmetro n para gravar o texto renderizado no histórico. */
+export function renderizarTemplate(body: string, params: string[]): string {
+  return body.replace(/\{\{(\d+)\}\}/g, (_, n) => params[Number(n) - 1] ?? `{{${n}}}`);
+}

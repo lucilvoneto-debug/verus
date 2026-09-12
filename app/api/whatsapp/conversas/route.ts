@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 
-/** GET ?q=&linhaId=&somenteNaoLidas=1&arquivadas=1&page=&pageSize= */
+/** GET ?q=&linhaId=&responsavelId=<id|ninguem>&somenteNaoLidas=1&arquivadas=1&page=&pageSize= */
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const q = sp.get("q")?.trim();
@@ -16,6 +16,9 @@ export async function GET(req: NextRequest) {
     arquivadaEm: sp.get("arquivadas") === "1" ? { not: null } : null,
   };
   if (linhaId) where.linhaId = linhaId;
+  const responsavelId = sp.get("responsavelId");
+  if (responsavelId === "ninguem") where.responsavelId = null;
+  else if (responsavelId) where.responsavelId = responsavelId;
   if (sp.get("somenteNaoLidas") === "1") where.naoLidas = { gt: 0 };
   if (q) {
     where.OR = [

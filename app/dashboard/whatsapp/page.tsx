@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Settings, MessageCircle, Archive } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Search, Settings, MessageCircle, Archive, UserCircle2 } from "lucide-react";
 import { ChatConversa } from "@/components/whatsapp/ChatConversa";
 import { ETAPAS, ORIGENS } from "@/lib/crm/leads";
 import { formatPhone } from "@/lib/utils";
@@ -16,6 +17,7 @@ type ConversaItem = {
   naoLidas: number;
   ultimaMensagem: string | null;
   ultimaMensagemEm: string | null;
+  responsavelId: string | null;
   linha: { id: string; rotulo: string | null; numeroExibicao: string | null } | null;
   lead: { id: string; status: string; origem: string; nome: string | null } | null;
 };
@@ -35,14 +37,25 @@ function Inbox() {
   const [q, setQ] = useState("");
   const [soNaoLidas, setSoNaoLidas] = useState(false);
   const [arquivadas, setArquivadas] = useState(false);
+  const [dono, setDono] = useState<"" | "minhas" | "ninguem">("");
+  const { data: session } = useSession();
 
   const qs = new URLSearchParams();
   if (q) qs.set("q", q);
   if (soNaoLidas) qs.set("somenteNaoLidas", "1");
   if (arquivadas) qs.set("arquivadas", "1");
+  if (dono === "minhas" && session?.user?.id) qs.set("responsavelId", session.user.id);
+  if (dono === "ninguem") qs.set("responsavelId", "ninguem");
+
+  const usuarios = useQuery<{ id: string; name: string }[]>({
+    queryKey: ["usuarios"],
+    queryFn: () => fetch("/api/usuarios").then((r) => r.json()),
+    staleTime: 5 * 60 * 1000,
+  });
+  const nomeDe = (id: string | null) => (id ? usuarios.data?.find((u) => u.id === id)?.name?.split(" ")[0] ?? null : null);
 
   const { data, isLoading } = useQuery<{ data: ConversaItem[]; total: number }>({
-    queryKey: ["conversas", q, soNaoLidas, arquivadas],
+    queryKey: ["conversas", q, soNaoLidas, arquivadas, dono, session?.user?.id],
     queryFn: async () => {
       const r = await fetch(`/api/whatsapp/conversas?${qs}`);
       if (!r.ok) throw new Error("Erro ao carregar conversas");
@@ -74,6 +87,10 @@ function Inbox() {
               <button className={`px-2 py-1 rounded-full border ${soNaoLidas ? "bg-brand text-white border-brand" : "border-gray-300"}`} onClick={() => setSoNaoLidas((v) => !v)}>Não lidas</button>
               <button className={`px-2 py-1 rounded-full border flex items-center gap-1 ${arquivadas ? "bg-brand text-white border-brand" : "border-gray-300"}`} onClick={() => setArquivadas((v) => !v)}><Archive className="w-3 h-3" /> Arquivadas</button>
             </div>
+            <div className="flex gap-2 text-xs">
+              <button className={`px-2 py-1 rounded-full border ${dono === "minhas" ? "bg-brand text-white border-brand" : "border-gray-300"}`} onClick={() => setDono((v) => (v === "minhas" ? "" : "minhas"))}>Minhas</button>
+              <button className={`px-2 py-1 rounded-full border ${dono === "ninguem" ? "bg-brand text-white border-brand" : "border-gray-300"}`} onClick={() => setDono((v) => (v === "ninguem" ? "" : "ninguem"))}>Sem dono</button>
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto">
             {isLoading && <p className="p-3 text-sm text-gray-500">Carregando…</p>}
@@ -100,6 +117,7 @@ function Inbox() {
                     {c.lead && <span className={`badge-${etapa?.tone ?? "neutral"} !py-0`}>{etapa?.label ?? c.lead.status}</span>}
                     {c.lead && <span className="badge-neutral !py-0">{ORIGENS[c.lead.origem] ?? c.lead.origem}</span>}
                     {c.linha?.rotulo && <span className="badge-neutral !py-0">{c.linha.rotulo}</span>}
+                    {nomeDe(c.responsavelId) && <span className="badge-neutral !py-0 flex items-center gap-0.5"><UserCircle2 className="w-3 h-3" />{nomeDe(c.responsavelId)}</span>}
                   </div>
                 </button>
               );
