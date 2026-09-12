@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { getCurrentPosition } from "@/lib/geo";
 import { SignaturePad } from "./SignaturePad";
+import { UploadFoto } from "@/components/ui/UploadFoto";
 
 type Material = { id: string; nome: string; unidade: string; estoqueAtual: number };
 
@@ -383,18 +384,22 @@ function ProblemaForm({
         />
       </label>
 
-      <label className="block">
-        <span className="block text-sm font-medium text-gray-700 mb-1">
-          URLs de fotos (uma por linha, opcional)
-        </span>
+      <div className="block">
+        <span className="block text-sm font-medium text-gray-700 mb-1">Fotos (opcional)</span>
+        <UploadFoto
+          contexto="diario"
+          label="Tirar / escolher foto"
+          className="w-full mb-2 [&>button]:w-full [&>button]:min-h-12"
+          onUpload={(a) => setFotos((v) => (v.trim() ? v.trimEnd() + "\n" : "") + a.url)}
+        />
         <textarea
           value={fotos}
           onChange={(e) => setFotos(e.target.value)}
-          rows={3}
+          rows={2}
           className="input-verus text-base"
-          placeholder="https://..."
+          placeholder="ou cole URLs, uma por linha"
         />
-      </label>
+      </div>
 
       <button type="submit" disabled={saving} className="btn-primary w-full min-h-14 text-base">
         {saving ? "Enviando..." : "Registrar no diário"}

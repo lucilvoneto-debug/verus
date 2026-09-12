@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Plus, Trash2, ImagePlus, Camera } from "lucide-react";
+import { CheckCircle2, Plus, Trash2, ImagePlus } from "lucide-react";
+import { UploadFoto } from "@/components/ui/UploadFoto";
 
 type EtapaData = {
   id: string;
@@ -210,7 +211,7 @@ export function CampoEtapaForm({ etapa }: { etapa: EtapaData }) {
           <input
             value={novaFoto}
             onChange={(e) => setNovaFoto(e.target.value)}
-            placeholder="URL da foto"
+            placeholder="ou cole uma URL de foto"
             className="input-verus flex-1 min-h-12 text-base"
           />
           <button
@@ -222,11 +223,14 @@ export function CampoEtapaForm({ etapa }: { etapa: EtapaData }) {
             <ImagePlus className="w-4 h-4" />
           </button>
         </div>
-        <label className="mt-2 flex items-center justify-center gap-2 text-sm text-brand min-h-12 border border-dashed border-gray-300 rounded-lg">
-          <Camera className="w-4 h-4" />
-          <span>Tirar foto (em breve)</span>
-          <input type="file" accept="image/*" capture="environment" className="hidden" />
-        </label>
+        <div className="mt-2">
+          <UploadFoto
+            contexto="etapa"
+            label="Tirar / escolher foto"
+            className="w-full [&>button]:w-full [&>button]:min-h-12"
+            onUpload={(a) => setFotos((f) => [...f, a.url])}
+          />
+        </div>
       </div>
 
       <div className="card">

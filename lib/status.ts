@@ -77,3 +77,19 @@ export function medicaoStatusLabel(status: string): string {
     } as Record<string, string>
   )[status] ?? status;
 }
+
+// ─── Atendimento ─────────────────────────────────────────────────────────────
+
+export function atendimentoStatusTone(s: string): "blue" | "green" | "yellow" | "red" | "neutral" {
+  if (s === "ABERTO") return "blue";
+  if (s === "EM_ANDAMENTO") return "yellow";
+  if (s === "AGUARDANDO_CLIENTE") return "neutral";
+  if (s === "RESOLVIDO") return "green";
+  return "red";
+}
+
+export function urgenciaTone(u: string): "blue" | "green" | "yellow" | "red" | "neutral" {
+  if (u === "ALTA") return "red";
+  if (u === "MEDIA") return "yellow";
+  return "neutral";
+}

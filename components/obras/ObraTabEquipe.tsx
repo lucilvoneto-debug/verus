@@ -21,7 +21,7 @@ function useAllColaboradores() {
   return useQuery<{ data: { id: string; nome: string; funcao: string }[] }>({
     queryKey: ["colaboradores", "all"],
     queryFn: async () => {
-      const res = await fetch("/api/colaboradores");
+      const res = await fetch("/api/colaboradores?todos=1&ativo=true");
       if (!res.ok) throw new Error("Erro");
       return res.json();
     },

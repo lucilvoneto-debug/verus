@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { autorizaRota, moduloDaRota } from "@/lib/permissions";
 
 const ADMIN_COOKIE_NAMES = [
   "next-auth.session-token",
@@ -66,6 +67,22 @@ export async function middleware(req: NextRequest) {
       const url = req.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("callbackUrl", pathname + search);
+      return NextResponse.redirect(url);
+    }
+
+    // Matriz papel × módulo (lib/permissions.ts). GET = ler; resto = escrever.
+    const papel = typeof token.role === "string" ? token.role : undefined;
+    if (!autorizaRota(papel, pathname, req.method)) {
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json(
+          { error: "Sem permissão para esta ação", modulo: moduloDaRota(pathname) },
+          { status: 403 },
+        );
+      }
+      const url = req.nextUrl.clone();
+      url.pathname = "/dashboard";
+      url.search = "";
+      url.searchParams.set("negado", moduloDaRota(pathname) ?? "");
       return NextResponse.redirect(url);
     }
   }

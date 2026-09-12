@@ -6,6 +6,8 @@ import { useState } from "react";
 import { ArrowLeft, FileText, Link2, Copy, MessageCircle } from "lucide-react";
 import { useObra } from "@/hooks/useObras";
 import { Tabs } from "@/components/ui/Tabs";
+import { Card } from "@/components/ui/Card";
+import { AnexosPanel } from "@/components/documentos/AnexosPanel";
 import { ObraTabDados } from "@/components/obras/ObraTabDados";
 import { ObraTabCronograma } from "@/components/obras/ObraTabCronograma";
 import { ObraTabDiario } from "@/components/obras/ObraTabDiario";
@@ -153,6 +155,15 @@ export default function ObraDetalhePage() {
             key: "fotos",
             label: `Fotos (${obra.fotos.length})`,
             content: <ObraTabFotos fotos={obra.fotos} />,
+          },
+          {
+            key: "anexos",
+            label: "Anexos",
+            content: (
+              <Card>
+                <AnexosPanel entidade="Obra" entidadeId={obra.id} />
+              </Card>
+            ),
           },
         ]}
       />

@@ -13,6 +13,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
+import { UploadFoto } from "@/components/ui/UploadFoto";
 import { formatDateTime, formatDate } from "@/lib/utils";
 
 const statusTone: Record<string, "blue" | "yellow" | "green" | "red" | "neutral"> = {
@@ -206,10 +207,11 @@ export default function VisitaDetalhePage() {
 
       <Card>
         <h3 className="font-display text-lg font-semibold mb-4">Fotos</h3>
-        <div className="flex gap-2 mb-3">
+        <div className="flex flex-wrap gap-2 mb-3 items-start">
+          <UploadFoto contexto="visita" onUpload={(a) => setFotosUrls((f) => [...f, a.url])} />
           <input
-            className="input-verus flex-1"
-            placeholder="URL da foto..."
+            className="input-verus flex-1 min-w-[16rem]"
+            placeholder="ou cole uma URL de foto…"
             value={novaFotoUrl}
             onChange={(e) => setNovaFotoUrl(e.target.value)}
           />
@@ -220,16 +222,17 @@ export default function VisitaDetalhePage() {
         {fotosUrls.length === 0 ? (
           <p className="text-sm text-gray-500">Nenhuma foto adicionada.</p>
         ) : (
-          <ul className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <ul className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {fotosUrls.map((url, idx) => (
-              <li
-                key={idx}
-                className="border border-gray-200 rounded p-2 text-xs flex items-center gap-2"
-              >
-                <span className="flex-1 truncate">{url}</span>
+              <li key={idx} className="relative group border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                <a href={url} target="_blank" rel="noreferrer">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Foto ${idx + 1}`} className="w-full aspect-square object-cover" loading="lazy" />
+                </a>
                 <button
+                  type="button"
                   onClick={() => handleRemoveFoto(idx)}
-                  className="text-red-600 hover:underline"
+                  className="absolute top-1 right-1 bg-black/60 text-white text-[10px] rounded px-1.5 py-0.5"
                 >
                   remover
                 </button>

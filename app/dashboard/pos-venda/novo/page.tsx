@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { UploadFoto } from "@/components/ui/UploadFoto";
 import { useCreateChamado } from "@/hooks/useChamados";
 
 type GarantiaLite = {
@@ -155,12 +156,17 @@ function NovoChamadoPageInner() {
             />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Fotos (URLs, uma por linha)
+                Fotos
               </label>
+              <UploadFoto
+                contexto="chamado"
+                className="mb-2"
+                onUpload={(a) => setFotosText((v) => (v.trim() ? v.trimEnd() + "\n" : "") + a.url)}
+              />
               <textarea
-                rows={3}
+                rows={2}
                 className="input-verus"
-                placeholder="https://..."
+                placeholder="ou cole URLs, uma por linha"
                 value={fotosText}
                 onChange={(e) => setFotosText(e.target.value)}
               />

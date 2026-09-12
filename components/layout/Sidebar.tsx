@@ -9,7 +9,9 @@ import {
   Truck, Wallet, Ruler, ShieldCheck, Smile, FolderOpen, BarChart3, Bell,
   UserCog, Settings, ChevronLeft, ChevronRight, RefreshCw, CloudRain, Factory, MessageCircle,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { moduloDaRota, podeLer } from "@/lib/permissions";
 
 type Item = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
 type Group = { label: string; items: Item[] };
@@ -79,6 +81,20 @@ const groups: Group[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { data: session } = useSession();
+  const papel = session?.user?.role;
+
+  // Sem sessão carregada ainda mostra tudo; com sessão, esconde o que o papel não lê.
+  const visiveis = groups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((item) => {
+        if (!papel) return true;
+        const modulo = moduloDaRota(item.href);
+        return !modulo || podeLer(papel, modulo);
+      }),
+    }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <aside
@@ -108,7 +124,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-3">
-        {groups.map((g) => (
+        {visiveis.map((g) => (
           <div key={g.label} className="mb-3">
             {!collapsed && (
               <div className="px-4 text-[10px] uppercase tracking-wider text-white/40 mb-1">

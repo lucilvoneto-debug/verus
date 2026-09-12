@@ -1,14 +1,30 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { VisitaForm } from "@/components/visita/VisitaForm";
 import { useCreateVisita } from "@/hooks/useVisitas";
 
 export default function NovaVisitaPage() {
+  return (
+    <Suspense fallback={null}>
+      <NovaVisita />
+    </Suspense>
+  );
+}
+
+/** Aceita ?clienteId=&atendimentoId=&endereco= para pré-preencher (vindo de Atendimentos). */
+function NovaVisita() {
   const router = useRouter();
+  const sp = useSearchParams();
   const create = useCreateVisita();
+  const defaults = {
+    ...(sp.get("clienteId") ? { clienteId: sp.get("clienteId")! } : {}),
+    ...(sp.get("atendimentoId") ? { atendimentoId: sp.get("atendimentoId")! } : {}),
+    ...(sp.get("endereco") ? { endereco: sp.get("endereco")! } : {}),
+  };
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -23,6 +39,7 @@ export default function NovaVisitaPage() {
       </div>
 
       <VisitaForm
+        defaultValues={defaults}
         submitting={create.isPending}
         submitLabel="Agendar visita"
         onSubmit={async (data) => {

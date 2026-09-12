@@ -18,12 +18,23 @@ function formatPercent(value: number, digits = 1): string {
   return `${value.toFixed(digits).replace(".", ",")}%`;
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: { negado?: string };
+}) {
   const data = await getDashboardData();
+  const negado = searchParams?.negado;
   const { kpis, revenueChart, obrasStatusChart, obrasEmAndamento, tarefasProximas } = data;
 
   return (
     <div className="space-y-6">
+      {negado && (
+        <div className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-brand-dark flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-warning" />
+          Seu perfil não tem acesso ao módulo <strong className="mx-1">{negado}</strong>. Fale com o administrador.
+        </div>
+      )}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h2 className="font-display text-2xl font-bold text-brand-dark">Visão geral</h2>

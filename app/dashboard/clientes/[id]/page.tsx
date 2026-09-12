@@ -7,6 +7,7 @@ import { useCliente } from "@/hooks/useClientes";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
+import { AnexosPanel } from "@/components/documentos/AnexosPanel";
 import { formatDocumento, formatDate, formatCurrency } from "@/lib/utils";
 import { AcessoPortalTab } from "@/components/clientes/AcessoPortalTab";
 
@@ -60,6 +61,7 @@ export default function ClienteDetalhePage() {
                 <span className="text-xs text-gray-500 ml-auto">{formatDate(a.createdAt)}</span>
               </div>
               <p className="text-sm text-gray-700 mt-1">{a.descricao}</p>
+              <Link href={`/dashboard/atendimento/${a.id}`} className="text-xs text-brand hover:underline">abrir atendimento</Link>
             </li>
           ))}
         </ul>
@@ -122,7 +124,7 @@ export default function ClienteDetalhePage() {
 
   const anexos = (
     <Card>
-      <p className="text-sm text-gray-500">Em desenvolvimento.</p>
+      <AnexosPanel entidade="Cliente" entidadeId={cliente.id} />
     </Card>
   );
 
