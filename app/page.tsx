@@ -184,7 +184,7 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Image src="/site/visita-tecnica.jpg" alt="Técnico da Verus em visita de diagnóstico" width={640} height={1138} className="rounded-lg object-cover h-72 md:h-96 w-full border border-verus-line" sizes="(max-width: 768px) 50vw, 30vw" />
-          <Image src="/site/obra-material.jpg" alt="Equipe da Verus levando material para a obra" width={640} height={853} className="rounded-lg object-cover h-72 md:h-96 w-full border border-verus-line" sizes="(max-width: 768px) 50vw, 30vw" />
+          <Image src="/site/piscina-manta.jpg" alt="Manta asfáltica aplicada em piscina" width={1066} height={711} className="rounded-lg object-cover h-72 md:h-96 w-full border border-verus-line" sizes="(max-width: 768px) 50vw, 30vw" />
         </div>
       </section>
 
