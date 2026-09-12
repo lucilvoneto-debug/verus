@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, FileText, Link2, Copy, MessageCircle } from "lucide-react";
+import { ArrowLeft, FileText, Link2, Copy, MessageCircle, Mail } from "lucide-react";
 import { useObra } from "@/hooks/useObras";
 import { Tabs } from "@/components/ui/Tabs";
 import { Card } from "@/components/ui/Card";
@@ -39,6 +39,24 @@ export default function ObraDetalhePage() {
     }
   }
 
+  async function enviarEmail() {
+    if (!obra) return;
+    const para = prompt("Enviar link de acompanhamento por e-mail para:", obra.cliente?.email ?? "");
+    if (!para) return;
+    try {
+      const res = await fetch(`/api/obras/${obra.id}/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", origin: window.location.origin },
+        body: JSON.stringify({ para }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Falha ao enviar.");
+      alert(json.mock ? `E-mail em modo mock (configure RESEND_API_KEY). Link: ${json.url}` : `E-mail enviado para ${json.para}.`);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro.");
+    }
+  }
+
   async function emitirNF() {
     if (!obra) return;
     if (!confirm("Emitir nota fiscal para esta obra?")) return;
@@ -53,8 +71,11 @@ export default function ObraDetalhePage() {
         alert(json.error ?? "Erro ao emitir NF.");
         return;
       }
-      const prefixo = json.mock ? "[mock] " : "";
-      alert(`${prefixo}NF ${json.numero ?? ""} emitida.`);
+      if (json.mock) {
+        alert("NF em modo mock — configure NFE_PROVIDER, NFE_TOKEN e NFE_COMPANY_ID na Vercel.");
+      } else {
+        alert(`Nota enviada ao provedor (${json.status ?? "processando"}). ${json.numero ? `Nº ${json.numero}. ` : ""}${json.url ? `PDF: ${json.url}` : "O PDF aparece quando a prefeitura processar."}`);
+      }
     } catch (e) {
       alert(e instanceof Error ? e.message : "Erro");
     }

@@ -7,6 +7,8 @@ export const dynamic = "force-dynamic";
 const schema = z.object({
   obraId: z.string().min(1),
   medicaoId: z.string().nullish(),
+  valor: z.coerce.number().positive().nullish(),
+  descricao: z.string().max(500).nullish(),
 });
 
 export async function POST(req: NextRequest) {
@@ -21,6 +23,8 @@ export async function POST(req: NextRequest) {
   const result = await emitirNFE({
     obraId: parsed.data.obraId,
     medicaoId: parsed.data.medicaoId ?? null,
+    valor: parsed.data.valor ?? null,
+    descricao: parsed.data.descricao ?? null,
   });
   return NextResponse.json(result, { status: result.ok ? 200 : 502 });
 }

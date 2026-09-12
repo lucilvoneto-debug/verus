@@ -15,7 +15,9 @@ import {
   Link2,
   Copy,
   Files,
+  Mail,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useOrcamento,
   useChangeOrcamentoStatus,
@@ -37,6 +39,7 @@ const statusTone: Record<string, "blue" | "yellow" | "green" | "red" | "neutral"
 export default function OrcamentoDetalhePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const qc = useQueryClient();
   const { data: orc, isLoading } = useOrcamento(params.id);
   const changeStatus = useChangeOrcamentoStatus(params.id);
   const gerarContrato = useGerarContrato(params.id);
@@ -61,6 +64,25 @@ export default function OrcamentoDetalhePage() {
       alert(e instanceof Error ? e.message : "Erro.");
     } finally {
       setGerandoLink(false);
+    }
+  }
+
+  async function enviarEmail() {
+    const sugerido = orc?.cliente?.email ?? "";
+    const para = prompt("Enviar proposta por e-mail para:", sugerido);
+    if (!para) return;
+    try {
+      const r = await fetch(`/api/orcamento/${params.id}/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", origin: window.location.origin },
+        body: JSON.stringify({ para }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Falha ao enviar.");
+      alert(j.mock ? `E-mail registrado em modo mock (configure RESEND_API_KEY). Link: ${j.url}` : `E-mail enviado para ${j.para}.`);
+      qc.invalidateQueries({ queryKey: ["orcamento", params.id] });
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro.");
     }
   }
 
@@ -170,6 +192,9 @@ export default function OrcamentoDetalhePage() {
           </a>
           <button onClick={abrirWhatsApp} className="btn-outline">
             <MessageCircle className="w-4 h-4" /> WhatsApp
+          </button>
+          <button onClick={enviarEmail} className="btn-outline">
+            <Mail className="w-4 h-4" /> E-mail
           </button>
           <button onClick={duplicar} className="btn-outline">
             <Files className="w-4 h-4" /> Duplicar

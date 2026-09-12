@@ -248,12 +248,18 @@ export function atribuirPorMensagem(texto: string, referral?: any): Atribuicao {
   const ref = /\(ref:\s*([^)]+)\)/i.exec(texto || "");
   if (ref) {
     const [src, camp] = ref[1].split("/").map((s) => s.trim());
+    // Anúncio usa utm_source=meta (docs/MARKETING-SETUP.md). instagram/facebook/tiktok
+    // no ref é orgânico: link da bio → site → botão de WhatsApp.
     const origem =
       src === "google-ads" || src === "gads" ? "GOOGLE_ADS"
       : src === "gbp" || src === "google" ? "GOOGLE_GBP"
-      : src === "meta" || src === "facebook" || src === "instagram" ? "META_ADS"
+      : src === "meta" || src === "fb" || src === "ig" ? "META_ADS"
+      : src === "instagram" ? "INSTAGRAM"
+      : src === "facebook" ? "FACEBOOK"
+      : src === "tiktok" ? "TIKTOK"
       : "SITE";
-    return { origem, utmSource: src, utmCampaign: camp ?? null };
+    const organico = origem === "INSTAGRAM" || origem === "FACEBOOK" || origem === "TIKTOK";
+    return { origem, utmSource: src, utmMedium: organico ? "social" : null, utmCampaign: camp ?? null };
   }
   if (t.includes("vim pelo google")) return { origem: "GOOGLE_GBP", utmSource: "google", utmMedium: "gbp" };
   if (t.includes("vim pelo instagram")) return { origem: "INSTAGRAM", utmSource: "instagram", utmMedium: "bio" };
