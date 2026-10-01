@@ -8,6 +8,7 @@ import {
   ScrollText, Hammer, ListChecks, HardHat, Calendar, Boxes, ShoppingCart,
   Truck, Wallet, Ruler, ShieldCheck, Smile, FolderOpen, BarChart3, Bell,
   UserCog, Settings, ChevronLeft, ChevronRight, RefreshCw, CloudRain, Factory, MessageCircle,
+  Handshake, Landmark, Megaphone,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ const groups: Group[] = [
       { label: "Orçamentos", href: "/dashboard/orcamento", icon: FileText },
       { label: "Serviços", href: "/dashboard/servicos", icon: Wrench },
       { label: "Contratos", href: "/dashboard/contratos", icon: ScrollText },
+      { label: "Marketing", href: "/dashboard/marketing", icon: Megaphone },
     ],
   },
   {
@@ -55,7 +57,11 @@ const groups: Group[] = [
   },
   {
     label: "Financeiro",
-    items: [{ label: "Financeiro", href: "/dashboard/financeiro", icon: Wallet }],
+    items: [
+      { label: "Financeiro", href: "/dashboard/financeiro", icon: Wallet },
+      { label: "Contas e saldos", href: "/dashboard/contas-saldos", icon: Landmark },
+      { label: "Sócios", href: "/dashboard/socios", icon: Handshake },
+    ],
   },
   {
     label: "Pós-venda",

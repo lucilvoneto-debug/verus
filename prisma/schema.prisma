@@ -9,82 +9,83 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  passwordHash  String
-  name          String
-  role          String     @default("COMERCIAL")
-  active        Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("COMERCIAL")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   colaborador   Colaborador?
   auditLogs     AuditLog[]
-  leadsResp     Lead[]            @relation("LeadResp")
+  leadsResp     Lead[]                @relation("LeadResp")
   leadEventos   LeadEvento[]
-  linhasWa      LinhaWhatsapp[]   @relation("LinhaResp")
-  atendResp     Atendimento[]     @relation("AtendResp")
-  visitasTec    Visita[]          @relation("VisitaTec")
-  orcamentos    Orcamento[]       @relation("OrcVend")
-  obras         Obra[]            @relation("ObraResp")
-  etapasResp    Etapa[]           @relation("EtapaResp")
+  linhasWa      LinhaWhatsapp[]       @relation("LinhaResp")
+  atendResp     Atendimento[]         @relation("AtendResp")
+  visitasTec    Visita[]              @relation("VisitaTec")
+  orcamentos    Orcamento[]           @relation("OrcVend")
+  obras         Obra[]                @relation("ObraResp")
+  etapasResp    Etapa[]               @relation("EtapaResp")
   diarios       DiarioObra[]
   movimentacoes MovimentacaoEstoque[]
   anexos        Anexo[]
   notificacoes  Notificacao[]
-  chamados      ChamadoAssistencia[] @relation("ChamadoTec")
+  chamados      ChamadoAssistencia[]  @relation("ChamadoTec")
 
   @@index([email])
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String
-  action     String
-  entity     String
-  entityId   String
-  payload    String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  payload   String?
+  createdAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([entity, entityId])
 }
 
 model Cliente {
-  id           String           @id @default(cuid())
-  tipo         String
-  nome         String
-  documento    String           @unique
-  email        String?
-  telefone     String?
-  whatsapp     String?
-  cep          String?
-  logradouro   String?
-  numero       String?
-  complemento  String?
-  bairro       String?
-  cidade       String?
-  uf           String?
-  categoria    String
-  observacoes  String?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id          String   @id @default(cuid())
+  tipo        String
+  nome        String
+  documento   String   @unique
+  email       String?
+  telefone    String?
+  whatsapp    String?
+  cep         String?
+  logradouro  String?
+  numero      String?
+  complemento String?
+  bairro      String?
+  cidade      String?
+  uf          String?
+  categoria   String
+  observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  leads        Lead[]
-  atendimentos Atendimento[]
-  visitas      Visita[]
-  orcamentos   Orcamento[]
-  contratos    Contrato[]
-  obras        Obra[]
-  contasReceber ContaReceber[]
-  garantias    Garantia[]
-  chamados     ChamadoAssistencia[]
-  planosManutencao PlanoManutencao[]
+  leads             Lead[]
+  atendimentos      Atendimento[]
+  visitas           Visita[]
+  orcamentos        Orcamento[]
+  contratos         Contrato[]
+  obras             Obra[]
+  contasReceber     ContaReceber[]
+  garantias         Garantia[]
+  chamados          ChamadoAssistencia[]
+  planosManutencao  PlanoManutencao[]
   disparosTemporais DisparoTemporal[]
-  pagamentos   Pagamento[]
-  acesso       ClienteAcesso?
+  pagamentos        Pagamento[]
+  lancamentosCaixa  LancamentoCaixa[]
+  acesso            ClienteAcesso?
 
   @@index([nome])
   @@index([documento])
@@ -92,33 +93,33 @@ model Cliente {
 }
 
 model ClienteAcesso {
-  id           String   @id @default(cuid())
-  clienteId    String   @unique
-  cliente      Cliente  @relation(fields: [clienteId], references: [id])
-  email        String   @unique
+  id           String    @id @default(cuid())
+  clienteId    String    @unique
+  cliente      Cliente   @relation(fields: [clienteId], references: [id])
+  email        String    @unique
   passwordHash String
-  ativo        Boolean  @default(true)
+  ativo        Boolean   @default(true)
   ultimoLogin  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([email])
 }
 
 model Lead {
-  id              String      @id @default(cuid())
+  id              String    @id @default(cuid())
   clienteId       String?
   // Contato bruto (antes de virar Cliente)
   nome            String?
-  telefone        String?     // E.164 sem +, ex: 5582999990000
+  telefone        String? // E.164 sem +, ex: 5582999990000
   email           String?
   cidade          String?
   bairro          String?
-  tipoImovel      String?     // RESIDENCIAL | CONDOMINIO | COMERCIAL | INDUSTRIA | OBRA
-  origem          String      // SITE | WHATSAPP | GOOGLE_GBP | GOOGLE_ADS | META_ADS | INSTAGRAM | FACEBOOK | TIKTOK | INDICACAO | MANUAL
+  tipoImovel      String? // RESIDENCIAL | CONDOMINIO | COMERCIAL | INDUSTRIA | OBRA
+  origem          String // SITE | WHATSAPP | GOOGLE_GBP | GOOGLE_ADS | META_ADS | INSTAGRAM | FACEBOOK | TIKTOK | INDICACAO | MANUAL
   descricao       String
-  urgencia        String      @default("MEDIA")
-  status          String      @default("NOVO") // NOVO | CONTATO | VISITA_AGENDADA | ORCAMENTO_ENVIADO | NEGOCIACAO | GANHO | PERDIDO
+  urgencia        String    @default("MEDIA")
+  status          String    @default("NOVO") // NOVO | CONTATO | VISITA_AGENDADA | ORCAMENTO_ENVIADO | NEGOCIACAO | GANHO | PERDIDO
   statusEm        DateTime?
   motivoPerda     String?
   valorEstimado   Float?
@@ -132,23 +133,23 @@ model Lead {
   utmCampaign     String?
   utmTerm         String?
   utmContent      String?
-  gclid           String?     // Google Click ID (conversão offline)
+  gclid           String? // Google Click ID (conversão offline)
   fbclid          String?
   fbc             String?
   fbp             String?
-  ctwaClid        String?     // Click-to-WhatsApp click id (Meta)
-  adId            String?     // id do anúncio (Meta referral.source_id)
+  ctwaClid        String? // Click-to-WhatsApp click id (Meta)
+  adId            String? // id do anúncio (Meta referral.source_id)
   landingPage     String?
   referrer        String?
-  conversaId      String?     @unique // conversa WhatsApp de origem
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  conversaId      String?   @unique // conversa WhatsApp de origem
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  cliente         Cliente?    @relation(fields: [clienteId], references: [id])
-  responsavel     User?       @relation("LeadResp", fields: [responsavelId], references: [id])
-  conversa        ConversaWA? @relation(fields: [conversaId], references: [id])
-  atendimentos    Atendimento[]
-  eventos         LeadEvento[]
+  cliente      Cliente?      @relation(fields: [clienteId], references: [id])
+  responsavel  User?         @relation("LeadResp", fields: [responsavelId], references: [id])
+  conversa     ConversaWA?   @relation(fields: [conversaId], references: [id])
+  atendimentos Atendimento[]
+  eventos      LeadEvento[]
 
   @@index([status])
   @@index([responsavelId])
@@ -161,13 +162,13 @@ model Lead {
 model LeadEvento {
   id        String   @id @default(cuid())
   leadId    String
-  tipo      String   // ETAPA | NOTA | LIGACAO | WHATSAPP | EMAIL | VISITA | ORCAMENTO | CONVERSAO | SISTEMA
+  tipo      String // ETAPA | NOTA | LIGACAO | WHATSAPP | EMAIL | VISITA | ORCAMENTO | CONVERSAO | SISTEMA
   descricao String
   userId    String?
   createdAt DateTime @default(now())
 
-  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  user      User?    @relation(fields: [userId], references: [id])
+  lead Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
 
   @@index([leadId])
 }
@@ -194,39 +195,39 @@ model MetaLead {
 
 /// Número da empresa conectado na Cloud API (phone_number_id).
 model LinhaWhatsapp {
-  id             String       @id @default(cuid())
-  phoneNumberId  String       @unique
+  id             String   @id @default(cuid())
+  phoneNumberId  String   @unique
   wabaId         String?
-  numeroExibicao String?      // E.164 sem +
+  numeroExibicao String? // E.164 sem +
   nomeVerificado String?
-  rotulo         String?      // "Empresa", "Vendedor X"
-  responsavelId  String?      // dono da caixa (userId)
-  padrao         Boolean      @default(false)
-  ativo          Boolean      @default(true)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  rotulo         String? // "Empresa", "Vendedor X"
+  responsavelId  String? // dono da caixa (userId)
+  padrao         Boolean  @default(false)
+  ativo          Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  responsavel    User?        @relation("LinhaResp", fields: [responsavelId], references: [id])
-  conversas      ConversaWA[]
+  responsavel User?        @relation("LinhaResp", fields: [responsavelId], references: [id])
+  conversas   ConversaWA[]
 }
 
 model ConversaWA {
-  id               String       @id @default(cuid())
+  id               String    @id @default(cuid())
   linhaId          String?
-  telefone         String       // E.164 sem +
+  telefone         String // E.164 sem +
   nome             String?
   clienteId        String?
   responsavelId    String?
-  naoLidas         Int          @default(0)
+  naoLidas         Int       @default(0)
   ultimaMensagem   String?
   ultimaMensagemEm DateTime?
   arquivadaEm      DateTime?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  linha            LinhaWhatsapp? @relation(fields: [linhaId], references: [id])
-  mensagens        MensagemWA[]
-  lead             Lead?
+  linha     LinhaWhatsapp? @relation(fields: [linhaId], references: [id])
+  mensagens MensagemWA[]
+  lead      Lead?
 
   @@unique([linhaId, telefone])
   @@index([telefone])
@@ -234,74 +235,74 @@ model ConversaWA {
 }
 
 model MensagemWA {
-  id          String     @id @default(cuid())
-  conversaId  String
-  waId        String?    @unique // id da mensagem na Meta (wamid.…)
-  texto       String
-  tipo        String     @default("TEXT") // TEXT | IMAGE | AUDIO | VIDEO | DOCUMENT | LOCATION | STICKER | CONTACT
-  enviada     Boolean    // true = empresa → cliente
-  status      String     @default("sent") // sent | delivered | read | failed
-  statusErro  String?
-  mediaId     String?    // media id da Meta (proxy em /api/whatsapp/midia/{id})
-  mediaMime   String?
-  mediaNome   String?
-  latitude    Float?
-  longitude   Float?
-  viaApp      Boolean    @default(false) // enviada pelo celular (echo da coexistência)
-  userId      String?    // quem enviou pelo ERP
-  createdAt   DateTime   @default(now())
+  id         String   @id @default(cuid())
+  conversaId String
+  waId       String?  @unique // id da mensagem na Meta (wamid.…)
+  texto      String
+  tipo       String   @default("TEXT") // TEXT | IMAGE | AUDIO | VIDEO | DOCUMENT | LOCATION | STICKER | CONTACT
+  enviada    Boolean // true = empresa → cliente
+  status     String   @default("sent") // sent | delivered | read | failed
+  statusErro String?
+  mediaId    String? // media id da Meta (proxy em /api/whatsapp/midia/{id})
+  mediaMime  String?
+  mediaNome  String?
+  latitude   Float?
+  longitude  Float?
+  viaApp     Boolean  @default(false) // enviada pelo celular (echo da coexistência)
+  userId     String? // quem enviou pelo ERP
+  createdAt  DateTime @default(now())
 
-  conversa    ConversaWA @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  conversa ConversaWA @relation(fields: [conversaId], references: [id], onDelete: Cascade)
 
   @@index([conversaId, createdAt])
 }
 
 model Atendimento {
-  id            String              @id @default(cuid())
+  id            String   @id @default(cuid())
   leadId        String?
   clienteId     String
   canal         String
   descricao     String
   fotos         String?
-  urgencia      String            @default("MEDIA")
+  urgencia      String   @default("MEDIA")
   status        String   @default("ABERTO")
   responsavelId String
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  lead          Lead?               @relation(fields: [leadId], references: [id])
-  cliente       Cliente             @relation(fields: [clienteId], references: [id])
-  responsavel   User                @relation("AtendResp", fields: [responsavelId], references: [id])
-  visitas       Visita[]
+  lead        Lead?    @relation(fields: [leadId], references: [id])
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+  responsavel User     @relation("AtendResp", fields: [responsavelId], references: [id])
+  visitas     Visita[]
 
   @@index([clienteId])
   @@index([status])
 }
 
 model Visita {
-  id                  String        @id @default(cuid())
-  atendimentoId       String?
-  clienteId           String
-  tecnicoId           String
-  endereco            String
-  dataAgendada        DateTime
-  dataCheckIn         DateTime?
-  dataCheckOut        DateTime?
-  fotos               String?
-  diagnostico         String?
-  medidas             String?
-  tipoSuperficie      String?
-  causaProvavel       String?
-  solucaoRecomendada  String?
-  observacoes         String?
-  status              String  @default("AGENDADA")
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  id                 String    @id @default(cuid())
+  atendimentoId      String?
+  clienteId          String
+  tecnicoId          String
+  endereco           String
+  dataAgendada       DateTime
+  dataCheckIn        DateTime?
+  dataCheckOut       DateTime?
+  fotos              String?
+  diagnostico        String?
+  medidas            String?
+  tipoSuperficie     String?
+  causaProvavel      String?
+  solucaoRecomendada String?
+  observacoes        String?
+  status             String    @default("AGENDADA")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  atendimento         Atendimento?  @relation(fields: [atendimentoId], references: [id])
-  cliente             Cliente       @relation(fields: [clienteId], references: [id])
-  tecnico             User          @relation("VisitaTec", fields: [tecnicoId], references: [id])
-  orcamentos          Orcamento[]
+  atendimento Atendimento? @relation(fields: [atendimentoId], references: [id])
+  cliente     Cliente      @relation(fields: [clienteId], references: [id])
+  tecnico     User         @relation("VisitaTec", fields: [tecnicoId], references: [id])
+  orcamentos  Orcamento[]
 
   @@index([clienteId])
   @@index([tecnicoId])
@@ -309,42 +310,42 @@ model Visita {
 }
 
 model Servico {
-  id                    String         @id @default(cuid())
-  nome                  String
-  descricao             String?
-  unidade               String
-  custoPadrao           Float
-  precoPadrao           Float
-  tempoMedio            Float?
-  observacoesTecnicas   String?
-  ativo                 Boolean        @default(true)
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
+  id                  String   @id @default(cuid())
+  nome                String
+  descricao           String?
+  unidade             String
+  custoPadrao         Float
+  precoPadrao         Float
+  tempoMedio          Float?
+  observacoesTecnicas String?
+  ativo               Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   // --- Bloco 2: motor de orçamento (cálculo automático de custoPadrao/precoPadrao) ---
-  percaPercent             Float?    // perdas/sobreposição sobre subtotal de materiais, ex.: 0.08 = 8%
-  maoDeObraPorUnidade      Float?    // R$ por unidade do Servico.unidade
-  equipamentosPorUnidade   Float?    // R$ por unidade
-  episTransportePorUnidade Float?    // R$ por unidade
-  bdiPercent               Float?    // sobre (materiais+perdas+mão de obra+equipamentos+epis)
-  impostosPercent          Float?    // sobre subtotal+BDI
-  lucroPercent             Float?    // sobre subtotal+BDI+impostos
+  percaPercent             Float? // perdas/sobreposição sobre subtotal de materiais, ex.: 0.08 = 8%
+  maoDeObraPorUnidade      Float? // R$ por unidade do Servico.unidade
+  equipamentosPorUnidade   Float? // R$ por unidade
+  episTransportePorUnidade Float? // R$ por unidade
+  bdiPercent               Float? // sobre (materiais+perdas+mão de obra+equipamentos+epis)
+  impostosPercent          Float? // sobre subtotal+BDI
+  lucroPercent             Float? // sobre subtotal+BDI+impostos
   custoCalculadoEm         DateTime? // última vez que o motor recalculou custoPadrao/precoPadrao
 
-  materiais             ServicoMaterial[]
-  itensOrcamento        OrcamentoItem[]
+  materiais      ServicoMaterial[]
+  itensOrcamento OrcamentoItem[]
 
   @@index([nome])
 }
 
 model ServicoMaterial {
-  id          String   @id @default(cuid())
-  servicoId   String
-  materialId  String
-  quantidade  Float
+  id         String @id @default(cuid())
+  servicoId  String
+  materialId String
+  quantidade Float
 
-  servico     Servico  @relation(fields: [servicoId], references: [id], onDelete: Cascade)
-  material    Material @relation(fields: [materialId], references: [id])
+  servico  Servico  @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+  material Material @relation(fields: [materialId], references: [id])
 
   @@unique([servicoId, materialId])
 }
@@ -352,59 +353,59 @@ model ServicoMaterial {
 // Bloco 1 — Módulo de Inteligência de Compras + Orçamentação.
 // Fabricante do produto (Viapol, Sika, Quartzolit...), distinto do Fornecedor (quem vende/distribui).
 model Fabricante {
-  id                     String   @id @default(cuid())
-  nome                   String   @unique
-  ativo                  Boolean  @default(true)
-  catalogoSincronizado   Boolean  @default(false)
-  fichaTecnicaUrl        String?
-  fispqUrl               String?
-  normasTecnicas         String?
-  garantiaAnosPadrao     Int?
-  observacoes            String?
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  nome                 String   @unique
+  ativo                Boolean  @default(true)
+  catalogoSincronizado Boolean  @default(false)
+  fichaTecnicaUrl      String?
+  fispqUrl             String?
+  normasTecnicas       String?
+  garantiaAnosPadrao   Int?
+  observacoes          String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  produtos               Material[]
+  produtos Material[]
 
   @@index([nome])
 }
 
 model Material {
-  id                  String   @id @default(cuid())
-  nome                String
-  categoria           String
-  unidade             String
-  custoMedio          Float
-  estoqueAtual        Float    @default(0)
-  estoqueMinimo       Float    @default(0)
-  fornecedorPadraoId  String?
-  ativo               Boolean  @default(true)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  nome               String
+  categoria          String
+  unidade            String
+  custoMedio         Float
+  estoqueAtual       Float    @default(0)
+  estoqueMinimo      Float    @default(0)
+  fornecedorPadraoId String?
+  ativo              Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   // --- Bloco 1: inteligência de compras/orçamentação ---
-  fabricanteId        String?
-  codigo              String?
-  codigoBarras        String?
-  embalagem           String?
-  rendimentoM2        Float?
-  tempoCuraHoras      Int?
-  precoMedio          Float?
-  ultimoPrecoPago     Float?
-  custoFrete          Float?
-  icmsPercent         Float?
-  ipiPercent          Float?
-  pisPercent          Float?
-  cofinsPercent       Float?
-  validade            DateTime?
-  leadTimeDias        Int?
+  fabricanteId    String?
+  codigo          String?
+  codigoBarras    String?
+  embalagem       String?
+  rendimentoM2    Float?
+  tempoCuraHoras  Int?
+  precoMedio      Float?
+  ultimoPrecoPago Float?
+  custoFrete      Float?
+  icmsPercent     Float?
+  ipiPercent      Float?
+  pisPercent      Float?
+  cofinsPercent   Float?
+  validade        DateTime?
+  leadTimeDias    Int?
 
-  fornecedorPadrao    Fornecedor? @relation(fields: [fornecedorPadraoId], references: [id])
-  fabricante          Fabricante? @relation(fields: [fabricanteId], references: [id])
-  servicos            ServicoMaterial[]
-  movimentacoes       MovimentacaoEstoque[]
-  itensCompra         ItemCompra[]
-  precos              PrecoHistorico[]
+  fornecedorPadrao Fornecedor?           @relation(fields: [fornecedorPadraoId], references: [id])
+  fabricante       Fabricante?           @relation(fields: [fabricanteId], references: [id])
+  servicos         ServicoMaterial[]
+  movimentacoes    MovimentacaoEstoque[]
+  itensCompra      ItemCompra[]
+  precos           PrecoHistorico[]
 
   @@index([nome])
   @@index([categoria])
@@ -412,158 +413,158 @@ model Material {
 }
 
 model MovimentacaoEstoque {
-  id              String           @id @default(cuid())
-  materialId      String
-  tipo            String
-  quantidade      Float
-  custoUnit       Float
-  obraId          String?
-  pedidoCompraId  String?
-  observacao      String?
-  userId          String
-  createdAt       DateTime         @default(now())
+  id             String   @id @default(cuid())
+  materialId     String
+  tipo           String
+  quantidade     Float
+  custoUnit      Float
+  obraId         String?
+  pedidoCompraId String?
+  observacao     String?
+  userId         String
+  createdAt      DateTime @default(now())
 
-  material        Material         @relation(fields: [materialId], references: [id])
-  obra            Obra?            @relation(fields: [obraId], references: [id])
-  pedidoCompra    PedidoCompra?    @relation(fields: [pedidoCompraId], references: [id])
-  user            User             @relation(fields: [userId], references: [id])
+  material     Material      @relation(fields: [materialId], references: [id])
+  obra         Obra?         @relation(fields: [obraId], references: [id])
+  pedidoCompra PedidoCompra? @relation(fields: [pedidoCompraId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
 
   @@index([materialId])
   @@index([obraId])
 }
 
 model Fornecedor {
-  id           String   @id @default(cuid())
-  nome         String
-  cnpj         String   @unique
-  contato      String?
-  email        String?
-  telefone     String?
-  endereco     String?
-  observacoes  String?
-  ativo        Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  nome        String
+  cnpj        String   @unique
+  contato     String?
+  email       String?
+  telefone    String?
+  endereco    String?
+  observacoes String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // --- Bloco 1: inteligência de compras/orçamentação ---
-  regiaoAtendida          String?
-  representanteNome       String?
-  representanteTelefone   String?
-  representanteWhatsapp   String?
-  prazoMedioDias          Int?
-  prazoNegociadoDias      Int?
-  freteDescricao          String?
-  pedidoMinimo            Float?
-  descontoVolumePercent   Float?
-  tabelaVigenteUrl        String?
-  indiceAtrasoPercent     Float?
-  indiceQualidade         Float?
-  avaliacaoMedia          Float?
+  regiaoAtendida        String?
+  representanteNome     String?
+  representanteTelefone String?
+  representanteWhatsapp String?
+  prazoMedioDias        Int?
+  prazoNegociadoDias    Int?
+  freteDescricao        String?
+  pedidoMinimo          Float?
+  descontoVolumePercent Float?
+  tabelaVigenteUrl      String?
+  indiceAtrasoPercent   Float?
+  indiceQualidade       Float?
+  avaliacaoMedia        Float?
 
-  materiais    Material[]
-  pedidos      PedidoCompra[]
-  contasPagar  ContaPagar[]
-  precos       PrecoHistorico[]
+  materiais   Material[]
+  pedidos     PedidoCompra[]
+  contasPagar ContaPagar[]
+  precos      PrecoHistorico[]
 
   @@index([nome])
 }
 
 model Orcamento {
-  id                String          @id @default(cuid())
-  numero            String          @unique
+  id                String    @id @default(cuid())
+  numero            String    @unique
   clienteId         String
   visitaId          String?
   dataValidade      DateTime
-  status            String @default("RASCUNHO")
-  subtotal          Float           @default(0)
-  desconto          Float           @default(0)
-  total             Float           @default(0)
-  custoEstimado     Float           @default(0)
-  margemPrevista    Float           @default(0)
+  status            String    @default("RASCUNHO")
+  subtotal          Float     @default(0)
+  desconto          Float     @default(0)
+  total             Float     @default(0)
+  custoEstimado     Float     @default(0)
+  margemPrevista    Float     @default(0)
   condicaoPagamento String?
   prazoExecucao     String?
   observacoes       String?
   vendedorId        String
-  criadoEm          DateTime        @default(now())
+  criadoEm          DateTime  @default(now())
   aprovadoEm        DateTime?
-  updatedAt         DateTime        @updatedAt
+  updatedAt         DateTime  @updatedAt
 
-  cliente           Cliente         @relation(fields: [clienteId], references: [id])
-  visita            Visita?         @relation(fields: [visitaId], references: [id])
-  vendedor          User            @relation("OrcVend", fields: [vendedorId], references: [id])
-  itens             OrcamentoItem[]
-  contrato          Contrato?
+  cliente  Cliente         @relation(fields: [clienteId], references: [id])
+  visita   Visita?         @relation(fields: [visitaId], references: [id])
+  vendedor User            @relation("OrcVend", fields: [vendedorId], references: [id])
+  itens    OrcamentoItem[]
+  contrato Contrato?
 
   @@index([clienteId])
   @@index([status])
 }
 
 model OrcamentoItem {
-  id           String   @id @default(cuid())
-  orcamentoId  String
-  servicoId    String
-  descricao    String
-  area         Float?
-  quantidade   Float
-  unidade      String
-  custoUnit    Float
-  precoUnit    Float
-  subtotal     Float
+  id          String @id @default(cuid())
+  orcamentoId String
+  servicoId   String
+  descricao   String
+  area        Float?
+  quantidade  Float
+  unidade     String
+  custoUnit   Float
+  precoUnit   Float
+  subtotal    Float
 
-  orcamento    Orcamento @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
-  servico      Servico   @relation(fields: [servicoId], references: [id])
+  orcamento Orcamento @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
+  servico   Servico   @relation(fields: [servicoId], references: [id])
 }
 
 model Contrato {
-  id                  String         @id @default(cuid())
-  numero              String         @unique
-  orcamentoId         String         @unique
-  clienteId           String
-  valor               Float
-  condicaoPagamento   String
-  prazoExecucao       String
-  garantiaMeses       Int            @default(60)
-  escopo              String
-  obrigacoesCliente   String?
-  obrigacoesEmpresa   String?
-  clausulasExtras     String?
-  status              String @default("PENDENTE")
-  assinadoEm          DateTime?
-  dataInicio          DateTime?
-  dataFim             DateTime?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  id                String    @id @default(cuid())
+  numero            String    @unique
+  orcamentoId       String    @unique
+  clienteId         String
+  valor             Float
+  condicaoPagamento String
+  prazoExecucao     String
+  garantiaMeses     Int       @default(60)
+  escopo            String
+  obrigacoesCliente String?
+  obrigacoesEmpresa String?
+  clausulasExtras   String?
+  status            String    @default("PENDENTE")
+  assinadoEm        DateTime?
+  dataInicio        DateTime?
+  dataFim           DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  orcamento           Orcamento      @relation(fields: [orcamentoId], references: [id])
-  cliente             Cliente        @relation(fields: [clienteId], references: [id])
-  obra                Obra?
-  contasReceber       ContaReceber[]
+  orcamento     Orcamento      @relation(fields: [orcamentoId], references: [id])
+  cliente       Cliente        @relation(fields: [clienteId], references: [id])
+  obra          Obra?
+  contasReceber ContaReceber[]
 
   @@index([clienteId])
   @@index([status])
 }
 
 model Obra {
-  id               String      @id @default(cuid())
-  numero           String      @unique
-  contratoId       String      @unique
-  clienteId        String
-  nome             String
-  endereco         String
-  responsavelId    String
-  dataInicio       DateTime
-  previsaoTermino  DateTime
-  dataConclusao    DateTime?
-  status           String  @default("AGUARDANDO")
-  custoReal        Float       @default(0)
-  margemReal       Float       @default(0)
-  observacoes      String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  id              String    @id @default(cuid())
+  numero          String    @unique
+  contratoId      String    @unique
+  clienteId       String
+  nome            String
+  endereco        String
+  responsavelId   String
+  dataInicio      DateTime
+  previsaoTermino DateTime
+  dataConclusao   DateTime?
+  status          String    @default("AGUARDANDO")
+  custoReal       Float     @default(0)
+  margemReal      Float     @default(0)
+  observacoes     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  contrato         Contrato        @relation(fields: [contratoId], references: [id])
-  cliente          Cliente         @relation(fields: [clienteId], references: [id])
-  responsavel      User            @relation("ObraResp", fields: [responsavelId], references: [id])
+  contrato         Contrato              @relation(fields: [contratoId], references: [id])
+  cliente          Cliente               @relation(fields: [clienteId], references: [id])
+  responsavel      User                  @relation("ObraResp", fields: [responsavelId], references: [id])
   etapas           Etapa[]
   diarios          DiarioObra[]
   medicoes         Medicao[]
@@ -574,146 +575,149 @@ model Obra {
   garantias        Garantia[]
   planosManutencao PlanoManutencao[]
 
+  lancamentosCaixa   LancamentoCaixa[]
+  conteudosMarketing ConteudoMarketing[]
+
   @@index([clienteId])
   @@index([status])
 }
 
 model Etapa {
-  id              String       @id @default(cuid())
-  obraId          String
-  ordem           Int
-  nome            String
-  descricao       String?
-  responsavelId   String?
-  dataPrevista    DateTime
-  dataRealizada   DateTime?
-  status          String  @default("PENDENTE")
-  checklist       String?
-  fotos           String?
-  observacoes     String?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id            String    @id @default(cuid())
+  obraId        String
+  ordem         Int
+  nome          String
+  descricao     String?
+  responsavelId String?
+  dataPrevista  DateTime
+  dataRealizada DateTime?
+  status        String    @default("PENDENTE")
+  checklist     String?
+  fotos         String?
+  observacoes   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  obra            Obra         @relation(fields: [obraId], references: [id], onDelete: Cascade)
-  responsavel     User?        @relation("EtapaResp", fields: [responsavelId], references: [id])
+  obra        Obra  @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  responsavel User? @relation("EtapaResp", fields: [responsavelId], references: [id])
 
   @@index([obraId])
 }
 
 model DiarioObra {
-  id              String   @id @default(cuid())
-  obraId          String
-  data            DateTime
-  autorId         String
-  descricao       String
-  condicaoTempo   String?
-  problemas       String?
-  fotos           String?
-  createdAt       DateTime @default(now())
+  id            String   @id @default(cuid())
+  obraId        String
+  data          DateTime
+  autorId       String
+  descricao     String
+  condicaoTempo String?
+  problemas     String?
+  fotos         String?
+  createdAt     DateTime @default(now())
 
   // --- Diário automático pro cliente (WhatsApp) ---
-  etapa            String?   // PRIMER | REGULARIZACAO | MANTA | MEMBRANA | TESTE | ENTREGA | CHUVA | GERAL
+  etapa            String? // PRIMER | REGULARIZACAO | MANTA | MEMBRANA | TESTE | ENTREGA | CHUVA | GERAL
   m2               Float?
   lote             String?
   percentualObra   Int?
-  fotoUrl          String?   // foto principal (link enviado ao cliente)
+  fotoUrl          String? // foto principal (link enviado ao cliente)
   visivelCliente   Boolean   @default(true)
-  mensagemCliente  String?   // texto exato disparado no WhatsApp (vira prova)
+  mensagemCliente  String? // texto exato disparado no WhatsApp (vira prova)
   enviadoClienteEm DateTime?
-  statusEnvio      String?   // PENDENTE | ENVIADO | FALHOU | SEM_WHATSAPP
+  statusEnvio      String? // PENDENTE | ENVIADO | FALHOU | SEM_WHATSAPP
 
-  obra            Obra     @relation(fields: [obraId], references: [id], onDelete: Cascade)
-  autor           User     @relation(fields: [autorId], references: [id])
+  obra  Obra @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  autor User @relation(fields: [autorId], references: [id])
 
   @@index([obraId])
   @@index([enviadoClienteEm])
 }
 
 model Medicao {
-  id                  String        @id @default(cuid())
+  id                  String    @id @default(cuid())
   obraId              String
   numero              Int
   dataReferencia      DateTime
   percentualExecutado Float
   valor               Float
   observacoes         String?
-  status              String @default("PENDENTE")
+  status              String    @default("PENDENTE")
   faturadoEm          DateTime?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  obra                Obra          @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  obra Obra @relation(fields: [obraId], references: [id], onDelete: Cascade)
 
   @@index([obraId])
 }
 
 model Colaborador {
-  id          String             @id @default(cuid())
-  userId      String?            @unique
+  id          String   @id @default(cuid())
+  userId      String?  @unique
   nome        String
-  cpf         String             @unique
+  cpf         String   @unique
   telefone    String?
   funcao      String
-  custoHora   Float              @default(0)
-  custoDia    Float              @default(0)
-  disponivel  Boolean            @default(true)
+  custoHora   Float    @default(0)
+  custoDia    Float    @default(0)
+  disponivel  Boolean  @default(true)
   observacoes String?
-  ativo       Boolean            @default(true)
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user        User?              @relation(fields: [userId], references: [id])
-  alocacoes   AlocacaoEquipe[]
-  pontos      PontoCampo[]
+  user      User?            @relation(fields: [userId], references: [id])
+  alocacoes AlocacaoEquipe[]
+  pontos    PontoCampo[]
 
   @@index([nome])
 }
 
 model AlocacaoEquipe {
-  id              String      @id @default(cuid())
-  obraId          String
-  colaboradorId   String
-  dataInicio      DateTime
-  dataFim         DateTime?
-  papel           String
+  id            String    @id @default(cuid())
+  obraId        String
+  colaboradorId String
+  dataInicio    DateTime
+  dataFim       DateTime?
+  papel         String
 
-  obra            Obra        @relation(fields: [obraId], references: [id], onDelete: Cascade)
-  colaborador     Colaborador @relation(fields: [colaboradorId], references: [id])
+  obra        Obra        @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  colaborador Colaborador @relation(fields: [colaboradorId], references: [id])
 
   @@index([obraId])
   @@index([colaboradorId])
 }
 
 model PontoCampo {
-  id              String      @id @default(cuid())
-  colaboradorId   String
-  obraId          String
-  tipo            String
-  dataHora        DateTime
-  lat             Float?
-  lng             Float?
-  observacao      String?
+  id            String   @id @default(cuid())
+  colaboradorId String
+  obraId        String
+  tipo          String
+  dataHora      DateTime
+  lat           Float?
+  lng           Float?
+  observacao    String?
 
-  colaborador     Colaborador @relation(fields: [colaboradorId], references: [id])
-  obra            Obra        @relation(fields: [obraId], references: [id])
+  colaborador Colaborador @relation(fields: [colaboradorId], references: [id])
+  obra        Obra        @relation(fields: [obraId], references: [id])
 
   @@index([colaboradorId])
   @@index([obraId])
 }
 
 model PedidoCompra {
-  id            String              @id @default(cuid())
-  numero        String              @unique
-  fornecedorId  String
-  dataPedido    DateTime
-  dataPrevista  DateTime
-  status        String  @default("RASCUNHO")
-  total         Float               @default(0)
-  observacoes   String?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+  id           String   @id @default(cuid())
+  numero       String   @unique
+  fornecedorId String
+  dataPedido   DateTime
+  dataPrevista DateTime
+  status       String   @default("RASCUNHO")
+  total        Float    @default(0)
+  observacoes  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  fornecedor    Fornecedor          @relation(fields: [fornecedorId], references: [id])
+  fornecedor    Fornecedor            @relation(fields: [fornecedorId], references: [id])
   itens         ItemCompra[]
   movimentacoes MovimentacaoEstoque[]
   precos        PrecoHistorico[]
@@ -723,123 +727,123 @@ model PedidoCompra {
 }
 
 model ItemCompra {
-  id          String       @id @default(cuid())
-  pedidoId    String
-  materialId  String
-  quantidade  Float
-  custoUnit   Float
-  subtotal    Float
+  id         String @id @default(cuid())
+  pedidoId   String
+  materialId String
+  quantidade Float
+  custoUnit  Float
+  subtotal   Float
 
-  pedido      PedidoCompra @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
-  material    Material     @relation(fields: [materialId], references: [id])
+  pedido   PedidoCompra @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  material Material     @relation(fields: [materialId], references: [id])
 }
 
 // Bloco 1 — histórico de preços por material, para o futuro gráfico de evolução de preços.
 model PrecoHistorico {
-  id              String        @id @default(cuid())
-  materialId      String
-  fornecedorId    String?
-  preco           Float
-  dataReferencia  DateTime
-  fonte           String?
-  pedidoCompraId  String?
-  createdAt       DateTime      @default(now())
+  id             String   @id @default(cuid())
+  materialId     String
+  fornecedorId   String?
+  preco          Float
+  dataReferencia DateTime
+  fonte          String?
+  pedidoCompraId String?
+  createdAt      DateTime @default(now())
 
-  material        Material      @relation(fields: [materialId], references: [id], onDelete: Cascade)
-  fornecedor      Fornecedor?   @relation(fields: [fornecedorId], references: [id])
-  pedidoCompra    PedidoCompra? @relation(fields: [pedidoCompraId], references: [id])
+  material     Material      @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  fornecedor   Fornecedor?   @relation(fields: [fornecedorId], references: [id])
+  pedidoCompra PedidoCompra? @relation(fields: [pedidoCompraId], references: [id])
 
   @@index([materialId, dataReferencia])
 }
 
 model ContaReceber {
-  id              String      @id @default(cuid())
-  clienteId       String
-  contratoId      String?
-  obraId          String?
-  descricao       String
-  valor           Float
-  vencimento      DateTime
-  status          String @default("ABERTA")
-  valorPago       Float       @default(0)
-  formaPagamento  String?
-  comprovanteUrl  String?
-  observacoes     String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id             String   @id @default(cuid())
+  clienteId      String
+  contratoId     String?
+  obraId         String?
+  descricao      String
+  valor          Float
+  vencimento     DateTime
+  status         String   @default("ABERTA")
+  valorPago      Float    @default(0)
+  formaPagamento String?
+  comprovanteUrl String?
+  observacoes    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  cliente         Cliente     @relation(fields: [clienteId], references: [id])
-  contrato        Contrato?   @relation(fields: [contratoId], references: [id])
-  obra            Obra?       @relation(fields: [obraId], references: [id])
-  pagamentos      Pagamento[]
+  cliente    Cliente     @relation(fields: [clienteId], references: [id])
+  contrato   Contrato?   @relation(fields: [contratoId], references: [id])
+  obra       Obra?       @relation(fields: [obraId], references: [id])
+  pagamentos Pagamento[]
 
   @@index([clienteId])
   @@index([status])
 }
 
 model ContaPagar {
-  id              String      @id @default(cuid())
-  fornecedorId    String?
-  categoria       String
-  descricao       String
-  valor           Float
-  vencimento      DateTime
-  status          String @default("ABERTA")
-  valorPago       Float       @default(0)
-  formaPagamento  String?
-  comprovanteUrl  String?
-  observacoes     String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id             String   @id @default(cuid())
+  fornecedorId   String?
+  categoria      String
+  descricao      String
+  valor          Float
+  vencimento     DateTime
+  status         String   @default("ABERTA")
+  valorPago      Float    @default(0)
+  formaPagamento String?
+  comprovanteUrl String?
+  observacoes    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  fornecedor      Fornecedor? @relation(fields: [fornecedorId], references: [id])
+  fornecedor Fornecedor? @relation(fields: [fornecedorId], references: [id])
 
   @@index([fornecedorId])
   @@index([status])
 }
 
 model Garantia {
-  id            String          @id @default(cuid())
-  obraId        String
-  clienteId     String
-  dataInicio    DateTime
-  dataFim       DateTime
-  prazoMeses    Int
-  tipoGarantia  String
-  condicoes     String?
-  status        String  @default("ATIVA")
+  id                    String    @id @default(cuid())
+  obraId                String
+  clienteId             String
+  dataInicio            DateTime
+  dataFim               DateTime
+  prazoMeses            Int
+  tipoGarantia          String
+  condicoes             String?
+  status                String    @default("ATIVA")
   // Garantia viva — avisos ao cliente (marco 180/90/30 dias antes do fim)
-  avisosClienteEnviados Int      @default(0)
+  avisosClienteEnviados Int       @default(0)
   ultimoAvisoClienteEm  DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  obra          Obra            @relation(fields: [obraId], references: [id])
-  cliente       Cliente         @relation(fields: [clienteId], references: [id])
-  chamados      ChamadoAssistencia[]
+  obra     Obra                 @relation(fields: [obraId], references: [id])
+  cliente  Cliente              @relation(fields: [clienteId], references: [id])
+  chamados ChamadoAssistencia[]
 
   @@index([obraId])
   @@index([clienteId])
 }
 
 model ChamadoAssistencia {
-  id              String        @id @default(cuid())
-  garantiaId      String
-  clienteId       String
-  descricao       String
-  dataAbertura    DateTime      @default(now())
-  dataConclusao   DateTime?
-  status          String @default("ABERTO")
-  fotos           String?
-  custoReparo     Float         @default(0)
-  tecnicoId       String?
-  observacoes     String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id            String    @id @default(cuid())
+  garantiaId    String
+  clienteId     String
+  descricao     String
+  dataAbertura  DateTime  @default(now())
+  dataConclusao DateTime?
+  status        String    @default("ABERTO")
+  fotos         String?
+  custoReparo   Float     @default(0)
+  tecnicoId     String?
+  observacoes   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  garantia        Garantia      @relation(fields: [garantiaId], references: [id])
-  cliente         Cliente       @relation(fields: [clienteId], references: [id])
-  tecnico         User?         @relation("ChamadoTec", fields: [tecnicoId], references: [id])
+  garantia Garantia @relation(fields: [garantiaId], references: [id])
+  cliente  Cliente  @relation(fields: [clienteId], references: [id])
+  tecnico  User?    @relation("ChamadoTec", fields: [tecnicoId], references: [id])
 
   @@index([garantiaId])
   @@index([clienteId])
@@ -847,17 +851,17 @@ model ChamadoAssistencia {
 }
 
 model Anexo {
-  id            String   @id @default(cuid())
-  entidade      String
-  entidadeId    String
-  nome          String
-  url           String
-  tipo          String
-  tamanho       Int
-  uploadedById  String
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  entidade     String
+  entidadeId   String
+  nome         String
+  url          String
+  tipo         String
+  tamanho      Int
+  uploadedById String
+  createdAt    DateTime @default(now())
 
-  uploadedBy    User     @relation(fields: [uploadedById], references: [id])
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
 
   @@index([entidade, entidadeId])
 }
@@ -872,7 +876,7 @@ model Notificacao {
   lida      Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([lida])
@@ -880,23 +884,23 @@ model Notificacao {
 
 // Pagamento do cliente (Pix/cartão via Mercado Pago) de uma conta a receber.
 model Pagamento {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   contaReceberId String
   clienteId      String
   valor          Float
-  metodo         String   @default("PIX") // PIX | CARTAO
-  provedor       String   @default("MERCADOPAGO")
-  providerId     String?  // id do pagamento no Mercado Pago
-  status         String   @default("PENDENTE") // PENDENTE | APROVADO | RECUSADO | EXPIRADO | CANCELADO
-  qrCode         String?  // imagem base64 do QR (data)
-  copiaCola      String?  // pix copia-e-cola
+  metodo         String    @default("PIX") // PIX | CARTAO
+  provedor       String    @default("MERCADOPAGO")
+  providerId     String? // id do pagamento no Mercado Pago
+  status         String    @default("PENDENTE") // PENDENTE | APROVADO | RECUSADO | EXPIRADO | CANCELADO
+  qrCode         String? // imagem base64 do QR (data)
+  copiaCola      String? // pix copia-e-cola
   ticketUrl      String?
   expiraEm       DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  contaReceber   ContaReceber @relation(fields: [contaReceberId], references: [id])
-  cliente        Cliente      @relation(fields: [clienteId], references: [id])
+  contaReceber ContaReceber @relation(fields: [contaReceberId], references: [id])
+  cliente      Cliente      @relation(fields: [clienteId], references: [id])
 
   @@index([contaReceberId])
   @@index([clienteId])
@@ -907,23 +911,23 @@ model Pagamento {
 // Foto guardada no próprio banco (bytea) — servida pública em /api/foto/:id.
 // Usada no diário de obra (link vai pro WhatsApp do cliente).
 model Foto {
-  id            String   @id @default(cuid())
-  mime          String   @default("image/jpeg")
-  dados         Bytes
-  tamanho       Int      @default(0)
-  contexto      String?  // ex.: "diario"
-  criadoPorId   String?
-  createdAt     DateTime @default(now())
+  id          String   @id @default(cuid())
+  mime        String   @default("image/jpeg")
+  dados       Bytes
+  tamanho     Int      @default(0)
+  contexto    String? // ex.: "diario"
+  criadoPorId String?
+  createdAt   DateTime @default(now())
 
   @@index([contexto])
 }
 
 model Configuracao {
-  id         String   @id @default(cuid())
-  chave      String   @unique
-  valor      String
-  descricao  String?
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  chave     String   @unique
+  valor     String
+  descricao String?
+  updatedAt DateTime @updatedAt
 }
 
 // Idea 16 — plano de manutenção preventiva anual (receita recorrente).
@@ -958,7 +962,7 @@ model GatilhoTemporal {
   ativo           Boolean   @default(true)
   limiarChuvaMm   Float     @default(10)
   cooldownDias    Int       @default(15)
-  mensagem        String    // template; {nome} vira o nome do cliente
+  mensagem        String // template; {nome} vira o nome do cliente
   ultimoDisparoEm DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -975,8 +979,143 @@ model DisparoTemporal {
   status    String // ENVIADO | FALHOU | SEM_WHATSAPP
   createdAt DateTime @default(now())
 
-  cliente   Cliente  @relation(fields: [clienteId], references: [id])
+  cliente Cliente @relation(fields: [clienteId], references: [id])
 
   @@index([clienteId])
   @@index([createdAt])
+}
+
+// ─── Sócios, contas e extrato (criado em 30/09/2026) ─────────────────────
+// O dinheiro da Verus antes do ERP vivia na planilha "Receitas 2026" e no
+// WhatsApp. Cada lançamento guarda de onde veio ("fonte") para ser conferido.
+
+/// Sócio da empresa, com a participação do contrato social.
+model Socio {
+  id           String   @id @default(cuid())
+  nome         String
+  documento    String?
+  participacao Float? // 0.5 = 50%
+  ativo        Boolean  @default(true)
+  observacoes  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  lancamentos LancamentoCaixa[]
+}
+
+/// Onde o dinheiro fica: conta de banco ou carteira digital (PicPay, Mercado Pago...).
+model ContaFinanceira {
+  id          String   @id @default(cuid())
+  nome        String   @unique
+  banco       String?
+  ativa       Boolean  @default(true)
+  observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lancamentos LancamentoCaixa[]
+  saldos      SaldoConta[]
+}
+
+/// Saldo conferido de uma conta numa data (ex.: "SALDO EM CONTA" da planilha).
+model SaldoConta {
+  id        String   @id @default(cuid())
+  contaId   String
+  data      DateTime
+  saldo     Float
+  fonte     String?
+  createdAt DateTime @default(now())
+
+  conta ContaFinanceira @relation(fields: [contaId], references: [id], onDelete: Cascade)
+
+  @@index([contaId, data])
+}
+
+/// Extrato: cada dinheiro que entrou ou saiu. Valor sempre positivo; o tipo diz a direção.
+model LancamentoCaixa {
+  id          String   @id @default(cuid())
+  data        DateTime
+  tipo        String // ENTRADA | SAIDA
+  valor       Float
+  descricao   String
+  categoria   String // RECEBIMENTO | MAO_DE_OBRA | MATERIAL | COMBUSTIVEL | RETIRADA_SOCIO | APORTE_SOCIO | IMPOSTO_TAXA | ADMINISTRATIVO | MARKETING | AJUSTE | OUTROS
+  contaId     String?
+  socioId     String?
+  obraId      String?
+  clienteId   String?
+  favorecido  String?
+  forma       String?
+  fonte       String? // de onde veio: planilha, conversa, comprovante
+  incerto     Boolean  @default(false)
+  observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  conta   ContaFinanceira? @relation(fields: [contaId], references: [id])
+  socio   Socio?           @relation(fields: [socioId], references: [id])
+  obra    Obra?            @relation(fields: [obraId], references: [id])
+  cliente Cliente?         @relation(fields: [clienteId], references: [id])
+
+  @@index([data])
+  @@index([categoria])
+  @@index([socioId])
+  @@index([obraId])
+  @@index([contaId])
+}
+
+// ─── Marketing (criado em 30/09/2026) ─────────────────────────────────────
+
+/// Postagem, vídeo ou gravação em obra, do planejado ao publicado.
+model ConteudoMarketing {
+  id          String   @id @default(cuid())
+  titulo      String
+  tipo        String // POST | REELS | STORY | VIDEO | GRAVACAO | OUTRO
+  canal       String? // Instagram, TikTok, Google...
+  data        DateTime
+  status      String   @default("PLANEJADO") // PLANEJADO | PRODUCAO | PUBLICADO | CANCELADO
+  responsavel String?
+  obraId      String?
+  link        String?
+  fonte       String?
+  observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  obra Obra? @relation(fields: [obraId], references: [id])
+
+  @@index([data])
+  @@index([status])
+}
+
+/// Campanha paga ou ação de divulgação com verba.
+model CampanhaMarketing {
+  id          String    @id @default(cuid())
+  nome        String
+  canal       String
+  inicio      DateTime
+  fim         DateTime?
+  verba       Float?
+  gasto       Float?
+  resultado   String?
+  fonte       String?
+  observacoes String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([inicio])
+}
+
+/// Tarefa combinada entre sócios e marketing (quem faz o quê, até quando).
+model TarefaMarketing {
+  id          String    @id @default(cuid())
+  descricao   String
+  responsavel String?
+  prazo       DateTime?
+  status      String    @default("ABERTA") // ABERTA | FEITA | CANCELADA
+  fonte       String?
+  observacoes String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
 }

@@ -67,7 +67,8 @@ export type Modulo =
   | "usuarios"
   | "configuracoes"
   | "campo"
-  | "busca";
+  | "busca"
+  | "marketing";
 
 type Regra = { ler: readonly Papel[]; escrever: readonly Papel[] };
 
@@ -107,6 +108,7 @@ export const MATRIZ: Record<Modulo, Regra> = {
   fornecedores: { ler: SEM_TECNICO, escrever: OPERACAO.concat("FINANCEIRO") },
 
   financeiro: { ler: DINHEIRO, escrever: DINHEIRO },
+  marketing: { ler: SEM_TECNICO, escrever: [...GESTAO, "COMERCIAL"] },
 
   garantias: { ler: TODOS, escrever: OPERACAO.concat("COMERCIAL") },
   manutencao: { ler: SEM_TECNICO, escrever: OPERACAO.concat("COMERCIAL") },
@@ -149,6 +151,10 @@ const API_MODULO: Array<[string, Modulo]> = [
   ["/api/contas-pagar", "financeiro"],
   ["/api/contas-receber", "financeiro"],
   ["/api/fluxo-caixa", "financeiro"],
+  ["/api/socios", "financeiro"],
+  ["/api/lancamentos", "financeiro"],
+  ["/api/contas-financeiras", "financeiro"],
+  ["/api/marketing", "marketing"],
   ["/api/integracoes/nfe", "financeiro"],
   ["/api/garantias", "garantias"],
   ["/api/manutencao", "manutencao"],
@@ -183,6 +189,9 @@ const DASHBOARD_MODULO: Array<[string, Modulo]> = [
   ["/dashboard/compras", "compras"],
   ["/dashboard/fornecedores", "fornecedores"],
   ["/dashboard/financeiro", "financeiro"],
+  ["/dashboard/socios", "financeiro"],
+  ["/dashboard/contas-saldos", "financeiro"],
+  ["/dashboard/marketing", "marketing"],
   ["/dashboard/garantias", "garantias"],
   ["/dashboard/manutencao", "manutencao"],
   ["/dashboard/gatilho-clima", "gatilho-clima"],
