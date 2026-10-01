@@ -4,6 +4,8 @@ import { extrato, resultado } from "@/lib/caixa/extrato";
 
 export const dynamic = "force-dynamic";
 
+const atual = (obs: string | null) => (obs ?? "").split("Antes:")[0];
+
 /**
  * Quanto cada sócio colocou e tirou, o resultado da operação e o acerto entre eles
  * pela participação do contrato social.
@@ -35,7 +37,10 @@ export async function GET() {
     const retirou = soma("RETIRADA_SOCIO", "SAIDA") - soma("RETIRADA_SOCIO", "ENTRADA");
     const primeiroNome = s.nome.split(" ")[0];
     const pagouPelaEmpresa = pagasPorSocio
-      .filter((p) => new RegExp(`(adiantado por|reembolso a|pago por) ${primeiroNome}`, "i").test(p.observacoes ?? ""))
+      // "devolvido"/"reembolsado" = a empresa já pagou de volta: não conta mais como dinheiro do sócio.
+      // Só vale a anotação atual; o que vem depois de "Antes:" é o texto antigo guardado por histórico.
+      .filter((p) => new RegExp(`(adiantado por|reembolso a|pago por) ${primeiroNome}`, "i").test(atual(p.observacoes)))
+      .filter((p) => !/devolvid|reembolsad/i.test(atual(p.observacoes)))
       .reduce((t, p) => t + p.valorPago, 0);
     // O que a Verus deve ao sócio: o que ele pôs (em dinheiro ou pagando despesa da empresa) menos o que tirou
     // e menos o dinheiro de cliente que ficou na conta pessoal dele.
