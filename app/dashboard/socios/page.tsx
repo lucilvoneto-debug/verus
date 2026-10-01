@@ -11,7 +11,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 
 type Socio = {
   id: string; nome: string; participacao: number | null;
-  aportou: number; retirou: number; reembolsos: number; direito: number | null; saldo: number | null;
+  aportou: number; retirou: number; pagouPelaEmpresa: number; empresaDeve: number; parteNoResultado: number | null;
 };
 type Mov = {
   id: string; data: string; tipo: string; valor: number; descricao: string; categoria: keyof typeof CATEGORIA_LABEL;
@@ -25,14 +25,7 @@ export default function SociosPage() {
   const { data } = useQuery<Resp>({ queryKey: ["socios"], queryFn: () => fetch("/api/socios").then((r) => r.json()) });
   const nome = (id: string) => data?.socios.find((s) => s.id === id)?.nome ?? "—";
 
-  // Acerto entre dois sócios: quem tirou além da sua parte deve ao outro metade da diferença.
-  const [a, b] = data?.socios ?? [];
-  const acerto =
-    a && b && a.saldo != null && b.saldo != null
-      ? a.saldo > b.saldo
-        ? { quem: b.nome, para: a.nome, valor: (a.saldo - b.saldo) / 2 }
-        : { quem: a.nome, para: b.nome, valor: (b.saldo - a.saldo) / 2 }
-      : null;
+  const totalDevido = (data?.socios ?? []).reduce((t, s) => t + Math.max(0, s.empresaDeve), 0);
 
   return (
     <div className="space-y-6">
@@ -48,28 +41,31 @@ export default function SociosPage() {
         {data?.socios.map((s) => (
           <Card key={s.id}>
             <div className="text-xs text-gray-500">{s.nome}{s.participacao != null ? ` · ${Math.round(s.participacao * 100)}%` : ""}</div>
-            <div className="text-sm mt-2">Colocou <b>{formatCurrency(s.aportou)}</b></div>
+            <div className="text-sm mt-2">Colocou em dinheiro <b>{formatCurrency(s.aportou)}</b></div>
+            <div className="text-sm">Pagou despesa da empresa do próprio bolso <b>{formatCurrency(s.pagouPelaEmpresa)}</b></div>
             <div className="text-sm">Tirou <b>{formatCurrency(s.retirou)}</b></div>
-            <div className="text-xs text-gray-500 mt-1">Despesas pagas a ele pela empresa: {formatCurrency(s.reembolsos)}</div>
+            <div className="mt-2 pt-2 border-t border-gray-100">
+              <div className="text-xs text-gray-500">{s.empresaDeve >= 0 ? "A Verus deve a ele" : "Ele tirou a mais"}</div>
+              <div className="font-display text-xl font-bold">{formatCurrency(Math.abs(s.empresaDeve))}</div>
+            </div>
           </Card>
         ))}
         <Card>
           <div className="text-xs text-gray-500">Resultado da operação</div>
           <div className="font-display text-2xl font-bold mt-1">{formatCurrency(data?.resultado.resultado ?? 0)}</div>
-          <div className="text-xs text-gray-500">recebido de clientes menos gastos, sem contar retiradas e aportes</div>
-        </Card>
-        <Card className={acerto && acerto.valor > 0.5 ? "border-amber-300 bg-amber-50" : ""}>
-          <div className="text-xs text-amber-700">Acerto entre sócios</div>
-          {acerto ? (
-            acerto.valor > 0.5 ? (
-              <div className="font-display text-xl font-bold mt-1">{acerto.quem} deve {formatCurrency(acerto.valor)} a {acerto.para}</div>
-            ) : (
-              <div className="font-display text-xl font-bold mt-1">Empatados</div>
-            )
-          ) : (
-            <div className="text-sm text-gray-500 mt-1">Cadastre a participação de cada sócio para calcular.</div>
+          <div className="text-xs text-gray-500">
+            recebido de clientes ({formatCurrency(data?.resultado.entradas ?? 0)}) menos despesas pagas ({formatCurrency(data?.resultado.saidas ?? 0)})
+          </div>
+          {data?.socios.some((s) => s.parteNoResultado != null) && (
+            <div className="text-xs text-gray-500 mt-1">
+              Parte de cada um, se distribuído: {data.socios.map((s) => `${s.nome.split(" ")[0]} ${formatCurrency(s.parteNoResultado ?? 0)}`).join(" · ")}
+            </div>
           )}
-          <div className="text-xs text-gray-500 mt-1">pela participação de cada um no resultado</div>
+        </Card>
+        <Card className="border-amber-300 bg-amber-50">
+          <div className="text-xs text-amber-700">A Verus deve aos sócios</div>
+          <div className="font-display text-2xl font-bold mt-1">{formatCurrency(totalDevido)}</div>
+          <div className="text-xs text-gray-500">dinheiro e despesas que eles bancaram, menos o que já tiraram</div>
         </Card>
       </div>
 

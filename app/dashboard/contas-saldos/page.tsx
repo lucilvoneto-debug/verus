@@ -80,7 +80,7 @@ export default function ContasSaldosPage() {
         <Card className="bg-brand-dark text-white">
           <div className="text-xs text-white/70">Total em caixa</div>
           <div className="font-display text-2xl font-bold mt-1">{formatCurrency(contas.data?.total ?? 0)}</div>
-          <div className="text-xs text-white/70 mt-1">{contas.data?.contas.length ?? 0} contas</div>
+          <div className="text-xs text-white/70 mt-1">soma do último saldo conferido de cada conta (veja a data em cada uma)</div>
         </Card>
       </div>
 

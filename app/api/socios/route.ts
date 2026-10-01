@@ -1,44 +1,43 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { CATEGORIAS_SOCIO } from "@/lib/caixa/validacoes";
+import { extrato, resultado } from "@/lib/caixa/extrato";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Quanto cada sócio colocou e tirou, o resultado da operação no período
- * e o acerto entre eles pela participação do contrato social.
+ * Quanto cada sócio colocou e tirou, o resultado da operação e o acerto entre eles
+ * pela participação do contrato social.
  */
 export async function GET() {
-  const [socios, movimentos, operacao] = await Promise.all([
+  const [socios, linhas, pagasPorSocio] = await Promise.all([
     prisma.socio.findMany({ where: { ativo: true }, orderBy: { nome: "asc" } }),
-    prisma.lancamentoCaixa.findMany({
-      where: { socioId: { not: null } },
-      orderBy: { data: "desc" },
-      include: { conta: { select: { nome: true } }, obra: { select: { nome: true } } },
-    }),
-    prisma.lancamentoCaixa.groupBy({
-      by: ["tipo"],
-      _sum: { valor: true },
-      where: { categoria: { notIn: [...CATEGORIAS_SOCIO] } },
+    extrato(),
+    // Despesa da empresa que um sócio pagou do próprio bolso (anotada na conta a pagar).
+    prisma.contaPagar.findMany({
+      where: { valorPago: { gt: 0 }, observacoes: { not: null } },
+      select: { valorPago: true, observacoes: true },
     }),
   ]);
 
-  const entradas = operacao.find((o) => o.tipo === "ENTRADA")?._sum.valor ?? 0;
-  const saidas = operacao.find((o) => o.tipo === "SAIDA")?._sum.valor ?? 0;
-  const resultado = entradas - saidas;
+  const res = resultado(linhas);
+  const movimentos = linhas.filter((l) => l.socioId);
 
   const totais = socios.map((s) => {
     const meus = movimentos.filter((m) => m.socioId === s.id);
-    // Só retirada/aporte mexe no acerto. Gasolina ou material pagos ao sócio são despesa da obra
-    // (entram no resultado) e aparecem à parte como "despesas reembolsadas".
-    const retirou = meus.filter((m) => m.categoria === "RETIRADA_SOCIO").reduce((t, m) => t + m.valor, 0);
-    const aportou = meus.filter((m) => m.categoria === "APORTE_SOCIO").reduce((t, m) => t + m.valor, 0);
-    const reembolsos = meus
-      .filter((m) => m.tipo === "SAIDA" && m.categoria !== "RETIRADA_SOCIO")
-      .reduce((t, m) => t + m.valor, 0);
-    const direito = s.participacao != null ? resultado * s.participacao : null;
-    return { ...s, aportou, retirou, reembolsos, direito, saldo: direito != null ? direito + aportou - retirou : null };
+    const soma = (cat: string, tipo: string) => meus.filter((m) => m.categoria === cat && m.tipo === tipo).reduce((t, m) => t + m.valor, 0);
+    // Devolução de aporte é saída na categoria de aporte e reduz o que o sócio colocou.
+    const aportou = soma("APORTE_SOCIO", "ENTRADA") - soma("APORTE_SOCIO", "SAIDA");
+    const retirou = soma("RETIRADA_SOCIO", "SAIDA") - soma("RETIRADA_SOCIO", "ENTRADA");
+    const primeiroNome = s.nome.split(" ")[0];
+    const pagouPelaEmpresa = pagasPorSocio
+      .filter((p) => new RegExp(`(adiantado por|reembolso a|pago por) ${primeiroNome}`, "i").test(p.observacoes ?? ""))
+      .reduce((t, p) => t + p.valorPago, 0);
+    // O que a Verus deve ao sócio: o que ele pôs (em dinheiro ou pagando despesa da empresa) menos o que tirou.
+    // Não inclui a parte dele no resultado, que só vira dele quando os sócios decidirem distribuir.
+    const empresaDeve = aportou + pagouPelaEmpresa - retirou;
+    const parteNoResultado = s.participacao != null ? res.resultado * s.participacao : null;
+    return { ...s, aportou, retirou, pagouPelaEmpresa, empresaDeve, parteNoResultado };
   });
 
-  return NextResponse.json({ socios: totais, movimentos, resultado: { entradas, saidas, resultado } });
+  return NextResponse.json({ socios: totais, movimentos, resultado: res });
 }
