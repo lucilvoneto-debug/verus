@@ -9,11 +9,16 @@ export const dynamic = "force-dynamic";
  * pela participação do contrato social.
  */
 export async function GET() {
-  const [socios, linhas, pagasPorSocio] = await Promise.all([
+  const [socios, linhas, pagasPorSocio, recebidasPorSocio] = await Promise.all([
     prisma.socio.findMany({ where: { ativo: true }, orderBy: { nome: "asc" } }),
     extrato(),
     // Despesa da empresa que um sócio pagou do próprio bolso (anotada na conta a pagar).
     prisma.contaPagar.findMany({
+      where: { valorPago: { gt: 0 }, observacoes: { not: null } },
+      select: { valorPago: true, observacoes: true },
+    }),
+    // Pagamento de cliente que caiu na conta pessoal de um sócio: é dinheiro da empresa guardado com ele.
+    prisma.contaReceber.findMany({
       where: { valorPago: { gt: 0 }, observacoes: { not: null } },
       select: { valorPago: true, observacoes: true },
     }),
@@ -32,11 +37,15 @@ export async function GET() {
     const pagouPelaEmpresa = pagasPorSocio
       .filter((p) => new RegExp(`(adiantado por|reembolso a|pago por) ${primeiroNome}`, "i").test(p.observacoes ?? ""))
       .reduce((t, p) => t + p.valorPago, 0);
-    // O que a Verus deve ao sócio: o que ele pôs (em dinheiro ou pagando despesa da empresa) menos o que tirou.
+    // O que a Verus deve ao sócio: o que ele pôs (em dinheiro ou pagando despesa da empresa) menos o que tirou
+    // e menos o dinheiro de cliente que ficou na conta pessoal dele.
     // Não inclui a parte dele no resultado, que só vira dele quando os sócios decidirem distribuir.
-    const empresaDeve = aportou + pagouPelaEmpresa - retirou;
+    const recebeuDaEmpresa = recebidasPorSocio
+      .filter((r) => new RegExp(`(picpay|conta|mercado pago) d[oa] ${primeiroNome}`, "i").test(r.observacoes ?? ""))
+      .reduce((t, r) => t + r.valorPago, 0);
+    const empresaDeve = aportou + pagouPelaEmpresa - retirou - recebeuDaEmpresa;
     const parteNoResultado = s.participacao != null ? res.resultado * s.participacao : null;
-    return { ...s, aportou, retirou, pagouPelaEmpresa, empresaDeve, parteNoResultado };
+    return { ...s, aportou, retirou, pagouPelaEmpresa, recebeuDaEmpresa, empresaDeve, parteNoResultado };
   });
 
   return NextResponse.json({ socios: totais, movimentos, resultado: res });
