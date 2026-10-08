@@ -11,7 +11,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 
 type Socio = {
   id: string; nome: string; participacao: number | null;
-  aportou: number; retirou: number; pagouPelaEmpresa: number; recebeuDaEmpresa: number; empresaDeve: number; parteNoResultado: number | null;
+  aportou: number; retirou: number; retirouDoDinheiroDeCliente: number; pagouPelaEmpresa: number; recebeuDaEmpresa: number; empresaDeve: number; parteNoResultado: number | null;
 };
 type Mov = {
   id: string; data: string; tipo: string; valor: number; descricao: string; categoria: keyof typeof CATEGORIA_LABEL;
@@ -43,9 +43,14 @@ export default function SociosPage() {
             <div className="text-xs text-gray-500">{s.nome}{s.participacao != null ? ` · ${Math.round(s.participacao * 100)}%` : ""}</div>
             <div className="text-sm mt-2">Colocou em dinheiro <b>{formatCurrency(s.aportou)}</b></div>
             <div className="text-sm">Pagou despesa da empresa pela conta dele <b>{formatCurrency(s.pagouPelaEmpresa)}</b></div>
-            <div className="text-sm">Tirou <b>{formatCurrency(s.retirou)}</b></div>
             {s.recebeuDaEmpresa > 0 && (
               <div className="text-sm">Recebeu de cliente na conta dele <b>{formatCurrency(s.recebeuDaEmpresa)}</b></div>
+            )}
+            <div className="text-sm">Tirou <b>{formatCurrency(s.retirou)}</b></div>
+            {s.retirouDoDinheiroDeCliente > 0 && (
+              <div className="text-xs text-gray-500">
+                {formatCurrency(s.retirouDoDinheiroDeCliente)} saíram do dinheiro de cliente que estava com ele: já contam no recebido, não descontam de novo
+              </div>
             )}
             <div className="mt-2 pt-2 border-t border-gray-100">
               <div className="text-xs text-gray-500">{s.empresaDeve >= 0 ? "A Verus deve a ele" : "Ele deve à Verus"}</div>

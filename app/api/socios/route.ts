@@ -36,6 +36,12 @@ export async function GET() {
     const aportou = soma("APORTE_SOCIO", "ENTRADA") - soma("APORTE_SOCIO", "SAIDA");
     const retirou = soma("RETIRADA_SOCIO", "SAIDA") - soma("RETIRADA_SOCIO", "ENTRADA");
     const primeiroNome = s.nome.split(" ")[0];
+    // Retirada feita da conta pessoal do próprio sócio (ex.: "PicPay do Diego") saiu do dinheiro de cliente
+    // que ficou com ele, que já entra em "recebeu de cliente": aparece na tela, mas não desconta de novo.
+    const daContaDele = new RegExp(`d[oa] ${primeiroNome}`, "i");
+    const retirouDoDinheiroDeCliente = meus
+      .filter((m) => m.categoria === "RETIRADA_SOCIO" && m.tipo === "SAIDA" && m.conta && daContaDele.test(m.conta.nome))
+      .reduce((t, m) => t + m.valor, 0);
     const pagouPelaEmpresa = pagasPorSocio
       // "devolvido"/"reembolsado" = a empresa já pagou de volta: não conta mais como dinheiro do sócio.
       // Só vale a anotação atual; o que vem depois de "Antes:" é o texto antigo guardado por histórico.
@@ -43,14 +49,14 @@ export async function GET() {
       .filter((p) => !/devolvid|reembolsad/i.test(atual(p.observacoes)))
       .reduce((t, p) => t + p.valorPago, 0);
     // O que a Verus deve ao sócio: o que ele pôs (em dinheiro ou pagando despesa da empresa) menos o que tirou
-    // e menos o dinheiro de cliente que ficou na conta pessoal dele.
+    // da empresa e menos o dinheiro de cliente que ficou na conta pessoal dele.
     // Não inclui a parte dele no resultado, que só vira dele quando os sócios decidirem distribuir.
     const recebeuDaEmpresa = recebidasPorSocio
       .filter((r) => new RegExp(`(picpay|conta|mercado pago) d[oa] ${primeiroNome}`, "i").test(r.observacoes ?? ""))
       .reduce((t, r) => t + r.valorPago, 0);
-    const empresaDeve = aportou + pagouPelaEmpresa - retirou - recebeuDaEmpresa;
+    const empresaDeve = aportou + pagouPelaEmpresa - (retirou - retirouDoDinheiroDeCliente) - recebeuDaEmpresa;
     const parteNoResultado = s.participacao != null ? res.resultado * s.participacao : null;
-    return { ...s, aportou, retirou, pagouPelaEmpresa, recebeuDaEmpresa, empresaDeve, parteNoResultado };
+    return { ...s, aportou, retirou, retirouDoDinheiroDeCliente, pagouPelaEmpresa, recebeuDaEmpresa, empresaDeve, parteNoResultado };
   });
 
   return NextResponse.json({ socios: totais, movimentos, resultado: res });

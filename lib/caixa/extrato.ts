@@ -43,6 +43,9 @@ function diaDoVencimento(d: Date): Date {
   return d.getUTCHours() === 0 && d.getUTCMinutes() === 0 ? new Date(d.getTime() + 15 * 3600 * 1000) : d;
 }
 
+/** Só a anotação atual vale: o que vem depois de "Antes:" é o texto antigo guardado por histórico. */
+const anotacaoAtual = (obs: string | null) => (obs ?? "").split("Antes:")[0];
+
 type Filtro = { inicio?: Date; fim?: Date; categoria?: string; socioId?: string; obraId?: string; contaId?: string };
 
 export async function extrato(f: Filtro = {}): Promise<LinhaExtrato[]> {
@@ -104,7 +107,7 @@ export async function extrato(f: Filtro = {}): Promise<LinhaExtrato[]> {
       categoria: categoriaDaContaPagar(p.categoria, p.descricao),
       favorecido: p.fornecedor?.nome ?? null,
       fonte: p.observacoes ? `conta a pagar · ${p.observacoes}` : "conta a pagar",
-      incerto: /conferir|confirmar|a definir/i.test(p.observacoes ?? ""),
+      incerto: /conferir|confirmar|a definir/i.test(anotacaoAtual(p.observacoes)),
       conta: null,
       socio: null,
       socioId: null,
@@ -120,7 +123,7 @@ export async function extrato(f: Filtro = {}): Promise<LinhaExtrato[]> {
       categoria: "RECEBIMENTO",
       favorecido: r.cliente?.nome ?? null,
       fonte: r.observacoes ? `conta a receber · ${r.observacoes}` : "conta a receber",
-      incerto: /conferir|confirmar/i.test(r.observacoes ?? ""),
+      incerto: /conferir|confirmar/i.test(anotacaoAtual(r.observacoes)),
       conta: null,
       socio: null,
       socioId: null,
