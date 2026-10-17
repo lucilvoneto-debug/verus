@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { LancamentoModal } from "@/components/caixa/LancamentoModal";
+import { InterExtrato } from "@/components/inter/InterExtrato";
 import { CATEGORIA_LABEL, CATEGORIAS_CAIXA } from "@/lib/caixa/validacoes";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -83,6 +84,8 @@ export default function ContasSaldosPage() {
           <div className="text-xs text-white/70 mt-1">soma do último saldo conferido de cada conta (veja a data em cada uma)</div>
         </Card>
       </div>
+
+      <InterExtrato onMudou={recarregar} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2 p-0">

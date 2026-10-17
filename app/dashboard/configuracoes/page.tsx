@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Save, MessageCircle, FileText, ExternalLink, QrCode } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { InterConfigCard } from "@/components/inter/InterConfigCard";
 
 type Configuracao = { id: string; chave: string; valor: string; descricao?: string | null };
 type IntegracaoStatus = { provider: string; connected: boolean };
@@ -117,6 +118,7 @@ export default function ConfiguracoesPage() {
           O status é definido pelas variáveis de ambiente. Defina <code>*_PROVIDER</code> e o token correspondente para ativar.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InterConfigCard />
           <IntegracaoCard
             icon={<MessageCircle className="w-5 h-5" />}
             titulo="WhatsApp"

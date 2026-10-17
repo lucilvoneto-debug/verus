@@ -772,10 +772,11 @@ model ContaReceber {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  cliente    Cliente     @relation(fields: [clienteId], references: [id])
-  contrato   Contrato?   @relation(fields: [contratoId], references: [id])
-  obra       Obra?       @relation(fields: [obraId], references: [id])
-  pagamentos Pagamento[]
+  cliente        Cliente         @relation(fields: [clienteId], references: [id])
+  contrato       Contrato?       @relation(fields: [contratoId], references: [id])
+  obra           Obra?           @relation(fields: [obraId], references: [id])
+  pagamentos     Pagamento[]
+  cobrancasBanco CobrancaBanco[]
 
   @@index([clienteId])
   @@index([status])
@@ -796,7 +797,8 @@ model ContaPagar {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  fornecedor Fornecedor? @relation(fields: [fornecedorId], references: [id])
+  fornecedor      Fornecedor?      @relation(fields: [fornecedorId], references: [id])
+  pagamentosBanco PagamentoBanco[]
 
   @@index([fornecedorId])
   @@index([status])
@@ -1013,8 +1015,9 @@ model ContaFinanceira {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  lancamentos LancamentoCaixa[]
-  saldos      SaldoConta[]
+  lancamentos     LancamentoCaixa[]
+  saldos          SaldoConta[]
+  movimentosBanco MovimentoBanco[]
 }
 
 /// Saldo conferido de uma conta numa data (ex.: "SALDO EM CONTA" da planilha).
@@ -1117,5 +1120,113 @@ model TarefaMarketing {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  @@index([status])
+}
+
+// ─── Banco Inter (criado em 17/10/2026) ───────────────────────────────────
+
+/// Ligação com o banco. Segredo, certificado e chave ficam cifrados (lib/inter/cripto.ts)
+/// e nunca voltam para a tela.
+model IntegracaoBanco {
+  id               String    @id @default(cuid())
+  banco            String    @unique // INTER
+  contaId          String? // ContaFinanceira que recebe o extrato
+  clientId         String
+  clientSecretCifr String
+  certCifr         String
+  chaveCifr        String
+  certValidoAte    DateTime?
+  ativa            Boolean   @default(true)
+  testadoEm        DateTime?
+  permissoes       String? // JSON: { extrato, cobranca, pagaBoleto, pagaPix }
+  ultimoErro       String?
+  saldo            Float?
+  saldoEm          DateTime?
+  extratoSyncEm    DateTime?
+  atualizadoPor    String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+/// Linha do extrato que veio do banco. Não entra no extrato da empresa sozinha:
+/// vira lançamento ou baixa só quando alguém diz o que é (ou o sistema reconhece com certeza).
+model MovimentoBanco {
+  id             String   @id @default(cuid())
+  contaId        String
+  idBanco        String   @unique // idTransacao do Inter (ou chave montada)
+  data           DateTime
+  tipo           String // ENTRADA | SAIDA
+  valor          Float // sempre positivo
+  titulo         String
+  descricao      String?
+  situacao       String   @default("SEM_DONO") // SEM_DONO | RECONHECIDO | IGNORADO
+  categoria      String? // categoria do extrato (lib/caixa/validacoes)
+  contaReceberId String?
+  contaPagarId   String?
+  lancamentoId   String?
+  cobrancaId     String?
+  pagamentoId    String?
+  explicacao     String? // o que o sistema entendeu / quem classificou
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  conta ContaFinanceira @relation(fields: [contaId], references: [id])
+
+  @@index([contaId, data])
+  @@index([situacao])
+}
+
+/// Boleto com PIX emitido no banco para uma conta a receber. Nunca é apagado:
+/// cancelado continua aqui, com o motivo.
+model CobrancaBanco {
+  id                 String    @id @default(cuid())
+  contaReceberId     String
+  banco              String    @default("INTER")
+  codigoSolicitacao  String    @unique
+  seuNumero          String
+  valor              Float
+  vencimento         DateTime
+  situacao           String    @default("EM_PROCESSAMENTO") // situação do Inter: A_RECEBER | RECEBIDO | ATRASADO | CANCELADO | EXPIRADO...
+  linhaDigitavel     String?
+  pixCopiaECola      String?
+  nossoNumero        String?
+  valorRecebido      Float?
+  recebidoEm         DateTime?
+  origemRecebimento  String? // BOLETO | PIX
+  baixaFeita         Boolean   @default(false)
+  canceladaEm        DateTime?
+  motivoCancelamento String?
+  criadoPor          String?
+  consultadoEm       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  contaReceber ContaReceber @relation(fields: [contaReceberId], references: [id])
+
+  @@index([contaReceberId])
+  @@index([situacao])
+}
+
+/// Pagamento de fornecedor mandado ao banco (boleto ou PIX). Guarda a resposta do banco.
+model PagamentoBanco {
+  id           String    @id @default(cuid())
+  contaPagarId String
+  banco        String    @default("INTER")
+  tipo         String // BOLETO | PIX
+  destino      String // linha digitável ou chave PIX
+  valor        Float
+  idempotente  String    @unique
+  codigoBanco  String? // codigoTransacao (boleto) ou codigoSolicitacao (PIX)
+  status       String // AGUARDANDO_APROVACAO | AGENDADO | PAGO | RECUSADO | CANCELADO | ENVIADO
+  baixaFeita   Boolean   @default(false)
+  resposta     String?
+  criadoPor    String?
+  consultadoEm DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  contaPagar ContaPagar @relation(fields: [contaPagarId], references: [id])
+
+  @@index([contaPagarId])
   @@index([status])
 }

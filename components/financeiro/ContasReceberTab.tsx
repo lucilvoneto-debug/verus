@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, DollarSign, Trash2, Pencil } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Plus, DollarSign, Trash2, Pencil, Barcode } from "lucide-react";
 import {
   useContasReceber,
   useCreateContaReceber,
@@ -14,6 +15,7 @@ import { Badge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ContaReceberFormModal } from "./ContaReceberFormModal";
 import { PagamentoModal } from "./PagamentoModal";
+import { BoletoModal, SITUACAO_BOLETO, type Cobranca } from "@/components/inter/BoletoModal";
 import type { ContaReceberInput } from "@/lib/validations/contaReceber";
 
 type Conta = {
@@ -24,7 +26,8 @@ type Conta = {
   vencimento: string;
   status: string;
   statusComputed: string;
-  cliente: { id: string; nome: string };
+  cliente: { id: string; nome: string; whatsapp?: string | null; telefone?: string | null };
+  cobrancasBanco?: Cobranca[];
   contratoId: string | null;
   obraId: string | null;
   obra?: { id: string; numero: string; nome: string } | null;
@@ -41,6 +44,16 @@ export function ContasReceberTab() {
   const [openNova, setOpenNova] = useState(false);
   const [editando, setEditando] = useState<Conta | null>(null);
   const [recebendo, setRecebendo] = useState<Conta | null>(null);
+  const [boletoDe, setBoletoDe] = useState<Conta | null>(null);
+  const qc = useQueryClient();
+
+  // Ao abrir, pergunta ao banco quais boletos em aberto foram pagos (dá baixa sozinho).
+  useEffect(() => {
+    fetch("/api/contas-receber/boletos/atualizar", { method: "POST" })
+      .then((r) => r.json())
+      .then((j) => { if (j?.pagas) qc.invalidateQueries({ queryKey: ["contas-receber"] }); })
+      .catch(() => {});
+  }, [qc]);
 
   const { data, isLoading } = useContasReceber({ status, inicio, fim, pageSize: 100 });
   const create = useCreateContaReceber();
@@ -136,9 +149,26 @@ export function ContasReceberTab() {
                     <td>{formatDate(c.vencimento)}</td>
                     <td>
                       <Badge tone={statusTone(c.statusComputed)}>{c.statusComputed}</Badge>
+                      {c.cobrancasBanco?.[0] && (
+                        <div className="mt-1">
+                          <Badge tone={SITUACAO_BOLETO[c.cobrancasBanco[0].situacao]?.tom ?? "neutral"}>
+                            {SITUACAO_BOLETO[c.cobrancasBanco[0].situacao]?.rotulo ?? c.cobrancasBanco[0].situacao}
+                          </Badge>
+                        </div>
+                      )}
                     </td>
                     <td>
                       <div className="flex items-center justify-end gap-1 pr-2">
+                        {(c.status !== "PAGA" || !!c.cobrancasBanco?.length) && (
+                          <button
+                            onClick={() => setBoletoDe(c)}
+                            className="p-2 rounded hover:bg-blue-50 text-blue-700"
+                            aria-label="Boleto e PIX"
+                            title="Boleto + PIX (Inter)"
+                          >
+                            <Barcode className="w-4 h-4" />
+                          </button>
+                        )}
                         {c.status !== "PAGA" && (
                           <button
                             onClick={() => setRecebendo(c)}
@@ -216,6 +246,8 @@ export function ContasReceberTab() {
           }
         }}
       />
+
+      {boletoDe && <BoletoModal conta={boletoDe} onClose={() => setBoletoDe(null)} />}
 
       <PagamentoModal
         open={!!recebendo}

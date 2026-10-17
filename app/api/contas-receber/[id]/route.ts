@@ -27,6 +27,22 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     );
   }
   const data = parsed.data;
+  // Boleto vivo no banco: valor e vencimento não mudam por cima (ver lib/inter/cobranca.ts).
+  const antes = await prisma.contaReceber.findUnique({ where: { id: params.id } });
+  const viva = await prisma.cobrancaBanco.findFirst({
+    where: { contaReceberId: params.id, situacao: { in: ["EM_PROCESSAMENTO", "A_RECEBER", "ATRASADO"] } },
+  });
+  if (
+    antes &&
+    viva &&
+    (Math.round(antes.valor * 100) !== Math.round(data.valor * 100) ||
+      antes.vencimento.toISOString().slice(0, 10) !== new Date(data.vencimento).toISOString().slice(0, 10))
+  ) {
+    return NextResponse.json(
+      { error: "Esta conta tem boleto em aberto no banco. Cancele o boleto primeiro (botão do boleto) e depois mude o valor ou o vencimento." },
+      { status: 409 }
+    );
+  }
   const conta = await prisma.contaReceber.update({
     where: { id: params.id },
     data: {
@@ -44,6 +60,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const boletos = await prisma.cobrancaBanco.count({ where: { contaReceberId: params.id } });
+  if (boletos) {
+    return NextResponse.json(
+      { error: "Esta conta já teve boleto emitido no banco e não pode ser apagada. Cancele o boleto e mude a conta para outro status." },
+      { status: 409 }
+    );
+  }
   await prisma.contaReceber.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }

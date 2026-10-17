@@ -72,7 +72,7 @@ export function useUpdateContaReceber(id: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Erro ao atualizar");
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Erro ao atualizar");
       return res.json();
     },
     onSuccess: () => {
@@ -87,7 +87,7 @@ export function useDeleteContaReceber() {
   return useMutation({
     mutationFn: async (id: string) => {
       const res = await fetch(`/api/contas-receber/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Erro ao excluir");
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Erro ao excluir");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["contas-receber"] }),

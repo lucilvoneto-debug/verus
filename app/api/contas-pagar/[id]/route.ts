@@ -39,6 +39,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const pedidos = await prisma.pagamentoBanco.count({ where: { contaPagarId: params.id } });
+  if (pedidos) {
+    return NextResponse.json(
+      { error: "Esta conta já foi mandada para pagamento no banco e não pode ser apagada." },
+      { status: 409 }
+    );
+  }
   await prisma.contaPagar.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }

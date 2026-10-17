@@ -40,6 +40,7 @@ export async function GET(req: NextRequest) {
       take: pageSize,
       include: {
         fornecedor: { select: { id: true, nome: true } },
+        pagamentosBanco: { orderBy: { createdAt: "desc" }, take: 1 },
       },
     }),
   ]);

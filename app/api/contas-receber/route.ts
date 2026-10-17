@@ -37,9 +37,10 @@ export async function GET(req: NextRequest) {
       skip: (page - 1) * pageSize,
       take: pageSize,
       include: {
-        cliente: { select: { id: true, nome: true } },
+        cliente: { select: { id: true, nome: true, whatsapp: true, telefone: true } },
         contrato: { select: { id: true, numero: true } },
         obra: { select: { id: true, numero: true, nome: true } },
+        cobrancasBanco: { orderBy: { createdAt: "desc" }, take: 1 },
       },
     }),
   ]);

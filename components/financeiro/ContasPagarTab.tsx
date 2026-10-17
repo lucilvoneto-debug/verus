@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, DollarSign, Trash2, Pencil } from "lucide-react";
+import { Plus, DollarSign, Trash2, Pencil, Landmark } from "lucide-react";
 import {
   useContasPagar,
   useCreateContaPagar,
@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ContaPagarFormModal } from "./ContaPagarFormModal";
 import { PagamentoModal } from "./PagamentoModal";
+import { PagarInterModal, SITUACAO_PAGAMENTO, type PagamentoBanco } from "@/components/inter/PagarInterModal";
 import type { ContaPagarInput } from "@/lib/validations/contaPagar";
 
 type Conta = {
@@ -27,6 +28,7 @@ type Conta = {
   statusComputed: string;
   fornecedor: { id: string; nome: string } | null;
   fornecedorId: string | null;
+  pagamentosBanco?: PagamentoBanco[];
   observacoes: string | null;
 };
 
@@ -40,6 +42,7 @@ export function ContasPagarTab() {
   const [openNova, setOpenNova] = useState(false);
   const [editando, setEditando] = useState<Conta | null>(null);
   const [pagando, setPagando] = useState<Conta | null>(null);
+  const [pelobanco, setPeloBanco] = useState<Conta | null>(null);
 
   const { data, isLoading } = useContasPagar({ status, inicio, fim, pageSize: 100 });
   const create = useCreateContaPagar();
@@ -116,9 +119,26 @@ export function ContasPagarTab() {
                   <td>{formatDate(c.vencimento)}</td>
                   <td>
                     <Badge tone={statusTone(c.statusComputed)}>{c.statusComputed}</Badge>
+                    {c.pagamentosBanco?.[0] && c.pagamentosBanco[0].status !== "CANCELADO" && (
+                      <div className="mt-1">
+                        <Badge tone={SITUACAO_PAGAMENTO[c.pagamentosBanco[0].status]?.tom ?? "neutral"}>
+                          {SITUACAO_PAGAMENTO[c.pagamentosBanco[0].status]?.rotulo ?? c.pagamentosBanco[0].status}
+                        </Badge>
+                      </div>
+                    )}
                   </td>
                   <td>
                     <div className="flex items-center justify-end gap-1 pr-2">
+                      {(c.status !== "PAGA" || !!c.pagamentosBanco?.length) && (
+                        <button
+                          onClick={() => setPeloBanco(c)}
+                          className="p-2 rounded hover:bg-blue-50 text-blue-700"
+                          aria-label="Pagar pelo Inter"
+                          title="Pagar pelo Inter"
+                        >
+                          <Landmark className="w-4 h-4" />
+                        </button>
+                      )}
                       {c.status !== "PAGA" && (
                         <button
                           onClick={() => setPagando(c)}
@@ -194,6 +214,8 @@ export function ContasPagarTab() {
           }
         }}
       />
+
+      {pelobanco && <PagarInterModal conta={pelobanco} onClose={() => setPeloBanco(null)} />}
 
       <PagamentoModal
         open={!!pagando}
