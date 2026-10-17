@@ -122,11 +122,11 @@ export function InterConfigCard() {
               </p>
               <label className="block">
                 Client ID
-                <input className="input-verus" value={clientId} onChange={(e) => { setClientId(e.target.value); setErro(""); }} autoComplete="off" />
+                <input className="input-verus" value={clientId} onChange={(e) => { setClientId(e.target.value); setErro(""); }} onInput={(e) => setClientId(e.currentTarget.value)} autoComplete="off" />
               </label>
               <label className="block">
                 Client Secret
-                <input className="input-verus" type="password" value={clientSecret} onChange={(e) => { setClientSecret(e.target.value); setErro(""); }} autoComplete="new-password" />
+                <input className="input-verus" type="text" value={clientSecret} onChange={(e) => { setClientSecret(e.target.value); setErro(""); }} onInput={(e) => setClientSecret(e.currentTarget.value)} autoComplete="off" spellCheck={false} />
               </label>
               <label className="block">
                 Arquivo do certificado (Inter API_Certificado.crt)
@@ -153,8 +153,17 @@ export function InterConfigCard() {
                 <button className="btn-outline" onClick={() => setAberto(false)}>Cancelar</button>
                 <button
                   className="btn-primary"
-                  disabled={salvar.isPending || !clientId || !clientSecret || !arquivos.cert || !arquivos.chave}
-                  onClick={() => salvar.mutate()}
+                  disabled={salvar.isPending}
+                  onClick={() => {
+                    const falta = [
+                      !clientId.trim() && "o Client ID",
+                      !clientSecret.trim() && "o Client Secret",
+                      !arquivos.cert && "o arquivo do certificado",
+                      !arquivos.chave && "o arquivo da chave",
+                    ].filter(Boolean);
+                    if (falta.length) return setErro(`Falta ${falta.join(", ")}.`);
+                    salvar.mutate();
+                  }}
                 >
                   {salvar.isPending ? "Testando com o banco..." : "Salvar e testar ligação"}
                 </button>
