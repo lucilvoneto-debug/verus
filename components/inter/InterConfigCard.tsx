@@ -129,17 +129,24 @@ export function InterConfigCard() {
                 <input className="input-verus" type="password" value={clientSecret} onChange={(e) => { setClientSecret(e.target.value); setErro(""); }} autoComplete="new-password" />
               </label>
               <label className="block">
-                Arquivos do certificado (escolha os dois: o .crt e o .key)
+                Arquivo do certificado (Inter API_Certificado.crt)
                 <input
                   className="input-verus"
                   type="file"
-                  multiple
-                  accept=".crt,.key,.pem,text/plain"
-                  onChange={async (e) => { setArquivos(await lerArquivos(e.target.files)); setErro(""); }}
+                  onChange={async (e) => { const l = await lerArquivos(e.target.files); setArquivos((a) => ({ cert: l.cert || a.cert, chave: l.chave || a.chave })); setErro(""); }}
+                />
+              </label>
+              <label className="block">
+                Arquivo da chave (Inter API_Chave.key)
+                <input
+                  className="input-verus"
+                  type="file"
+                  onChange={async (e) => { const l = await lerArquivos(e.target.files); setArquivos((a) => ({ cert: l.cert || a.cert, chave: l.chave || a.chave })); setErro(""); }}
                 />
               </label>
               <div className="text-xs text-gray-500">
                 Certificado: {arquivos.cert ? "ok" : "falta"} · Chave: {arquivos.chave ? "ok" : "falta"}
+                {(!arquivos.cert || !arquivos.chave) && " · os dois ficam na pasta Downloads → Inter_API-Chave_e_Certificado"}
               </div>
               {erro && <p className="text-red-600">{erro}</p>}
               <div className="flex gap-2">
