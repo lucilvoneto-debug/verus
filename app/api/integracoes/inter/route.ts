@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { exigir } from "@/lib/sessao";
+import { AVISO_SENHA_PADRAO, senhaPadraoAtiva } from "@/lib/inter/senha-padrao";
 import { cifrar } from "@/lib/inter/cripto";
 import { esquecerCredenciais, testarCredenciais, validadeCertificado } from "@/lib/inter/cliente";
 import { contaDoInter } from "@/lib/inter/extrato";
@@ -11,8 +12,10 @@ export const dynamic = "force-dynamic";
 /** Situação da ligação. Nunca devolve segredo, certificado nem chave. */
 export async function GET() {
   const r = await prisma.integracaoBanco.findUnique({ where: { banco: "INTER" } });
-  if (!r) return NextResponse.json({ ligado: false });
+  const senhaPadrao = await senhaPadraoAtiva();
+  if (!r) return NextResponse.json({ ligado: false, senhaPadrao });
   return NextResponse.json({
+    senhaPadrao,
     ligado: r.ativa,
     clientIdFinal: r.clientId.slice(-4),
     certValidoAte: r.certValidoAte,
@@ -35,6 +38,7 @@ const schema = z.object({
 export async function PUT(req: NextRequest) {
   const auth = await exigir("configuracoes", "escrever");
   if (auth.erro) return auth.erro;
+  if (await senhaPadraoAtiva()) return NextResponse.json({ error: AVISO_SENHA_PADRAO }, { status: 409 });
   const p = schema.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: p.error.issues[0]?.message ?? "Dados inválidos" }, { status: 400 });
   const d = p.data;

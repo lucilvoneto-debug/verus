@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { exigir } from "@/lib/sessao";
+import { AVISO_SENHA_PADRAO, senhaPadraoAtiva } from "@/lib/inter/senha-padrao";
 import { normalizarPapel } from "@/lib/permissions";
 import { pagarPeloInter } from "@/lib/inter/pagamento";
 import { respostaErro } from "@/lib/inter/rota";
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (normalizarPapel(auth.sessao.role) !== "ADMIN") {
     return NextResponse.json({ error: "Só o administrador pode mandar pagamento ao banco." }, { status: 403 });
   }
+  if (await senhaPadraoAtiva()) return NextResponse.json({ error: AVISO_SENHA_PADRAO }, { status: 409 });
   const p = schema.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: p.error.issues[0]?.message ?? "Dados inválidos" }, { status: 400 });
   try {

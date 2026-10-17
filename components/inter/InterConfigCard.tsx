@@ -15,6 +15,7 @@ type Status = {
   permissoes?: Record<string, boolean> | null;
   ultimoErro?: string | null;
   saldo?: number | null;
+  senhaPadrao?: boolean;
 };
 
 const NOME_PERMISSAO: Record<string, string> = {
@@ -101,6 +102,13 @@ export function InterConfigCard() {
                 ))}
               </div>
             </div>
+          )}
+
+          {data?.senhaPadrao && (
+            <p className="mt-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-2">
+              Antes de ligar o banco, troque a senha do administrador em <a className="underline" href="/dashboard/usuarios">Usuários</a>.
+              Ela ainda é a senha de demonstração, que ficou escrita na tela de entrada.
+            </p>
           )}
 
           {!aberto ? (

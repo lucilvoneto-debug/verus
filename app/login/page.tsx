@@ -15,8 +15,8 @@ export default function LoginPage() {
 function Login() {
   const router = useRouter();
   const sp = useSearchParams();
-  const [email, setEmail] = useState("admin@verus.com.br");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
     sp.get("erro") === "papel"
@@ -90,10 +90,7 @@ function Login() {
             </button>
           </form>
 
-          <p className="text-xs text-gray-400 mt-6 text-center">
-            Demo: admin@verus.com.br / admin123
-          </p>
-          <div className="mt-3 text-center">
+          <div className="mt-6 text-center">
             <a href="/portal/login" className="text-xs text-gray-500 hover:text-brand">
               Sou cliente — acessar portal
             </a>
