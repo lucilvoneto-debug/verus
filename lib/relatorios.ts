@@ -191,7 +191,7 @@ export type LinhaMes = { mes: string; recebido: number; pago: number; aReceber: 
 export async function fluxoMensal(p: Periodo): Promise<LinhaMes[]> {
   const [rec, pag] = await Promise.all([
     prisma.contaReceber.findMany({ where: { vencimento: { gte: p.inicio, lte: p.fim } }, select: { valor: true, valorPago: true, vencimento: true, status: true } }),
-    prisma.contaPagar.findMany({ where: { vencimento: { gte: p.inicio, lte: p.fim } }, select: { valor: true, valorPago: true, vencimento: true, status: true } }),
+    prisma.contaPagar.findMany({ where: { vencimento: { gte: p.inicio, lte: p.fim }, status: { not: "CANCELADA" } }, select: { valor: true, valorPago: true, vencimento: true, status: true } }),
   ]);
   const m = new Map<string, LinhaMes>();
   const chave = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -238,7 +238,7 @@ export type LinhaCategoria = { categoria: string; valor: number; pago: number };
 export async function despesasPorCategoria(p: Periodo): Promise<LinhaCategoria[]> {
   const g = await prisma.contaPagar.groupBy({
     by: ["categoria"],
-    where: { vencimento: { gte: p.inicio, lte: p.fim } },
+    where: { vencimento: { gte: p.inicio, lte: p.fim }, status: { not: "CANCELADA" } },
     _sum: { valor: true, valorPago: true },
   });
   return g.map((x) => ({ categoria: x.categoria, valor: x._sum.valor ?? 0, pago: x._sum.valorPago ?? 0 })).sort((a, b) => b.valor - a.valor);

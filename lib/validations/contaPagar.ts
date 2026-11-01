@@ -6,7 +6,7 @@ export const contaPagarSchema = z.object({
   descricao: z.string().min(2, "Descrição obrigatória"),
   valor: z.number().nonnegative(),
   vencimento: z.string().min(1, "Vencimento obrigatório"),
-  status: z.enum(["ABERTA", "PAGA", "ATRASADA", "PARCIAL"]).default("ABERTA"),
+  status: z.enum(["ABERTA", "PAGA", "ATRASADA", "PARCIAL", "CANCELADA"]).default("ABERTA"),
   observacoes: z.string().optional().or(z.literal("")),
 });
 

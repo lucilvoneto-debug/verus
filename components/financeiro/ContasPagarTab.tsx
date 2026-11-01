@@ -69,6 +69,7 @@ export function ContasPagarTab() {
             <option value="PAGA">Paga</option>
             <option value="ATRASADA">Atrasada</option>
             <option value="PARCIAL">Parcial</option>
+            <option value="CANCELADA">Cancelada</option>
           </select>
           <input type="date" className="input-verus" value={inicio} onChange={(e) => setInicio(e.target.value)} />
           <input type="date" className="input-verus" value={fim} onChange={(e) => setFim(e.target.value)} />

@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize") ?? 20)));
 
   const where: Prisma.ContaPagarWhereInput = {};
-  if (status === "ABERTA" || status === "PAGA" || status === "PARCIAL") where.status = status;
+  if (status === "ABERTA" || status === "PAGA" || status === "PARCIAL" || status === "CANCELADA") where.status = status;
   if (status === "ATRASADA") {
     where.status = "ABERTA";
     where.vencimento = { lt: new Date() };

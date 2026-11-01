@@ -7,6 +7,9 @@ import { contaPagarSchema, type ContaPagarInput } from "@/lib/validations/contaP
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { CATEGORIA_LABEL, CATEGORIAS_CONTA_PAGAR } from "@/lib/caixa/validacoes";
+
+const GAVETAS = CATEGORIAS_CONTA_PAGAR.map((c) => CATEGORIA_LABEL[c]);
 
 type Fornecedor = { id: string; nome: string };
 
@@ -42,11 +45,11 @@ export function ContaPagarFormModal({
     formState: { errors },
   } = useForm<ContaPagarInput>({
     resolver: zodResolver(contaPagarSchema),
-    defaultValues: { status: "ABERTA", valor: 0, categoria: "GERAL", ...defaultValues },
+    defaultValues: { status: "ABERTA", valor: 0, categoria: CATEGORIA_LABEL.ADMINISTRATIVO, ...defaultValues },
   });
 
   useEffect(() => {
-    if (open) reset({ status: "ABERTA", valor: 0, categoria: "GERAL", ...defaultValues });
+    if (open) reset({ status: "ABERTA", valor: 0, categoria: CATEGORIA_LABEL.ADMINISTRATIVO, ...defaultValues });
   }, [open, defaultValues, reset]);
 
   return (
@@ -60,7 +63,15 @@ export function ContaPagarFormModal({
             ...fornecedores.map((f) => ({ value: f.id, label: f.nome })),
           ]}
         />
-        <Input label="Categoria" {...register("categoria")} error={errors.categoria?.message} />
+        <Select
+          label="Categoria"
+          {...register("categoria")}
+          options={[
+            // Conta antiga com texto livre: mantém o que está gravado até alguém escolher uma gaveta.
+            ...(defaultValues?.categoria && !GAVETAS.includes(defaultValues.categoria) ? [defaultValues.categoria] : []),
+            ...GAVETAS,
+          ].map((g) => ({ value: g, label: g }))}
+        />
         <Input label="Descrição" {...register("descricao")} error={errors.descricao?.message} />
         <div className="grid grid-cols-2 gap-3">
           <Input
@@ -79,6 +90,7 @@ export function ContaPagarFormModal({
             { value: "ABERTA", label: "Aberta" },
             { value: "PAGA", label: "Paga" },
             { value: "PARCIAL", label: "Parcial" },
+            { value: "CANCELADA", label: "Cancelada" },
           ]}
         />
         <textarea {...register("observacoes")} rows={3} className="input-verus" placeholder="Observações..." />

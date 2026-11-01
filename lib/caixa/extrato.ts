@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { CATEGORIAS_SOCIO } from "@/lib/caixa/validacoes";
+import { CATEGORIA_LABEL, CATEGORIAS_FORA_DO_RESULTADO } from "@/lib/caixa/validacoes";
 
 /**
  * Extrato único da empresa. Junta três origens para nada ficar de fora:
@@ -28,6 +28,9 @@ export type LinhaExtrato = {
 
 /** Categoria livre da conta a pagar ("Folha", "Materiais"...) → categoria do extrato. */
 export function categoriaDaContaPagar(categoria: string, descricao: string): string {
+  // Gaveta escolhida na lista ("Mão de obra" ou MAO_DE_OBRA) vale como está; o resto é adivinhado pelo texto.
+  const escolhida = Object.entries(CATEGORIA_LABEL).find(([k, l]) => k === categoria || l.toLowerCase() === categoria.trim().toLowerCase());
+  if (escolhida) return escolhida[0];
   const c = categoria.toLowerCase();
   const d = descricao.toLowerCase();
   if (/marketing|tr[aá]fego|an[uú]ncio|social/.test(d)) return "MARKETING";
@@ -136,9 +139,9 @@ export async function extrato(f: Filtro = {}): Promise<LinhaExtrato[]> {
     .sort((a, b) => b.data.getTime() - a.data.getTime());
 }
 
-/** Resultado da operação: tudo que entrou e saiu, sem contar dinheiro dos sócios. */
+/** Resultado da operação: tudo que entrou e saiu, sem contar dinheiro dos sócios nem compra de equipamento. */
 export function resultado(linhas: LinhaExtrato[]) {
-  const op = linhas.filter((l) => !(CATEGORIAS_SOCIO as readonly string[]).includes(l.categoria));
+  const op = linhas.filter((l) => !(CATEGORIAS_FORA_DO_RESULTADO as readonly string[]).includes(l.categoria));
   const entradas = op.filter((l) => l.tipo === "ENTRADA").reduce((s, l) => s + l.valor, 0);
   const saidas = op.filter((l) => l.tipo === "SAIDA").reduce((s, l) => s + l.valor, 0);
   return { entradas, saidas, resultado: entradas - saidas };

@@ -10,6 +10,8 @@ export const CATEGORIAS_CAIXA = [
   "IMPOSTO_TAXA",
   "ADMINISTRATIVO",
   "MARKETING",
+  "EQUIPAMENTO",
+  "VIAGEM",
   "AJUSTE",
   "OUTROS",
 ] as const;
@@ -24,12 +26,30 @@ export const CATEGORIA_LABEL: Record<(typeof CATEGORIAS_CAIXA)[number], string> 
   IMPOSTO_TAXA: "Imposto e taxa",
   ADMINISTRATIVO: "Administrativo",
   MARKETING: "Marketing",
+  EQUIPAMENTO: "Equipamento",
+  VIAGEM: "Viagem e hospedagem",
   AJUSTE: "Ajuste",
   OUTROS: "Outros",
 };
 
 /** Categorias que são dinheiro dos sócios, não resultado da operação. */
 export const CATEGORIAS_SOCIO = ["RETIRADA_SOCIO", "APORTE_SOCIO"] as const;
+
+/** Compra de máquina é bem da empresa, não gasto do mês: fica fora do resultado da operação. */
+export const CATEGORIAS_FORA_DO_RESULTADO = [...CATEGORIAS_SOCIO, "EQUIPAMENTO"] as const;
+
+/** Gavetas de conta a pagar (o campo guarda o nome, ex.: "Mão de obra"). */
+export const CATEGORIAS_CONTA_PAGAR = [
+  "MAO_DE_OBRA",
+  "MATERIAL",
+  "COMBUSTIVEL",
+  "MARKETING",
+  "ADMINISTRATIVO",
+  "IMPOSTO_TAXA",
+  "EQUIPAMENTO",
+  "VIAGEM",
+  "OUTROS",
+] as const;
 
 const vazioParaNull = (v: unknown) => (v === "" ? null : v);
 
