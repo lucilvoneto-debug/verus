@@ -987,6 +987,29 @@ model DisparoTemporal {
   @@index([createdAt])
 }
 
+// Pedido de avaliação no Google por WhatsApp quando a obra termina (05/11/2026).
+// Uma linha por obra: o obraId único é o que impede pedir duas vezes. Tabela
+// própria de propósito, sem ligação (relation) com Obra: se a tabela ainda não
+// existir no banco, só a rota /api/cron/avaliacao-google falha; as telas de obra
+// continuam funcionando. Ver lib/avaliacao-google.ts.
+model PedidoAvaliacao {
+  id         String    @id @default(cuid())
+  obraId     String    @unique
+  clienteId  String
+  telefone   String // E.164 sem +
+  mensagem   String // texto como o cliente leu
+  status     String // ENVIANDO | ENVIADO | FALHOU
+  tentativas Int       @default(0)
+  erro       String?
+  waId       String? // id da mensagem na Meta (wamid.…)
+  enviadoEm  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([clienteId])
+  @@index([status])
+}
+
 // ─── Sócios, contas e extrato (criado em 30/09/2026) ─────────────────────
 // O dinheiro da Verus antes do ERP vivia na planilha "Receitas 2026" e no
 // WhatsApp. Cada lançamento guarda de onde veio ("fonte") para ser conferido.
