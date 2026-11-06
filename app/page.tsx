@@ -33,6 +33,8 @@ export const metadata: Metadata = {
     images: [{ url: "/site/piscina-manta.jpg", width: 1066, height: 711, alt: "Aplicação de manta asfáltica em piscina" }],
   },
   robots: { index: true, follow: true },
+  // Search Console (conta contato@retric.com.br), verificação por etiqueta na página inicial.
+  verification: { google: "yPvQjT6VjqM2c_CZUPC-qUuiWM_NXlpwEgKCE-VJM7M" },
 };
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID; // Google tag (Ads / GA4): G-XXXX ou AW-XXXX
