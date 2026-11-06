@@ -67,6 +67,7 @@ export default function PaginaServico({ params }: { params: { slug: string } }) 
         name: EMPRESA.nome,
         url: EMPRESA.site,
         telephone: `+${EMPRESA.telefone}`,
+        sameAs: [EMPRESA.instagram, EMPRESA.googleMaps],
         address: { "@type": "PostalAddress", addressLocality: EMPRESA.cidade, addressRegion: EMPRESA.uf, addressCountry: "BR" },
       },
       areaServed: AREAS.map((a) => ({ "@type": "City", name: a })),

@@ -38,8 +38,7 @@ export const CHAVES = {
 } as const;
 
 /** Abre o perfil da Verus no Maps. O dono pode trocar pelo link oficial do painel do Google. */
-export const LINK_PADRAO =
-  "https://www.google.com/maps/place//data=!4m3!3m2!1s0x6dad6102562d5dbf:0x275b815d71872b74!12e1";
+export const LINK_PADRAO = "https://search.google.com/local/writereview?placeid=ChIJv10tVgJhrW0RdCuHcV2BWyc";
 
 export const JANELA_DIAS = 30;
 export const MAX_POR_RODADA = 10;

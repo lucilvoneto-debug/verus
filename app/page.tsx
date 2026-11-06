@@ -53,7 +53,8 @@ const jsonLd = [
     email: EMPRESA.email,
     url: EMPRESA.site,
     image: `${EMPRESA.site}/site/logo.jpg`,
-    sameAs: [EMPRESA.instagram],
+    sameAs: [EMPRESA.instagram, EMPRESA.googleMaps],
+    hasMap: EMPRESA.googleMaps,
     areaServed: AREAS.map((a) => ({ "@type": "City", name: a })),
     address: { "@type": "PostalAddress", addressLocality: EMPRESA.cidade, addressRegion: EMPRESA.uf, addressCountry: "BR" },
     openingHoursSpecification: [

@@ -8,6 +8,9 @@ export const EMPRESA = {
   telefoneFormatado: "(82) 99166-9449",
   email: "verusimpermeabilizacoes@gmail.com",
   instagram: "https://www.instagram.com/verusimpermeabilizacoes",
+  /** Perfil da Empresa no Google (CID) e link oficial de avaliação (place_id), conferidos em 06/11/2026. */
+  googleMaps: "https://www.google.com/maps?cid=2836002628696484724",
+  avaliarGoogle: "https://search.google.com/local/writereview?placeid=ChIJv10tVgJhrW0RdCuHcV2BWyc",
   cidade: "Maceió",
   uf: "AL",
   horario: "Seg–Sex 08:00–17:00 · Sáb 08:00–12:00",
