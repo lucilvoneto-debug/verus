@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Sora, Manrope } from "next/font/google";
 import { ArrowRight, CalendarClock, CheckCircle2, FileText, Layers, LogIn, MapPin, Phone, ShieldCheck } from "lucide-react";
-import { AREAS, CAMADAS, EMPRESA, ENTREGAVEIS } from "@/lib/site/empresa";
+import { AREAS, CAMADAS, EMPRESA, ENTREGAVEIS, PARCEIRAS } from "@/lib/site/empresa";
 import { PAGINAS_SERVICO, descricaoSistema, paginaPorSlug } from "@/lib/site/paginas-servico";
 import { Rastreio } from "@/components/site/Rastreio";
 import { BarraMobile, WhatsAppCta } from "@/components/site/WhatsAppCta";
@@ -265,6 +265,11 @@ export default function PaginaServico({ params }: { params: { slug: string } }) 
             <p className="font-sora font-semibold text-verus-text">{EMPRESA.nome}</p>
             <p className="mt-2">{EMPRESA.razao} · CNPJ {EMPRESA.cnpj}</p>
             <p>{EMPRESA.telefoneFormatado} · {EMPRESA.email}</p>
+            <p className="mt-3">Empresas parceiras em Maceió:{" "}
+              {PARCEIRAS.map((p, i) => (
+                <span key={p.url}>{i > 0 && " · "}<a href={p.url} className="hover:text-verus-green underline underline-offset-2">{p.nome}</a> ({p.oQue})</span>
+              ))}
+            </p>
           </div>
           <div className="flex gap-5">
             <Link href="/" className="hover:text-verus-green">Início</Link>

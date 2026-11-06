@@ -14,6 +14,12 @@ export const EMPRESA = {
   site: process.env.NEXT_PUBLIC_SITE_URL ?? "https://verusimpermeabilizacoes.com.br",
 };
 
+/** Empresas parceiras do mesmo dono, linkadas no rodapé. */
+export const PARCEIRAS = [
+  { nome: "CUPULA Forros & Drywall", oQue: "forro e drywall", url: "https://cupuladrywall.com.br/" },
+  { nome: "Retric Aluguel de Equipamentos", oQue: "locação de equipamentos", url: "https://www.retric.com.br/" },
+] as const;
+
 /** Mesmas 20 cidades do Perfil da Empresa no Google. */
 export const AREAS = [
   "Maceió", "Rio Largo", "Marechal Deodoro", "Paripueira", "Satuba", "Barra de São Miguel",
@@ -46,7 +52,7 @@ export const SERVICOS = [
   },
   {
     titulo: "Condomínios e construtoras",
-    desc: "Obra com cronograma, ART e laudo técnico. Atendemos síndicos, engenheiros e reformas prediais.",
+    desc: "Obra com cronograma, memorial descritivo e relatório da execução. Atendemos síndicos, engenheiros e reformas prediais.",
   },
 ];
 
@@ -86,7 +92,7 @@ export const FAQ = [
   },
   {
     p: "Atendem condomínio e construtora?",
-    r: "Sim. Trabalhamos com síndicos, engenheiros e construtoras com cronograma, ART e laudo técnico.",
+    r: "Sim. Trabalhamos com síndicos, engenheiros e construtoras com cronograma, memorial descritivo e relatório fotográfico.",
   },
   {
     p: "Quais cidades vocês atendem?",
@@ -143,13 +149,12 @@ export const METODO = [
   ["Diagnóstico técnico", "Visita ao local, identificação da causa e medição da área. Sem custo."],
   ["Especificação do sistema", "Memorial com sistema indicado, quantitativo por m², prazo e garantia por escrito."],
   ["Execução controlada", "Equipe própria, etapa a etapa, com registro fotográfico e cronograma alinhado à obra."],
-  ["Entrega com garantia", "Teste de estanqueidade, laudo, termo de garantia em PDF e acompanhamento pós-obra."],
+  ["Entrega com garantia", "Teste de estanqueidade, relatório, termo de garantia em PDF e acompanhamento pós-obra."],
 ] as const;
 
 export const ENTREGAVEIS = [
   "Memorial descritivo do sistema",
   "Orçamento por m² com prazo",
-  "ART quando exigida",
   "Relatório fotográfico da execução",
   "Teste de estanqueidade documentado",
   "Termo de garantia em PDF",
@@ -157,8 +162,8 @@ export const ENTREGAVEIS = [
 
 export const FAQ_OBRA = [
   {
-    p: "Atendem construtora com cronograma e ART?",
-    r: "Sim. Trabalhamos com construtoras, incorporadoras e condomínios com cronograma alinhado à obra, memorial descritivo, ART quando exigida e laudo ao final.",
+    p: "Atendem construtora com cronograma?",
+    r: "Sim. Trabalhamos com construtoras, incorporadoras e condomínios com cronograma alinhado à obra, memorial descritivo e relatório fotográfico ao final.",
   },
   {
     p: "Como é feito o orçamento?",

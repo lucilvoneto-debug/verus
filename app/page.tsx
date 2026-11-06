@@ -8,7 +8,7 @@ import {
   Layers, ArrowRight, LogIn, FileText, Home as HomeIcon,
 } from "lucide-react";
 import {
-  APLICACOES, AREAS, CAMADAS, EMPRESA, ENTREGAVEIS, FAQ_OBRA, METODO, PUBLICOS, SISTEMAS,
+  APLICACOES, AREAS, CAMADAS, EMPRESA, ENTREGAVEIS, FAQ_OBRA, METODO, PARCEIRAS, PUBLICOS, SISTEMAS,
 } from "@/lib/site/empresa";
 import { paginaPorAplicacao } from "@/lib/site/paginas-servico";
 import { Rastreio } from "@/components/site/Rastreio";
@@ -138,7 +138,7 @@ export default function Home() {
             <ul className="mt-9 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-verus-muted">
               <li className="flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-verus-green shrink-0" /> Garantia em contrato</li>
               <li className="flex items-center gap-2"><FlaskConical className="w-5 h-5 text-verus-green shrink-0" /> Teste de estanqueidade</li>
-              <li className="flex items-center gap-2"><ClipboardCheck className="w-5 h-5 text-verus-green shrink-0" /> Memorial e laudo</li>
+              <li className="flex items-center gap-2"><ClipboardCheck className="w-5 h-5 text-verus-green shrink-0" /> Memorial e relatório</li>
               <li className="flex items-center gap-2"><CalendarClock className="w-5 h-5 text-verus-green shrink-0" /> Cronograma da obra</li>
             </ul>
           </div>
@@ -176,7 +176,7 @@ export default function Home() {
               "Sistema escolhido pelo substrato, não por catálogo",
               "Detalhes críticos resolvidos: ralo, soleira, rodapé, junta e passagem de tubulação",
               "Cada área testada antes de liberar a próxima etapa",
-              "Registro fotográfico e laudo para o seu dossiê da obra",
+              "Registro fotográfico para o seu dossiê da obra",
             ].map((s) => (
               <li key={s} className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-verus-green mt-0.5 shrink-0" /> {s}</li>
             ))}
@@ -337,6 +337,11 @@ export default function Home() {
             <p className="mt-2">{EMPRESA.razao} · CNPJ {EMPRESA.cnpj}</p>
             <p><a href={`tel:+${EMPRESA.telefone}`} className="hover:text-verus-green">{EMPRESA.telefoneFormatado}</a> · <a href={`mailto:${EMPRESA.email}`} className="hover:text-verus-green">{EMPRESA.email}</a></p>
             <a href={EMPRESA.instagram} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 mt-2 hover:text-verus-green"><Instagram className="w-4 h-4" /> @verusimpermeabilizacoes</a>
+            <p className="mt-3">Empresas parceiras em Maceió:{" "}
+              {PARCEIRAS.map((p, i) => (
+                <span key={p.url}>{i > 0 && " · "}<a href={p.url} className="hover:text-verus-green underline underline-offset-2">{p.nome}</a> ({p.oQue})</span>
+              ))}
+            </p>
           </div>
           <div className="flex gap-5">
             <Link href="/portal/login" className="hover:text-verus-green">Área do cliente</Link>
