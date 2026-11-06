@@ -10,6 +10,7 @@ import {
 import {
   APLICACOES, AREAS, CAMADAS, EMPRESA, ENTREGAVEIS, FAQ_OBRA, METODO, PUBLICOS, SISTEMAS,
 } from "@/lib/site/empresa";
+import { paginaPorAplicacao } from "@/lib/site/paginas-servico";
 import { Rastreio } from "@/components/site/Rastreio";
 import { BarraMobile, WhatsAppCta } from "@/components/site/WhatsAppCta";
 import { LeadForm } from "@/components/site/LeadForm";
@@ -201,6 +202,11 @@ export default function Home() {
                 <Layers className="w-6 h-6 text-verus-green" />
                 <h3 className="font-sora text-lg font-semibold mt-4">{s.titulo}</h3>
                 <p className="text-sm text-verus-muted mt-2 leading-relaxed">{s.desc}</p>
+                {paginaPorAplicacao(s.titulo) && (
+                  <Link href={`/impermeabilizacao/${paginaPorAplicacao(s.titulo)!.slug}`} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-verus-green hover:underline underline-offset-2">
+                    Ver detalhes <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
               </div>
             ))}
           </div>
