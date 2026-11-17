@@ -76,33 +76,6 @@ export const ETAPAS = [
   ["Garantia e pós-venda", "Termo de garantia em PDF e acompanhamento depois da obra."],
 ] as const;
 
-export const FAQ = [
-  {
-    p: "Quanto custa impermeabilizar uma laje em Maceió?",
-    r: "Depende do sistema e da área. O orçamento é por m² e sai depois da visita técnica, sem custo, com o sistema certo pro seu caso. Você não paga pela visita.",
-  },
-  {
-    p: "Como sei se é infiltração ou só umidade?",
-    r: "Mancha que cresce depois da chuva, bolha na tinta, cheiro de mofo e goteira são sinais de infiltração. Na visita a gente identifica a origem antes de propor qualquer serviço.",
-  },
-  {
-    p: "Vocês dão garantia?",
-    r: "Sim. A garantia vai por escrito no contrato e você recebe o termo de garantia em PDF ao final da obra.",
-  },
-  {
-    p: "Precisa quebrar o piso?",
-    r: "Nem sempre. Em laje e cobertura a aplicação costuma ser sobre a superfície preparada. Em área molhada já pronta, avaliamos o menor caminho na visita.",
-  },
-  {
-    p: "Atendem condomínio e construtora?",
-    r: "Sim. Trabalhamos com síndicos, engenheiros e construtoras com cronograma, memorial descritivo e relatório fotográfico.",
-  },
-  {
-    p: "Quais cidades vocês atendem?",
-    r: `Maceió e região: ${AREAS.slice(0, 8).join(", ")} e mais ${AREAS.length - 8} cidades de Alagoas.`,
-  },
-];
-
 /* ── Landing para construção civil (construtora primeiro) ─────────────────── */
 
 export const PUBLICOS = [
@@ -163,33 +136,4 @@ export const ENTREGAVEIS = [
   "Termo de garantia em PDF",
 ] as const;
 
-export const FAQ_OBRA = [
-  {
-    p: "Atendem construtora com cronograma?",
-    r: "Sim. Trabalhamos com construtoras, incorporadoras e condomínios com cronograma alinhado à obra, memorial descritivo e relatório fotográfico ao final.",
-  },
-  {
-    p: "Como é feito o orçamento?",
-    r: "Por m², depois da visita técnica. A proposta traz o sistema indicado para cada área, quantitativo, prazo de execução e garantia por escrito. A visita não tem custo.",
-  },
-  {
-    p: "Qual sistema vocês usam?",
-    r: "O que o substrato pede: manta asfáltica, poliureia, cimentício, poliuretano, membrana acrílica ou hidrofugante. Não existe produto único — existe diagnóstico, sistema adequado e aplicação bem feita.",
-  },
-  {
-    p: "Como sei que ficou estanque?",
-    r: "Toda área é testada antes de ser liberada: lâmina d'água em laje e área molhada, enchimento em reservatório e piscina. O teste vai documentado no relatório.",
-  },
-  {
-    p: "Vocês dão garantia?",
-    r: "Sim. A garantia vai por escrito no contrato e você recebe o termo de garantia em PDF ao final da obra, com acompanhamento pós-entrega.",
-  },
-  {
-    p: "Atendem casa e apartamento?",
-    r: "Sim. Infiltração em laje, piscina, varanda ou parede de imóvel residencial também é atendida com visita técnica sem custo.",
-  },
-  {
-    p: "Quais cidades vocês atendem?",
-    r: `Maceió e região: ${AREAS.slice(0, 8).join(", ")} e mais ${AREAS.length - 8} cidades de Alagoas.`,
-  },
-];
+/* Perguntas e respostas do site: lib/site/perguntas.ts */

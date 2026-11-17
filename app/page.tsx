@@ -8,9 +8,11 @@ import {
   Layers, ArrowRight, LogIn, FileText, Home as HomeIcon,
 } from "lucide-react";
 import {
-  APLICACOES, AREAS, CAMADAS, EMPRESA, ENTREGAVEIS, FAQ_OBRA, METODO, PARCEIRAS, PUBLICOS, SISTEMAS,
+  APLICACOES, AREAS, CAMADAS, EMPRESA, ENTREGAVEIS, METODO, PARCEIRAS, PUBLICOS, SISTEMAS,
 } from "@/lib/site/empresa";
 import { paginaPorAplicacao } from "@/lib/site/paginas-servico";
+import { FAQ_HOME, REVISADO_EM, faqPageJsonLd } from "@/lib/site/perguntas";
+import { empresaJsonLd, siteJsonLd } from "@/lib/site/dados-estruturados";
 import { Rastreio } from "@/components/site/Rastreio";
 import { BarraMobile, WhatsAppCta } from "@/components/site/WhatsAppCta";
 import { LeadForm } from "@/components/site/LeadForm";
@@ -42,34 +44,9 @@ const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 const MSG_OBRA = "Olá! Sou de uma obra/construtora e quero um orçamento de impermeabilização.";
 
-const jsonLd = [
-  {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: EMPRESA.nome,
-    legalName: EMPRESA.razao,
-    taxID: EMPRESA.cnpj,
-    telephone: `+${EMPRESA.telefone}`,
-    email: EMPRESA.email,
-    url: EMPRESA.site,
-    image: `${EMPRESA.site}/site/logo.jpg`,
-    sameAs: [EMPRESA.instagram, EMPRESA.googleMaps],
-    hasMap: EMPRESA.googleMaps,
-    areaServed: AREAS.map((a) => ({ "@type": "City", name: a })),
-    address: { "@type": "PostalAddress", addressLocality: EMPRESA.cidade, addressRegion: EMPRESA.uf, addressCountry: "BR" },
-    openingHoursSpecification: [
-      { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "08:00", closes: "17:00" },
-      { "@type": "OpeningHoursSpecification", dayOfWeek: "Saturday", opens: "08:00", closes: "12:00" },
-    ],
-    priceRange: "$$",
-    makesOffer: APLICACOES.map((s) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: `Impermeabilização de ${s.titulo.toLowerCase()}` } })),
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: FAQ_OBRA.map((f) => ({ "@type": "Question", name: f.p, acceptedAnswer: { "@type": "Answer", text: f.r } })),
-  },
-];
+const jsonLd = [empresaJsonLd, siteJsonLd, faqPageJsonLd(FAQ_HOME, `${EMPRESA.site}/`)];
+
+const revisadoEm = REVISADO_EM.split("-").reverse().join("/");
 
 const Titulo = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <h2 className={`font-sora text-3xl md:text-4xl font-bold leading-tight text-verus-text ${className}`}>{children}</h2>
@@ -129,8 +106,9 @@ export default function Home() {
               Verus protege sua obra contra infiltrações.
             </h1>
             <p className="mt-5 text-lg text-verus-muted max-w-xl">
-              Especificação, execução e garantia de impermeabilização para lajes, fundações, reservatórios e áreas molhadas.
-              Para construtora, condomínio e indústria — com teste de estanqueidade e termo de garantia por escrito.
+              A {EMPRESA.nome} faz especificação, execução e garantia de impermeabilização em {EMPRESA.cidade} e Alagoas,
+              para lajes, fundações, reservatórios e áreas molhadas. Para construtora, condomínio e indústria — com teste de
+              estanqueidade e termo de garantia por escrito.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <WhatsAppCta texto="Pedir orçamento no WhatsApp" mensagem={MSG_OBRA} />
@@ -299,8 +277,11 @@ export default function Home() {
       {/* FAQ */}
       <section id="duvidas" className="mx-auto max-w-3xl px-4 py-12 md:py-16">
         <Rotulo>Dúvidas frequentes</Rotulo>
-        <Titulo className="mt-2">Antes de fechar, o que engenheiro e síndico perguntam.</Titulo>
-        <div className="mt-7"><Faq itens={FAQ_OBRA} tema="escuro" /></div>
+        <Titulo className="mt-2">Perguntas frequentes sobre impermeabilização em Maceió.</Titulo>
+        <div className="mt-7"><Faq itens={FAQ_HOME} tema="escuro" /></div>
+        <p className="mt-4 text-xs text-verus-muted">
+          Respostas revisadas em <time dateTime={REVISADO_EM}>{revisadoEm}</time>. Preço e prazo saem na proposta, depois da visita técnica.
+        </p>
       </section>
 
       {/* Contato */}

@@ -6,6 +6,8 @@ import { Sora, Manrope } from "next/font/google";
 import { ArrowRight, CalendarClock, CheckCircle2, FileText, Layers, LogIn, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { AREAS, CAMADAS, EMPRESA, ENTREGAVEIS, PARCEIRAS } from "@/lib/site/empresa";
 import { PAGINAS_SERVICO, descricaoSistema, paginaPorSlug } from "@/lib/site/paginas-servico";
+import { faqPageJsonLd } from "@/lib/site/perguntas";
+import { areaServedJsonLd, empresaRefJsonLd } from "@/lib/site/dados-estruturados";
 import { Rastreio } from "@/components/site/Rastreio";
 import { BarraMobile, WhatsAppCta } from "@/components/site/WhatsAppCta";
 import { LeadForm } from "@/components/site/LeadForm";
@@ -62,15 +64,8 @@ export default function PaginaServico({ params }: { params: { slug: string } }) 
       serviceType: pagina.nome,
       description: pagina.descricao,
       url,
-      provider: {
-        "@type": "LocalBusiness",
-        name: EMPRESA.nome,
-        url: EMPRESA.site,
-        telephone: `+${EMPRESA.telefone}`,
-        sameAs: [EMPRESA.instagram, EMPRESA.googleMaps],
-        address: { "@type": "PostalAddress", addressLocality: EMPRESA.cidade, addressRegion: EMPRESA.uf, addressCountry: "BR" },
-      },
-      areaServed: AREAS.map((a) => ({ "@type": "City", name: a })),
+      provider: empresaRefJsonLd,
+      areaServed: areaServedJsonLd,
     },
     {
       "@context": "https://schema.org",
@@ -80,11 +75,7 @@ export default function PaginaServico({ params }: { params: { slug: string } }) 
         { "@type": "ListItem", position: 2, name: pagina.nome, item: url },
       ],
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: pagina.faq.map((f) => ({ "@type": "Question", name: f.p, acceptedAnswer: { "@type": "Answer", text: f.r } })),
-    },
+    faqPageJsonLd(pagina.faq, url),
   ];
 
   return (
@@ -123,7 +114,7 @@ export default function PaginaServico({ params }: { params: { slug: string } }) 
             <h1 className="font-sora text-4xl md:text-5xl font-extrabold leading-[1.08] tracking-tight mt-4">
               {pagina.nome} <span className="text-verus-green">em Maceió</span>
             </h1>
-            <p className="mt-5 text-lg text-verus-muted max-w-xl">{pagina.intro}</p>
+            <p className="mt-5 text-lg text-verus-muted max-w-xl">{pagina.oQueE} {pagina.intro}</p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <WhatsAppCta texto="Pedir orçamento no WhatsApp" mensagem={pagina.mensagem} />
               <a href="#orcamento" className="inline-flex items-center justify-center gap-2 rounded border border-verus-line px-5 py-3 font-semibold hover:border-verus-muted transition-colors">
