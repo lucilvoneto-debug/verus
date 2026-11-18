@@ -55,7 +55,8 @@ export default function PaginaServico({ params }: { params: { slug: string } }) 
   if (!pagina) notFound();
 
   const url = `${EMPRESA.site}/impermeabilizacao/${pagina.slug}`;
-  const outras = PAGINAS_SERVICO.filter((p) => p.slug !== pagina.slug);
+  const relacionados = pagina.relacionados.flatMap((slug) => paginaPorSlug(slug) ?? []);
+  const etapas = pagina.processo?.etapas ?? CAMADAS;
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -157,9 +158,9 @@ export default function PaginaServico({ params }: { params: { slug: string } }) 
         <section className="mx-auto max-w-6xl px-4 py-14 md:py-20 grid lg:grid-cols-[1fr_1.2fr] gap-10">
           <div>
             <Rotulo>Como fazemos</Rotulo>
-            <Titulo className="mt-2">Camada por camada, conferida antes da próxima.</Titulo>
+            <Titulo className="mt-2">{pagina.processo?.titulo ?? "Camada por camada, conferida antes da próxima."}</Titulo>
             <ol className="mt-8 space-y-4">
-              {CAMADAS.map(([t, d], i) => (
+              {etapas.map(([t, d], i) => (
                 <li key={t} className="flex gap-4">
                   <span className="font-sora text-2xl font-bold text-verus-green w-10 shrink-0">0{i + 1}</span>
                   <div>
@@ -234,15 +235,20 @@ export default function PaginaServico({ params }: { params: { slug: string } }) 
         {/* Outros serviços */}
         <section className="border-t border-verus-line/60">
           <div className="mx-auto max-w-6xl px-4 py-12">
-            <Rotulo>Outras aplicações</Rotulo>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-5">
-              {outras.map((o) => (
+            <Rotulo>Serviços relacionados</Rotulo>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+              {relacionados.map((o) => (
                 <Link key={o.slug} href={`/impermeabilizacao/${o.slug}`} className="rounded-lg border border-verus-line bg-verus-card p-4 hover:border-verus-green/60 transition-colors">
                   <Layers className="w-5 h-5 text-verus-green" />
-                  <p className="font-semibold mt-3 text-sm">{o.aplicacao}</p>
+                  <p className="font-semibold mt-3 text-sm">{o.nome}</p>
                   <p className="text-xs text-verus-green mt-2 inline-flex items-center gap-1">Ver serviço <ArrowRight className="w-3 h-3" /></p>
                 </Link>
               ))}
+              <Link href="/#aplicacoes" className="rounded-lg border border-verus-line bg-verus-card/40 p-4 hover:border-verus-green/60 transition-colors">
+                <ShieldCheck className="w-5 h-5 text-verus-green" />
+                <p className="font-semibold mt-3 text-sm">Todos os serviços da {EMPRESA.nome}</p>
+                <p className="text-xs text-verus-green mt-2 inline-flex items-center gap-1">Ir para a página inicial <ArrowRight className="w-3 h-3" /></p>
+              </Link>
             </div>
             <p className="mt-8 text-sm text-verus-muted">
               {pagina.nome} em {AREAS.join(", ")}.

@@ -10,7 +10,7 @@ import {
 import {
   APLICACOES, AREAS, CAMADAS, EMPRESA, ENTREGAVEIS, METODO, PARCEIRAS, PUBLICOS, SISTEMAS,
 } from "@/lib/site/empresa";
-import { paginaPorAplicacao } from "@/lib/site/paginas-servico";
+import { PAGINAS_SERVICO, paginaPorAplicacao } from "@/lib/site/paginas-servico";
 import { FAQ_HOME, REVISADO_EM, faqPageJsonLd } from "@/lib/site/perguntas";
 import { empresaJsonLd, siteJsonLd } from "@/lib/site/dados-estruturados";
 import { Rastreio } from "@/components/site/Rastreio";
@@ -99,11 +99,14 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-verus-bg/40 via-verus-bg/80 to-verus-bg" />
         <div className="relative mx-auto max-w-6xl px-4 pt-14 pb-12 md:pt-24 md:pb-20 grid lg:grid-cols-[1.15fr_1fr] gap-10 items-start">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-verus-line bg-verus-card/70 px-3 py-1 text-xs font-medium text-verus-muted">
-              <ShieldCheck className="w-3.5 h-3.5 text-verus-green" /> Impermeabilização para construção civil · Maceió e Alagoas
-            </span>
-            <h1 className="font-sora text-4xl md:text-6xl font-extrabold leading-[1.05] tracking-tight mt-5">
-              Verus protege sua obra contra infiltrações.
+            {/* A etiqueta faz parte do H1 (o slogan sozinho não diz "impermeabilização" nem "Maceió"); visual igual. */}
+            <h1>
+              <span className="inline-flex items-center gap-2 rounded-full border border-verus-line bg-verus-card/70 px-3 py-1 text-xs font-medium text-verus-muted">
+                <ShieldCheck className="w-3.5 h-3.5 text-verus-green" /> Impermeabilização para construção civil · Maceió e Alagoas
+              </span>{" "}
+              <span className="block font-sora text-4xl md:text-6xl font-extrabold leading-[1.05] tracking-tight mt-5">
+                Verus protege sua obra contra infiltrações.
+              </span>
             </h1>
             <p className="mt-5 text-lg text-verus-muted max-w-xl">
               A {EMPRESA.nome} faz especificação, execução e garantia de impermeabilização em {EMPRESA.cidade} e Alagoas,
@@ -327,7 +330,15 @@ export default function Home() {
               ))}
             </p>
           </div>
-          <div className="flex gap-5">
+          <nav aria-label="Serviços de impermeabilização">
+            <p className="font-sora font-semibold text-verus-text">Serviços de impermeabilização</p>
+            <ul className="mt-2 space-y-1">
+              {PAGINAS_SERVICO.map((p) => (
+                <li key={p.slug}><Link href={`/impermeabilizacao/${p.slug}`} title={p.nome} className="hover:text-verus-green">{p.aplicacao}</Link></li>
+              ))}
+            </ul>
+          </nav>
+          <div className="flex gap-5 shrink-0 whitespace-nowrap">
             <Link href="/portal/login" className="hover:text-verus-green">Área do cliente</Link>
             <Link href="/login" className="inline-flex items-center gap-1 hover:text-verus-green"><LogIn className="w-4 h-4" /> Entrar no sistema</Link>
           </div>
