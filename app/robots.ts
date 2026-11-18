@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 import { EMPRESA } from "@/lib/site/empresa";
 
-/** Rotas do sistema (ERP, portal, login): fora de qualquer robô. */
-const ROTAS_DO_SISTEMA = ["/dashboard", "/api", "/portal", "/campo", "/login", "/entrar"];
+/** Rotas do sistema (ERP, portal, login) e páginas de cliente por token: fora de qualquer robô. */
+const ROTAS_DO_SISTEMA = ["/dashboard", "/api", "/portal", "/campo", "/login", "/entrar", "/obra/", "/proposta/"];
 
 /**
  * Robôs de busca que citam o site nas respostas (Google/AI Overviews, Bing/Copilot,

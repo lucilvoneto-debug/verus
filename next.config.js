@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Páginas de cliente por token e área do cliente: fora de qualquer índice de busca,
+  // mesmo que alguém publique o link. Não muda o funcionamento das páginas.
+  async headers() {
+    const naoIndexar = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
+    return ["/obra/:path*", "/proposta/:path*", "/entrar/:path*", "/portal/:path*", "/api/obra/:path*", "/api/proposta/:path*"].map(
+      (source) => ({ source, headers: naoIndexar }),
+    );
+  },
   // Links curtos pra bio das redes. O "/" lê os utm_* (components/site/Rastreio.tsx)
   // e o botão de WhatsApp manda "(ref: instagram/bio)" — o CRM marca a origem.
   async redirects() {
