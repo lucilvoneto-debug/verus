@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 import { EMPRESA } from "@/lib/site/empresa";
 
-/** Rotas do sistema (ERP, portal, login) e páginas de cliente por token: fora de qualquer robô. */
-const ROTAS_DO_SISTEMA = ["/dashboard", "/api", "/portal", "/campo", "/login", "/entrar", "/obra/", "/proposta/"];
+/** Rotas do sistema (ERP, portal, login): fora de qualquer robô. Páginas de cliente por token (/obra, /proposta) NÃO entram aqui: o noindex delas vai por cabeçalho e o Google precisa conseguir ler a página pra respeitar. */
+const ROTAS_DO_SISTEMA = ["/dashboard", "/api", "/portal", "/campo", "/login", "/entrar"];
 
 /**
  * Robôs de busca que citam o site nas respostas (Google/AI Overviews, Bing/Copilot,
