@@ -1,7 +1,7 @@
 /**
  * Finaliza o Embedded Signup (coexistência): troca o `code` do popup da Meta
- * por um token, guarda o token/WABA/número em Configuracao, cria a linha e
- * inscreve o app nos webhooks da WABA nova. POST {code, signup}.
+ * por um token, guarda o token/WABA/número em Configuracao, faz as mensagens
+ * do número chegarem neste sistema e cria a linha. POST {code, signup}.
  */
 export const dynamic = "force-dynamic";
 
@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
-  CFG_KEYS, GRAPH_BASE, graphGet, gravarConfig, inscreverWebhookWaba, metaAppId, normalizarTelefoneBR,
+  CFG_KEYS, GRAPH_BASE, garantirEntregaPropria, graphGet, gravarConfig, metaAppId, normalizarTelefoneBR,
 } from "@/lib/whatsapp/meta";
 
 export async function POST(req: NextRequest) {
@@ -52,6 +52,19 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Primeira coisa depois do token: mandar as mensagens deste número para cá.
+  // O aplicativo da Meta é dividido com outro sistema; sem isto a conversa
+  // cairia no endereço padrão do aplicativo (ver garantirEntregaPropria).
+  let webhookOk = false;
+  let webhookMotivo: string | undefined;
+  if (!tokenOk && !process.env.META_ACCESS_TOKEN) webhookMotivo = "sem token da Meta";
+  else if (!wabaId || !phoneNumberId) webhookMotivo = "o popup da Meta não devolveu a conta ou o número";
+  else {
+    const r = await garantirEntregaPropria(wabaId, phoneNumberId);
+    webhookOk = r.ok;
+    webhookMotivo = r.motivo;
+  }
+
   if (wabaId) await gravarConfig(CFG_KEYS.wabaId, wabaId, "WABA (WhatsApp Business Account)");
   if (businessId) await gravarConfig(CFG_KEYS.businessId, businessId, "Business ID da Meta");
 
@@ -83,13 +96,11 @@ export async function POST(req: NextRequest) {
     if (total === 0) await gravarConfig(CFG_KEYS.phoneNumberId, phoneNumberId, "Número padrão (phone_number_id)");
   }
 
-  let webhookOk = false;
-  if (wabaId) webhookOk = await inscreverWebhookWaba(wabaId);
-
   return NextResponse.json({
     ok: tokenOk,
     error: tokenOk ? undefined : erro,
     signup: { waba_id: wabaId, phone_number_id: phoneNumberId, business_id: businessId },
     webhookOk,
+    webhookMotivo: webhookOk ? undefined : webhookMotivo,
   });
 }

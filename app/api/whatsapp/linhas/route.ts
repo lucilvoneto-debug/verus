@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { CFG_KEYS, graphGet, inscreverWebhookWaba, lerConfig, metaToken, normalizarTelefoneBR } from "@/lib/whatsapp/meta";
+import { CFG_KEYS, entregaChegaAqui, graphGet, lerConfig, metaToken, normalizarTelefoneBR } from "@/lib/whatsapp/meta";
 
 const META_BUSINESS_ID_ENV = process.env.META_BUSINESS_ID;
 
@@ -50,13 +50,19 @@ export async function GET() {
         } catch { /* token do ES não enxerga o portfólio inteiro — normal */ }
       }
     }
+    // Só leitura: listar não inscreve nada na Meta. A conta pode ter números
+    // de outro sistema; quem liga a entrega é o cadastro do número (es-exchange).
+    const nossas = new Set(linhas.map((l) => l.phoneNumberId));
     for (const [wid, wnome] of wabas) {
-      const webhookOk = await inscreverWebhookWaba(wid);
       try {
         const d = await graphGet<{ data?: any[] }>(
           `${wid}/phone_numbers?fields=id,display_phone_number,verified_name,status,platform_type,quality_rating&limit=50`,
         );
-        for (const p of d?.data ?? []) fones.push({ ...p, id: String(p.id), wabaId: wid, wabaNome: wnome, webhookOk });
+        for (const p of d?.data ?? []) {
+          const id = String(p.id);
+          const webhookOk = nossas.has(id) ? await entregaChegaAqui(id) : false;
+          fones.push({ ...p, id, wabaId: wid, wabaNome: wnome, webhookOk });
+        }
       } catch (e) {
         avisos.push(`WABA ${wnome}: ${e instanceof Error ? e.message : e}`);
       }

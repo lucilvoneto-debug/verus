@@ -124,7 +124,11 @@ export default function WhatsAppConexaoPage() {
         body: JSON.stringify({ code: codeRef.current, signup }),
       });
       const d = await r.json();
-      log(d.ok ? `token trocado ✓ · webhook ${d.webhookOk ? "inscrito" : "pendente"}` : `troca falhou: ${d.error ?? "?"}`);
+      log(
+        d.ok
+          ? `token trocado ✓ · ${d.webhookOk ? "as mensagens chegam neste sistema ✓" : `as mensagens AINDA NÃO chegam aqui: ${d.webhookMotivo ?? "motivo não informado"}`}`
+          : `troca falhou: ${d.error ?? "?"}`,
+      );
     } catch (e) {
       log(`troca falhou: ${e instanceof Error ? e.message : e}`);
     } finally {
