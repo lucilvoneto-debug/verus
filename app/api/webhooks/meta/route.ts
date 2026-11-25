@@ -22,6 +22,7 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { graphGet, linhaPorPhoneNumberId, normalizarTelefoneBR, variantesTelefoneBR } from "@/lib/whatsapp/meta";
 import { atribuirPorMensagem, criarLead } from "@/lib/crm/leads";
+import { linhaSoAnuncio, veioDeAnuncio } from "@/lib/whatsapp/so-anuncio";
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
@@ -133,16 +134,29 @@ async function acharOuCriarConversa(
   return { id: nova.id, criada: true, leadId: null };
 }
 
+/** Já existe conversa guardada com esse telefone nessa linha? Só lê, não cria. */
+async function conversaJaExiste(telefone: string, linhaId: string | null): Promise<boolean> {
+  const c = await prisma.conversaWA.findFirst({
+    where: { telefone: { in: variantesTelefoneBR(telefone) }, ...(linhaId ? { linhaId } : {}) },
+    select: { id: true },
+  });
+  return !!c;
+}
+
 // ─── messages: recebidas + status ───────────────────────────────────────────
 
 async function processarMensagens(v: any) {
   const linha = await resolverLinha(v.metadata);
   const contatos: any[] = v.contacts ?? [];
+  // Número que também é pessoal: só entra conversa que chega por anúncio
+  // (e a continuação dela). Ver lib/whatsapp/so-anuncio.ts.
+  const soAnuncio = linhaSoAnuncio(v.metadata?.display_phone_number);
 
   for (const msg of v.messages ?? []) {
     if (msg.group_id) continue; // grupo não é cliente
     const de = normalizarTelefoneBR(msg.from);
     if (!de) continue;
+    if (soAnuncio && !veioDeAnuncio(msg.referral) && !(await conversaJaExiste(de, linha?.id ?? null))) continue;
     const contato = contatos.find((c) => normalizarTelefoneBR(c.wa_id) === de);
     const nome: string | null = contato?.profile?.name ?? null;
     const texto = extrairTexto(msg);
@@ -215,9 +229,12 @@ async function processarMensagens(v: any) {
 
 async function processarEchoes(v: any) {
   const linha = await resolverLinha(v.metadata);
+  const soAnuncio = linhaSoAnuncio(v.metadata?.display_phone_number);
   for (const msg of v.message_echoes ?? []) {
     const para = normalizarTelefoneBR(msg.to);
     if (!para || !msg.id) continue;
+    // Resposta do celular só é guardada se a conversa já entrou por anúncio.
+    if (soAnuncio && !(await conversaJaExiste(para, linha?.id ?? null))) continue;
     const texto = extrairTexto(msg);
     const quando = msg.timestamp ? new Date(Number(msg.timestamp) * 1000) : new Date();
     const conversa = await acharOuCriarConversa(para, linha?.id ?? null, null);
@@ -246,6 +263,8 @@ async function processarEchoes(v: any) {
 // ─── history: sincronização de até 6 meses ao conectar ──────────────────────
 
 async function processarHistorico(v: any) {
+  // Número que também é pessoal: o histórico antigo do celular nunca é guardado.
+  if (linhaSoAnuncio(v.metadata?.display_phone_number)) return;
   const linha = await resolverLinha(v.metadata);
   const numeroEmpresa = normalizarTelefoneBR(v.metadata?.display_phone_number);
   for (const bloco of v.history ?? []) {
