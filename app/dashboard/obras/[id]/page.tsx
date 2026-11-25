@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, FileText, Link2, Copy, MessageCircle, Mail } from "lucide-react";
+import { ArrowLeft, FileText, Link2, Copy, MessageCircle, Mail, Box } from "lucide-react";
+import { obra3dDe, urlObra3d } from "@/lib/obras/obra3d";
 import { useObra } from "@/hooks/useObras";
 import { Tabs } from "@/components/ui/Tabs";
 import { Card } from "@/components/ui/Card";
@@ -84,6 +85,8 @@ export default function ObraDetalhePage() {
   if (isLoading) return <div className="text-gray-500">Carregando...</div>;
   if (!obra) return <div className="text-gray-500">Obra não encontrada.</div>;
 
+  const obra3d = obra3dDe(`${obra.nome} ${obra.cliente?.nome ?? ""}`);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -96,6 +99,11 @@ export default function ObraDetalhePage() {
           </h2>
           <p className="text-sm text-gray-500">{obra.cliente.nome}</p>
         </div>
+        {obra3d && (
+          <a href={urlObra3d(obra3d)} target="_blank" rel="noopener noreferrer" className="btn-outline">
+            <Box className="w-4 h-4" /> Obra em 3D
+          </a>
+        )}
         <button onClick={gerarLink} disabled={gerandoLink} className="btn-primary">
           <Link2 className="w-4 h-4" /> {gerandoLink ? "Gerando…" : "Link p/ construtora"}
         </button>
