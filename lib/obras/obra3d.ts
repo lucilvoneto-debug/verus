@@ -3,8 +3,9 @@
  *
  * A página é um arquivo fixo em public/obra3d/<pasta>/index.html: abre sem login, por um
  * endereço difícil de adivinhar, e não aparece em busca. A medição marcada nela fica na
- * tabela Configuracao (chave obra3d.<slug>.medicao) e só entra e sai pela rota
- * /api/obras/obra3d/<slug>/medicao, que exige login como o resto de /api/obras.
+ * tabela Configuracao (chave obra3d.<slug>.medicao). A página grava pela rota aberta
+ * /api/obra/obra3d/<pasta>/medicao: quem tem o endereço da página vê e marca, sem login.
+ * /api/obras/obra3d/<slug>/medicao faz o mesmo com login.
  */
 export type Obra3D = { slug: string; pasta: string; titulo: string; casa: RegExp };
 
@@ -19,6 +20,11 @@ export function obra3dDe(texto: string): Obra3D | null {
 
 export function obra3dPorSlug(slug: string): Obra3D | null {
   return OBRAS_3D.find((o) => o.slug === slug) ?? null;
+}
+
+/** A pasta leva um código no fim: serve de chave do link sem login. */
+export function obra3dPorPasta(pasta: string): Obra3D | null {
+  return OBRAS_3D.find((o) => o.pasta === pasta) ?? null;
 }
 
 export function urlObra3d(o: Obra3D): string {
