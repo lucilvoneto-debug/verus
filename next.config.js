@@ -5,7 +5,7 @@ const nextConfig = {
   // mesmo que alguém publique o link. Não muda o funcionamento das páginas.
   async headers() {
     const naoIndexar = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
-    return ["/obra/:path*", "/proposta/:path*", "/entrar/:path*", "/portal/:path*", "/api/obra/:path*", "/api/proposta/:path*"].map(
+    return ["/obra/:path*", "/obra3d/:path*", "/proposta/:path*", "/entrar/:path*", "/portal/:path*", "/api/obra/:path*", "/api/proposta/:path*"].map(
       (source) => ({ source, headers: naoIndexar }),
     );
   },

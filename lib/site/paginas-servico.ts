@@ -254,8 +254,8 @@ export const PAGINAS_SERVICO: PaginaServico[] = [
   {
     slug: "fachadas-e-juntas",
     aplicacao: "Fachadas e juntas",
-    nome: "Impermeabilização de fachadas e juntas",
-    titulo: "Impermeabilização de fachada e junta de dilatação em Maceió | Verus Impermeabilizações",
+    nome: "Impermeabilização e hidrofugação de fachadas",
+    titulo: "Hidrofugação e impermeabilização de fachada em Maceió | Verus",
     descricao:
       "Tratamento de juntas de dilatação, fissuras e hidrofugação de fachada contra chuva de vento em Maceió e Alagoas.",
     oQueE:
